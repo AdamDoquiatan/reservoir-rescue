@@ -1,4 +1,4 @@
-untracked == new
+untracked == new    1
 modified == changed
 git status 	(see what's staged or unstaged in directory)
 git commit -m	(lock down version of changes)
