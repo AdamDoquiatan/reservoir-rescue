@@ -1,4 +1,4 @@
-why version control?     1
+why version control?     
 synch team collaberation, history, offline/online
 manditory for all projects moving forward
 
