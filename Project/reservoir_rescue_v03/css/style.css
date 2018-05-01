@@ -1,0 +1,47 @@
+body {
+    background: #18c4e2;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+*:focus {
+    outline: none;
+}
+
+#frame {
+    height: 700px;
+}
+
+#title {
+    margin: 50px auto;
+    display: block;
+}
+
+button {
+    margin: 30px auto;
+    width: 275px;
+    height: 70px;
+    background: transparent no-repeat;
+    background-size: 100% 100%;
+    border: none;
+    display: block;
+}
+
+/* Button images */
+#play {
+    background-image: url("../assets/play.png");
+}
+
+#leaderboard {
+    background-image: url("../assets/leaderboard.png");
+}
+
+#tips {
+    background-image: url("../assets/tips.png");
+}
+
+.on {
+    transform: scale(1.1);
+    filter: contrast(130%);
+}
