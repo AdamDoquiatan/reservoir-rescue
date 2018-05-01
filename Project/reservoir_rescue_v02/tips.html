@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Water Tips</title>
+        <meta charset="utf-8">
+        
+        <style type="text/css">
+            
+            body { background-image: url("assets/water_bg.jpg");}
+
+            *:focus {
+                outline: none;
+            }
+            
+            #frame {
+                background-color: #839fb7;
+                width: 60%;
+                float: right;
+                height: 700px;
+                margin: 0 auto;
+                margin-right: 8%;
+                border-radius: 50px;
+                border: 10px solid #e2dcdd;
+            }
+
+            #tips {
+                background-color: #839fb7;
+                width: 20%;
+                float: right;
+                height: 700px;
+                margin: 0 auto;
+                border-radius: 50px;
+                border: 10px solid #e2dcdd;
+            }
+            
+            img {
+                padding-top: 40px;
+                margin: 0 auto;
+                display: block;
+            }
+
+            input {
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                height: 50px;
+                width: 200px;
+                margin-top: 30px;
+                margin-bottom: 30px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            #pTitle {
+                margin-left: 5%;
+                margin-right: auto;
+                margin-top: 100px;
+                margin-bottom: 30px;
+                display: block;
+                font-weight: bold;
+                font-size: 35px;
+            }
+          
+            a {
+              text-decoration: none;
+            
+            }
+
+            #pInfo {
+                margin-left: 5%;
+                margin-right: 5%;
+                margin-top: 30px;
+                margin-bottom: 30px;
+                display: block;
+                font-size: 30px;
+                line-height: 40px;
+            }
+            
+
+        </style>
+    </head>
+    <body>
+        <div id = "frame">
+            <img src ="assets/tips.png" width="600px" height="auto">
+            <div>
+                <p id = "pTitle">Water Tips #1: Turn off the tap while you brush your teeth</p>
+                <p id = "pInfo">Did you know water gushes from the average faucet at 9.4 litres per second? That’s a lot of H2O swirling down your drain there. 
+                    While you’re brushing your teeth with one hand, try turning off the faucet with the other. Save some of that fluoride water for the rest of us.</p>
+            </div>
+        </div>
+        <div id = "tips">
+            <input type = "button" id = "tip1" value = "Water Tip #1" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip2" value = "Water Tip #2" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip3" value = "Water Tip #3" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip4" value = "Water Tip #4" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip5" value = "Water Tip #5" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip6" value = "Water Tip #6" onclick = 'clickTip(this.value)'/>
+            <input type = "button" id = "tip7" value = "Water Tip #7" onclick = 'clickTip(this.value)'/>
+            <a href = "index.html"><input type = "button" id = "back" value = "Back"/></a>
+        </div>
+
+        <script>
+            function clickTip(value) {
+                if (value == "Water Tip #1") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #1: Turn off the tap while you brush your teeth";
+                    document.getElementById('pInfo').innerHTML = "Did you know water gushes from the average faucet at 9.4 litres per second? That’s a lot of H2O swirling down your drain there."
+                    + " While you’re brushing your teeth with one hand, try turning off the faucet with the other. Save some of that fluoride water for the rest of us.";
+                } 
+                
+                else if (value == "Water Tip #2") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #2: Fix your leaky faucets";
+                    document.getElementById('pInfo').innerHTML = "What’s that dripping? Why it’s the sound of 19 litres of water being wasted every day because somebody didn’t fix a leaky faucet (not pointing any fingers). Seriously, people! Fix it yourself or hire a plumber. A racoon plumber!";
+                }
+                
+                else if (value == "Water Tip #3") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #3: Re-use your pasta liquid";
+                    document.getElementById('pInfo').innerHTML = "You know what plants crave? Exactly! That water you just cooked your pasta in – save it, let it cool, and water your plants with it. Just, uh, make sure it’s cooled off first. Like, cold. Otherwise, you can say goodbye to your begonias.";
+                }
+
+                else if (value == "Water Tip #4") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #4: Take shorter showers";
+                    document.getElementById('pInfo').innerHTML = "How long does it take to have a shower? I mean, what are you people doing in there!? Showers use up 15-19 litres of water per minute, so maybe do your daydreaming somewhere else.";
+                }
+
+                else if (value == "Water Tip #5") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #5: Don’t water your lawn";
+                    document.getElementById('pInfo').innerHTML = "Did you know that most lawns are overwatered? People are dumping as much as 340 litres per square foot per year on that thankless green patch in front of their houses. Just let it go brown! I mean what did that grass ever do for you?";
+                }
+
+                else if (value == "Water Tip #6") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #6: Use less electricity";
+                    document.getElementById('pInfo').innerHTML = "You know what uses a lot of water? Power plants and hydro-electric dams! If you want to save water on the sly, using less electricity might just be the way to do it.";
+                }
+
+                else if (value == "Water Tip #7") {
+                    document.getElementById("pTitle").innerHTML = "Water Tips #7: Eat Less Meat";
+                    document.getElementById('pInfo').innerHTML = "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!";
+                }
+
+            }
+        </script>
+        
+
+        
+    </body>
+</html>

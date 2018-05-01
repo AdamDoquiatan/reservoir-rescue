@@ -1,0 +1,9 @@
+CREATE TABLE leaderboard (
+  ID int NOT NULL AUTO_INCREMENT,
+  player_name VARCHAR(50), # max chars
+  score INT(9),
+  PRIMARY KEY (ID)
+);
+
+
+
