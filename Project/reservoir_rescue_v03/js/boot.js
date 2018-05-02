@@ -1,6 +1,10 @@
 var bootState = {
   create: function () {
-    // Sets a physics engine
+    //Centers the game screen
+    this.scale.pageAlignHorizontally = true;
+    this.scale.pageAlignVertically = true;
+
+    // Sets physics engine
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //Begins load state
