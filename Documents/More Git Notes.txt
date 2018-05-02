@@ -1,0 +1,49 @@
+why version control?     
+synch team collaberation, history, offline/online
+manditory for all projects moving forward
+
+git, command-line tool, path
+
+git init
+.git folder -- hidden -- never delete
+You can move the folder containing the .git folder whereever you want and it will still be a tracked folder
+
+
+Untracked --> 	staged--> 	committed-----> || ------- remote repo server
+(local dir)	(stage/index) 	(local repo)
+
+git add filename
+git add . everything (good for all situations)
+git add -u(tracked)
+
+git commit -m "message"
+	will generate 40 char unique code/hash/tag
+	username/email will be attached.
+
+git help (for help!
+git clone url (git sets origin to be equal to url)
+git remote add origin <url> (add 
+git push URL (if no URL it will assume origin)
+git add URL (track an additional URL)
+git push origin
+
+not working?
+dir not clean	
+no write permission (collab)
+out of date, pull, fix merges (talk with people, human intervention), stage, commit, push again
+Check progitbook.com/git book (or whatever)
+
+Pull: fetch/merge
+Merge doesn't delete any line
+<<<<<<<<<
+others
+========
+yours
+>>>>>>>>>
+
+.gitignore
+File (text) that contains a list of files to exclude from your repo
+compiler generated files (.class, .obj, .o)
+to sae spacem and for machine independance
+OS specific hidden files (.DS_Store? .html.???.swn?)
+

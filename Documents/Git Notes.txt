@@ -1,0 +1,177 @@
+untracked == new    1
+modified == changed
+git status 	(see what's staged or unstaged in directory)
+git commit -m	(lock down version of changes)
+git log		(view commit history)
+git add		(add files to the stage) (because when you change them they fall off the stage and need to be restaged before you can commit them)
+git clone URL	(get all the files on someone elses repository)
+git init 	(initialize a new project/tell git to track it as a repository)
+git push 	(write) (to a repsotory ... on github)
+git pull 	(read(?)) (from a repsotory ... on github(?))
+git pull --allow-unrelated-histories (allows you to merge unrelated histories)
+
+git blame 	(See who changed what files)
+git dif 	(compares two different files)
+git show head 	(shows reference to the currently checked out commit)
+			(go back in time)
+
+git remote set-url origin <git repository URL> (Set the location of your github repository)
+git remote -v (check for your specific github repository location)
+git remote show origin (What are the URLs that we're pushing and pulling from when when use git push or git pull)
+git push origin master (send it to github)
+
+
+git add -A && git commit -m "Your Message" (commit all files, new or modified)
+git push -f origin <branch (master)> (force a push to github (may result in data loss!)
+
+If .gitignore doesn't work... (First commit your current changes, or you'll lose them!
+git rm -r --chached . (Untracks all files
+git add . (Adds all your files back, sans the ones gitignore ignores)
+git commit -m "fixed untracked files" (commit it!)
+git push origin master (send it to github)
+
+every time you commit you get a 40 char string attched to your commit
+This info is in your .git folder
+github hosts projects
+
+Working Directory --> Staging Area --> Repository --> Working Directory
+
+Versions are the same thing as commits
+
+File ".gitignore" -- A text file that contains a list of files you don't
+			want to include in your repo. (things people don't need)
+			Ex.: .class, .o, .DS_Store., hidden files your OS makes.
+
+???
+hosted on github, you collaborate
+clone-->change->push(pull/stage/commit/push)
+edit index.html
+
+-----PART 2-----
+Git (local)
+Gihub (Server)
+
+
+GIT
+Workflow - procedure/protocol/agreement
+in your team about how you will work together
+
+Git flows
+- centralized
+- feature branch workflow
+- gitflow workflow
+- fork/pull-request
+
+"Node" (contributor's location)
+"Hub" (central location AKA github)
+
+New Git commands
+git branch -- See what branches there are
+git branch -- * means what branch you're currently on
+git branch (name of branch to create) -- Creates a new branch
+	Creating a branch means the stuff in you current directory will be copied 
+	to the new branch
+git branch -d (branch to delete) -- deletes a branch
+
+git checkout (the commit code you want)
+	changed the HEAD (a pointer to the last commit of the current branch)
+	or:
+git checkout (name of branch you want)
+git checkout master -- Takes you back to master branchdir
+git checout -b (name of branch to create) -- creates a branch and checkouts into it
+
+git diff (source branch) (target branch)
+
+git merge (branch to merge) -- Merges a branch to the brach you are sitting in (the base).
+	Makes a new file with out of everyone's files, therefor usually results in a commit.
+	Creates a potential merge conflict
+	Edit the file and fix it.
+	
+
+git revert (hash of branch you want (first 8?)) -- UNDO the commit by another commit
+	doesn't erase the previous commit, so you can bring it back again with revert
+
+git reset (hash of branch you want) - permanent undo
+	erases history, use with caution
+	or just only ever use revert
+
+
+
+For open source projects
+	Can use other code as starting code for your own project.
+
+fork (github command/ not git command)
+	Makes a complete copy of an existing repo of someone elses github
+		Fork = From their github to your gitgub
+		Clone = From their github to your local computer
+
+pull-request (github command/ not git command)
+	Issues a request to the owner of the repo to contribute your addition to thier project.
+	If owner accepts your addition or change, they can merge your changes.
+	Git hub gives you chance to talk to owner before they accept
+ 
+merge (local)
+pull-request (on github)
+
+
+must be a collaborator for the following workflows.
+
+Feature-Brach workflow
+there's a master branch
+clone it to local dir
+from master, everyone creates feature branch
+everyone works on thier own branch
+push your feature branch to remote server (github)
+from github, do pull-request of your branch into master
+let someone else accept your pull-request
+after chatting, "merge pull-request"
+	*you can merge your branch into master locally too!
+	push master
+	OK but not as transparant as pull-request 
+
+GitFlow workflow -- Same as feature, but involves a buffer "developer" branch
+there's a Master branch
+also a developer branch (created from master)
+everyone creates feature branch from DEVELOPER (not master)
+everyone works on thier own branch
+push your branch to remote server
+from github, do pull-request of your branch into DEVELOPER
+after chat, "merge pull-request"
+later... from github, someone can pull-request of developer into MASTER for production request.
+	you can merge your branch into develop locally
+	push develop
+	(bypass pull-request)
+
+Centralize workflow
+everyone just works on the master branch
+clone it to local
+make changes
+"git push url ______(nothing)" (pushing master)
+no protection over your master
+	anyone can push what they want
+OK if your team is talking to eachother a lot in person
+sneak in a change/push
+
+fork/pull-request workflow (for open source, generally)
+copies someone else's repo and puts it on you github
+clone what you just forked
+work on it locally
+push to your repo
+issue a pull request to owner that you forked from
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
