@@ -6,7 +6,7 @@
 	$servername = "localhost";
     $dblogin = "reservoi";
     $password = "Rascots37";
-    $dbname = "reservoir";
+    $dbname = "reservoi_reservoir";
 	
 	$data = array("status" => "fail", "msg" => "On $methodType");
 
