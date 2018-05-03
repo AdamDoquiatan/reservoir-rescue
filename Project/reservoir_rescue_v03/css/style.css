@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css?family=Bungee');
 
+/* HTML */
 html {
     margin: 0;
 }
 
+/* Body of the page */
 body {
     background: rgb(144, 173, 255);
     max-width: 320px;
@@ -13,6 +15,7 @@ body {
     font-size: 16px;
 }
 
+/* Header in the content section */
 #content h3 {
     background-color: #beebfc;
     color: rgb(102, 127, 198);
@@ -24,6 +27,7 @@ body {
     margin: 0;
 }
 
+/* Paragraphs */
 p {
     font-size: 14px;
     padding: 0 15px;
@@ -32,23 +36,28 @@ p {
     padding: 20px;
 }
 
+/* Anchors */
 a {
     text-decoration: none;
 }
 
+/* All elements */
 *:focus {
     outline: none;
 }
 
+/* Title */
 #title {
     margin: 20px auto;
     display: block;
 }
 
+/* Buttons */
 button {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
+/* Menu Button */
 #menu button {
     margin: 30px auto;
     width: 275px;
@@ -65,14 +74,17 @@ button {
     background-image: url("../assets/play2.png");
 }
 
+/* Leaderboard images */
 #leaderboard {
     background-image: url("../assets/leaderboard2.png");
 }
 
+/* Tips page images */
 #tips {
     background-image: url("../assets/tips2.png");
 }
 
+/* Changes button size */
 .on {
     transform: scale(1.1);
     filter: contrast(130%);
@@ -83,6 +95,7 @@ header img {
     align-self: center;
 }
 
+/* Header */
 header {
     position: fixed;
     top: 0;
@@ -95,6 +108,7 @@ header {
     z-index: 1;
 }
 
+/* Footer */
 footer {
     position: fixed;
     bottom: 0;
@@ -106,12 +120,14 @@ footer {
     align-items: center;
 }
 
+/* Content ID */
 #content {
     margin-top: 60px;
     margin-bottom: 125px;
     color: #beebfc;
 }
 
+/* Table */
 table {
     width: 100%;
     border: 1px none black;
@@ -120,17 +136,20 @@ table {
     border-collapse: collapse;
 }
 
+/* Table header */
 th {
     padding: 10px;
     background-color: #beebfc;
     color: rgb(102, 127, 198);
 }
 
+/* Table data */
 td {
     height: 50px;
     text-align: center;
 }
 
+/* Back ID */
 #back {
     width: 100px;
     display: block;
@@ -147,15 +166,18 @@ td {
     border: none;
 }
 
+/* Back ID active link */
 #back:active {
     box-shadow: 0px 0px #23A33D;
     background: #23A33D;
 }
 
+/* Hovering the mouse over the back ID */
 #back:hover {
     background-position: 100px;
 }
 
+/* Tip class in the content ID */
 #content .tip {
     width: 80%;
     margin: 0 auto;
