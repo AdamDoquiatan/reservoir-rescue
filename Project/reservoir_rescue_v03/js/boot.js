@@ -10,4 +10,4 @@ var bootState = {
     //Begins load state
     game.state.start('load');
   }
-}
+};
