@@ -4,9 +4,9 @@
     $methodType = $_SERVER['REQUEST_METHOD'];
     
 	$servername = "localhost";
-    $dblogin = "root";
-    $password = "";
-    $dbname = "test";
+    $dblogin = "reservoi";
+    $password = "Rascots37";
+    $dbname = "reservoir";
 	
 	$data = array("status" => "fail", "msg" => "On $methodType");
 
