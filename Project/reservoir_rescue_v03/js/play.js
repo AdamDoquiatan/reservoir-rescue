@@ -5,10 +5,12 @@ var playState = {
     this.title.anchor.setTo(0.5);
     this.title.scale.setTo(2.0);
 
+    // For testing: Turn the obstacle screen on or off.
+    var playObsScreen = true;
+    if (playObsScreen == true) {
     this.obsScreen1();
-
-
-
+    }
+  
   },
 
   update() {
@@ -18,37 +20,53 @@ var playState = {
 
   obsScreen1: function (sprite, event) {
 
+    // Group for screen componenets
     var obsScreen = this.game.add.group();
 
-    this.obsBG = obsScreen.create(this.game.world.centerX, 260, 'obs_screen');
+    // Screen BG
+    this.obsBG = obsScreen.create(this.game.world.centerX, -380, 'obs_screen');
     this.obsBG.anchor.setTo(0.5);
     this.obsBG.scale.setTo(1.3, 2.4);
 
-    this.obsSprink = obsScreen.create(this.game.world.centerX, 150, 'obs_screen_sprink');
+    // Picture of a sprinkler
+    this.obsSprink = obsScreen.create(this.game.world.centerX, -490, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
     this.obsSprink.scale.setTo(0.1, 0.1);
 
+    // Specifies text properties
     var textStyle = { font: 'bold 13pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 290 };
 
-    this.obsTextSprink = game.add.text(this.game.world.centerX, 330, "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute! Better keep our pipes clear!", textStyle);
+    // Obstacle text
+    this.obsTextSprink = game.add.text(this.game.world.centerX, -310, "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute! Better keep our pipes clear!", textStyle);
     this.obsTextSprink.anchor.setTo(0.5);
     obsScreen.add(this.obsTextSprink);
 
-    this.contButton = obsScreen.create(235, 436, 'continueButton');
+    // Continue button
+    this.contButton = obsScreen.create(235, -204, 'continueButton');
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = this.game.add.tween(element);
+      elementTween.to({y: element.position.y + 640}, 700, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    })
+
+    // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
-      console.log("Go away!");
 
       obsScreen.forEach(function (element) {
-        element.position.y += 641;
+        var elementTween = this.game.add.tween(element);
+        elementTween.to({y: element.position.y + 640}, 700, Phaser.Easing.Back.In, true);
+        elementTween.start();
+
       })
     }
 
   }
 
-  
+
 }
 
 // Saw this stuff below in a tutorial. Doesn't seem to do anything, but might have something to do with the play class looping.
