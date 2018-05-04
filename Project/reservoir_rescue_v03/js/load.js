@@ -4,6 +4,9 @@ var loadState = {
     // Load your sprites (and other stuff, I guess?) here!
     this.load.image('loading_bg', 'assets/loading_bg.jpg');
     this.load.image('loaded', 'assets/loaded.png');
+    this.load.image('obs_screen', 'assets/obs_bg_1.jpg');
+    this.load.image('obs_screen_sprink', 'assets/Obs1_Sprink.png');
+    this.load.image('continueButton', 'assets/continueButton.jpg');
   },
 
   create() {
