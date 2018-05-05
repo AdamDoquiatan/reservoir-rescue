@@ -4,8 +4,6 @@ let tips = document.getElementById("tips");
 
 let buttons = [play, leaderboard, tips];
 
-let sound = new Audio("sounds/Bassjackers_-_Higher_Place_Stab__A_.wav");
-
 // Add event listeners for each button
 for (let button of buttons) {
     // Check if button is a valid DOM element
@@ -19,10 +17,8 @@ for (let button of buttons) {
 }
 
 function pressButton(event) {
-    let sound = new Audio("sounds/Bassjackers_-_Higher_Place_Stab__A_.wav");
     console.log(event.type);
     event.target.classList.add("on");
-    sound.play();
 }
 
 function releaseButton(event) {
