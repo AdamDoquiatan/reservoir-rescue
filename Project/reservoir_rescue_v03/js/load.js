@@ -14,6 +14,8 @@ var loadState = {
     game.load.spritesheet('pipe2', 'assets/pipe2.png', 32, 32);
     game.load.spritesheet('pipe3', 'assets/pipe3.png', 32, 32);
     game.load.spritesheet('pipe4', 'assets/pipe4.png', 32, 32);
+
+    game.load.image('cursor', 'assets/cursor.png');
   },
   create() {
     // Loads a loading screen (but right now loads too fast to show)

@@ -1,4 +1,4 @@
-var game = new Phaser.Game(288, 288, Phaser.AUTO, 'game');
+var game = new Phaser.Game(256, 448, Phaser.AUTO, 'game');
 
 // States are added to the game
 game.state.add('boot', bootState);
