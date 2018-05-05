@@ -9,27 +9,26 @@
 		<link rel="stylesheet" type="text/css" href="css/bubbles.css">
     </head>
     <body>
+        <img id="title" src="assets/title2.png" width="280px" height="auto">
 
-        <div id="frame">
-            <img id="title" src="assets/title.png" width="275px" height="auto">
-
-            <button id="play"></button>
-            <button id="leaderboard"></button>
-            <button id="tips"></button>
-
-            <!-- Bubbles! Might replace this with JavaScript -->
-			<div id="bubble-wrap">
-				<div class="bubble x1"></div>
-				<div class="bubble x2"></div>
-				<div class="bubble x3"></div>
-				<div class="bubble x4"></div>
-				<div class="bubble x5"></div>
-				<div class="bubble x6"></div>
-				<div class="bubble x7"></div>
-				<div class="bubble x8"></div>
-			</div>
+        <div id="menu">
+            <a href="game.html"><button id="play"></button></a>
+            <a href="leaderboard.html"><button id="leaderboard"></button></a>
+            <a href="tips.html"><button id="tips"></button></a>
         </div>
 
-        <script src="js/script.js"></script>
+        <!-- Bubbles! Might replace this with JavaScript -->
+        <div id="bubble-wrap">
+            <div class="bubble x1"></div>
+            <div class="bubble x2"></div>
+            <div class="bubble x3"></div>
+            <div class="bubble x4"></div>
+            <div class="bubble x5"></div>
+            <div class="bubble x6"></div>
+            <div class="bubble x7"></div>
+            <div class="bubble x8"></div>
+        </div>
+
+        <script src="js/index.js"></script>
     </body>
 </html>
