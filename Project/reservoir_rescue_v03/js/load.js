@@ -8,6 +8,12 @@ var loadState = {
     this.load.image('obs_screen', 'assets/obs_bg_1.jpg');
     this.load.image('obs_screen_sprink', 'assets/Obs1_Sprink.png');
     this.load.image('continueButton', 'assets/continueButton.jpg');
+    this.load.image('darkFilter', 'assets/darkFilter.png');
+    this.load.image('pause_screen', 'assets/obs_bg_1.jpg');
+    this.load.image('pause', 'assets/pause.png');
+    this.load.image('menuButton', 'assets/menu.png');
+
+
   },
 
   create() {
