@@ -1,78 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="74c24665-24e2-4cdd-81b6-a250e48c06ba" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/reservoir-rescue.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Documents/Git Notes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Documents/More Git Notes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nate'sFeature.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/Project.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/cursor.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/leaderboard2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/leaderboard3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/loaded.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/loading_bg.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipe1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipe2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipe3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipe4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipeh.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/pipev.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/play2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/tilemap.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/tilemap.tmx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/tileset.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/tips2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/tips3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/title2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/game.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/boot.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/game.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/load.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/phaser.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/js/play.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/ajax-loader.gif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/config.rb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/fonts/slick.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/fonts/slick.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/fonts/slick.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/fonts/slick.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick-theme.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick-theme.less" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick-theme.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick.less" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/slick/slick.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/justinTest.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/justinTest2.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nateTest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/title.png" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/title.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/leaderboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/leaderboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/php/leaderboard_get.php" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/php/leaderboard_get.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project/reservoir_rescue_v03/tips.html" beforeDir="false" afterPath="$PROJECT_DIR$/Project/reservoir_rescue_v03/tips.html" afterDir="false" />
-    </list>
+    <list default="true" id="74c24665-24e2-4cdd-81b6-a250e48c06ba" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -85,7 +14,7 @@
       <file leaf-file-name="style.css" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Project/reservoir_rescue_v03/css/style.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
+            <state relative-caret-position="609">
               <caret line="184" column="1" selection-start-line="184" selection-start-column="1" selection-end-line="184" selection-end-column="1" />
             </state>
           </provider>
@@ -229,16 +158,15 @@
       <workItem from="1525376214753" duration="1254000" />
       <workItem from="1525377684058" duration="28000" />
       <workItem from="1525378878205" duration="5460000" />
-      <workItem from="1525402676549" duration="43910000" />
+      <workItem from="1525402676549" duration="44181000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="63711000" />
+    <option name="totallyTimeSpent" value="63982000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20442708" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -538,9 +466,15 @@
     <entry file="file://$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/title2.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Project/reservoir_rescue_v03/assets/box1.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/Project/reservoir_rescue_v03/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
+        <state relative-caret-position="609">
           <caret line="184" column="1" selection-start-line="184" selection-start-column="1" selection-end-line="184" selection-end-column="1" />
         </state>
       </provider>
