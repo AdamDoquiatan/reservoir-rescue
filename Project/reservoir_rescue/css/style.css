@@ -71,17 +71,17 @@ button {
 
 /* Button images */
 #play {
-    background-image: url("../assets/play2.png");
+    background-image: url("../assets/play.png");
 }
 
 /* Leaderboard images */
 #leaderboard {
-    background-image: url("../assets/leaderboard2.png");
+    background-image: url("../assets/leaderboard.png");
 }
 
 /* Tips page images */
 #tips {
-    background-image: url("../assets/tips2.png");
+    background-image: url("../assets/tips.png");
 }
 
 /* Changes button size */
