@@ -1,9 +1,8 @@
 var playState = {
   create() {
     // Add loaded images as sprites, and change properties. Also load other things
-    this.title = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'loaded');
-    this.title.anchor.setTo(0.5);
-    this.title.scale.setTo(2.0);
+    this.tempBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'tempBG');
+    this.tempBG.anchor.setTo(0.5);
 
     // For testing: Turn the obstacle screen on or off.
     var playObsScreen = true;
@@ -19,6 +18,10 @@ var playState = {
   },
 
   obsScreen1: function (sprite, event) {
+
+    // Dummy Blurry BG
+    var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'tempBG_blur');
+    filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
@@ -60,8 +63,12 @@ var playState = {
         var elementTween = this.game.add.tween(element);
         elementTween.to({y: element.position.y + 640}, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
+        elementTween.onComplete.add(function(){
+          filterBG.destroy();
+          obsScreen.destroy();
+        });
+      });
 
-      })
     }
 
   }
