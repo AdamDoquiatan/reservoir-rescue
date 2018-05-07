@@ -142,9 +142,12 @@ for (let i = 0; i < TILES; i++) {
 // Text
 let text;
 
+// Pause Variable for turning off inputEnabled buttons
+var input_Enabled = true;
+
 let playState = {
 
-  create: function() {
+  create: function () {
 
     // Tilemap creation
     map = game.add.tilemap('map', 32, 32);
@@ -155,15 +158,17 @@ let playState = {
     end.object = addToGrid(end.col, end.row, end.image);
 
     // Pipe menu
-    menuPipes = game.add.group();
-    for (let i = 0; i < pipes.length; i++) {
-      menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[i].image, 0));
-    }
-    for (let i = 0; i < menuPipes.children.length; i++) {
-      menuPipes.children[i].inputEnabled = true;
-      menuPipes.children[i].events.onInputDown.add(selectPipe,
-        this, 0, i);
-    }
+   
+      menuPipes = game.add.group();
+      for (let i = 0; i < pipes.length; i++) {
+        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[i].image, 0));
+      }
+      for (let i = 0; i < menuPipes.children.length; i++) {
+        menuPipes.children[i].inputEnabled = true;
+        menuPipes.children[i].events.onInputDown.add(selectPipe,
+          this, 0, i);
+      };
+   
 
     // Text
     text = game.add.text(game.width / 2, game.height / 6, 'LOSE', { fontSize: '32px', fill: '#FFF' });
@@ -178,7 +183,7 @@ let playState = {
     // Pause Button
     this.pauseButton = this.game.add.sprite(256, 0, 'pause');
     this.pauseButton.anchor.setTo(1, 0);
-    this.pauseButton.inputEnabled = true;
+    this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
     // For testing: Turn the obstacle screen on or off.
@@ -186,14 +191,19 @@ let playState = {
     if (playObsScreen == true) {
       this.obsScreen1();
     }
+
+    
   },
-  update: function() {
+  update: function () {
     if (win === true) {
       text.text = 'WIN';
     }
   },
 
   pauseMenu: function (sprite, event) {
+
+    input_Enabled = false;
+    game.input.onDown.removeAll();
 
     // Dark Filter
     var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
@@ -222,6 +232,8 @@ let playState = {
     this.contButton.scale.setTo(0.7);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
+      input_Enabled = true;
+      game.input.onDown.add(delegate, this, 0);
       pauseScreen.destroy();
       darkFilter.destroy();
     });
@@ -238,8 +250,11 @@ let playState = {
 
   obsScreen1: function (sprite, event) {
 
+    input_Enabled = false;
+    game.input.onDown.removeAll();
+
     // Dummy Blurry BG
-    var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'tempBG_blur');
+    var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
     filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
@@ -288,10 +303,11 @@ let playState = {
           filterBG.destroy();
           obsScreen.destroy();
         });
+        input_Enabled = true;
+        game.input.onDown.add(delegate, this, 0);
       });
 
     }
-
   },
 
   randomTip: function (sprite, event) {
@@ -364,7 +380,9 @@ function placePipe() {
 }
 
 function selectPipe(pipe, pointer, index) {
-  pipeIndex = index;
+  if (input_Enabled == true) {
+    pipeIndex = index;
+  };
 }
 
 // Checks if a tile on the grid is empty
@@ -440,7 +458,7 @@ function connect(pipe, direction) {
 // Checks if there's a pipe above
 function checkUp(pipe) {
   if (pipe.row > 0) {
-    let otherPipe = grid[pipe.row-1][pipe.col];
+    let otherPipe = grid[pipe.row - 1][pipe.col];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.DOWN)) {
         return otherPipe;
@@ -453,7 +471,7 @@ function checkUp(pipe) {
 // Checks if there's a pipe to the right
 function checkRight(pipe) {
   if (pipe.col < TILES - 1) {
-    let otherPipe = grid[pipe.row][pipe.col+1];
+    let otherPipe = grid[pipe.row][pipe.col + 1];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.LEFT)) {
         return otherPipe;
@@ -466,7 +484,7 @@ function checkRight(pipe) {
 // Checks if there's a pipe below
 function checkDown(pipe) {
   if (pipe.row < TILES - 1) {
-    let otherPipe = grid[pipe.row+1][pipe.col];
+    let otherPipe = grid[pipe.row + 1][pipe.col];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.UP)) {
         return otherPipe;
@@ -479,7 +497,7 @@ function checkDown(pipe) {
 // Checks if there's a pipe to the left
 function checkLeft(pipe) {
   if (pipe.col > 0) {
-    let otherPipe = grid[pipe.row][pipe.col-1];
+    let otherPipe = grid[pipe.row][pipe.col - 1];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.RIGHT)) {
         return otherPipe;

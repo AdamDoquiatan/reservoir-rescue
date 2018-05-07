@@ -17,8 +17,7 @@ var loadState = {
     game.load.image('cursor', 'assets/images/cursor.png');
 
     // In-Game Menu Stuff
-    this.load.image('tempBG', 'assets/images/tempBG.jpg');
-    this.load.image('tempBG_blur', 'assets/images/tempBG_blur.jpg');
+    this.load.image('BG_blur', 'assets/images/BG_blur.jpg');
     this.load.image('obs_screen', 'assets/images/obs_bg_1.jpg');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
     this.load.image('continueButton', 'assets/images/continueButton.jpg');
