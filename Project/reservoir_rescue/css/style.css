@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css?family=Bungee');
+
+html {
+    margin: 0;
+}
+
+body {
+    background: rgb(144, 173, 255);
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 0;
+    font-family: 'Bungee', sans-serif;
+    font-size: 16px;
+}
+
+#content h3 {
+    background-color: #beebfc;
+    color: rgb(102, 127, 198);
+    text-align: center;
+    padding: 15px;
+    line-height: 1.2;
+    height: 40px;
+    font-size: 16px;
+    margin: 0;
+}
+
+p {
+    font-size: 14px;
+    padding: 0 15px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+}
+
+a {
+    text-decoration: none;
+}
+
+*:focus {
+    outline: none;
+}
+
+#title {
+    margin: 20px auto;
+    display: block;
+}
+
+button {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+#menu button {
+    margin: 30px auto;
+    width: 275px;
+    height: 70px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border: none;
+    display: block;
+}
+
+/* Button images */
+#play {
+    background-image: url("../assets/images/play.png");
+}
+
+#leaderboard {
+    background-image: url("../assets/images/leaderboard.png");
+}
+
+#tips {
+    background-image: url("../assets/images/tips.png");
+}
+
+.on {
+    transform: scale(1.1);
+    filter: contrast(130%);
+}
+
+/* Leaderboard */
+header img {
+    align-self: center;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    background-color: rgb(144, 173, 255);
+    z-index: 1;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 125px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#content {
+    margin-top: 60px;
+    margin-bottom: 125px;
+    color: #beebfc;
+}
+
+table {
+    width: 100%;
+    border: 1px none black;
+    background-color: rgb(102, 127, 198);
+    font-size: 20px;
+    border-collapse: collapse;
+}
+
+th {
+    padding: 10px;
+    background-color: #beebfc;
+    color: rgb(102, 127, 198);
+}
+
+td {
+    height: 50px;
+    text-align: center;
+}
+
+#back {
+    width: 100px;
+    display: block;
+    border-radius: 3px;
+    margin: 30px auto;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+    font-family: 'Bungee', sans-serif;
+    color: white;
+    box-shadow: 0px 6px #1fae3b;
+    background: #3dcc40;
+    border: none;
+}
+
+#back:active {
+    box-shadow: 0px 0px #23A33D;
+    background: #23A33D;
+}
+
+#back:hover {
+    background-position: 100px;
+}
+
+#content .tip {
+    width: 80%;
+    margin: 0 auto;
+    height: 300px;
+}
