@@ -144,6 +144,8 @@ let text;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+var boxedPipes = [];
+var pipeSwap = false;
 
 let playState = {
 
@@ -157,20 +159,25 @@ let playState = {
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
 
-    
-
+  
 
     // Pipe menu
       menuPipes = game.add.group();
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; menuPipes.length < 3;) {
         var randomPipeIndex = Math.floor(Math.random() * 6);
-        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
-        menuPipes.children[i].inputEnabled = true;
-        menuPipes.children[i].events.onInputDown.add(selectPipe,
-          this, 0, randomPipeIndex);
+        if (!boxedPipes.includes(randomPipeIndex)) {
+          menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
+          menuPipes.children[i].inputEnabled = true;
+          menuPipes.children[i].events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex);
+          boxedPipes.push(randomPipeIndex);
+          i++;
+      }
+        console.log(boxedPipes);
+
       };
 
-   
+
 
 
 
@@ -201,6 +208,10 @@ let playState = {
   update: function () {
     if (win === true) {
       text.text = 'WIN';
+    }
+
+    if (pipeSwap == true) {
+      reloadPipe(menuPipes);
     }
   },
 
@@ -382,6 +393,22 @@ function placePipe() {
 
     console.log(grid);
   }
+
+  pipeSwap = true;
+}
+
+function reloadPipe(menuPipes) {
+
+    var number = boxedPipes.indexOf(pipeIndex);
+    console.log("num " + number);
+    menuPipes.children[boxedPipes.indexOf(pipeIndex)].destroy();
+    
+    boxedPipes.splice(boxedPipes.indexOf(pipeIndex));
+    console.log(boxedPipes);
+    console.log(pipeIndex);
+    console.log(menuPipes.children[0]);
+    pipeSwap = false;
+    
 }
 
 function selectPipe(pipe, pointer, index) {
