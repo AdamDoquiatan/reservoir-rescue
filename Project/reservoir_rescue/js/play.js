@@ -284,14 +284,31 @@ let playState = {
     this.obsSprink = obsScreen.create(this.game.world.centerX, -543, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
     this.obsSprink.scale.setTo(0.071, 0.07);
+    
+    // "Look out!" header
+    this.lookOutHeader = game.add.text(this.game.world.centerX, -450, "LOOK OUT!", { font: 'bold 20pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.lookOutHeader.anchor.setTo(0.5);
+    this.lookOutHeader.stroke = '#000000';
+    this.lookOutHeader.strokeThickness = 3;
+    obsScreen.add(this.lookOutHeader);
 
-    // Specifies text properties
-    var textStyle = { font: 'bold 11pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 };
 
     // Obstacle text
-    this.obsTextSprink = game.add.text(this.game.world.centerX, -378, "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute! Better keep our pipes clear!", textStyle);
+    this.obsTextSprink = game.add.text(this.game.world.centerX, -395, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.obsTextSprink.addColor('green', 17);
+    this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
+    this.obsTextSprink.stroke = '#000000';
+    this.obsTextSprink.strokeThickness = 3;
     obsScreen.add(this.obsTextSprink);
+
+    // Obstacle text bottom line
+    this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -328, "Better keep our pipes clear!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.obsTextSprinkBLine.anchor.setTo(0.5);
+    this.obsTextSprinkBLine.stroke = '#000000';
+    this.obsTextSprinkBLine.strokeThickness = 3;
+    obsScreen.add(this.obsTextSprinkBLine);
+  
 
     // Continue button
     this.contButton = obsScreen.create(207, -287, 'continueButton');
