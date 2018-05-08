@@ -144,7 +144,11 @@ let text;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+// Tracks which pipes are in which selection spot
 var boxedPipes = [];
+// Tracks currently selected pipe
+var currentSelection;
+// Signals a pipe menu update when true (don't change!)
 var pipeSwap = false;
 
 let playState = {
@@ -159,27 +163,23 @@ let playState = {
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
 
-  
 
-    // Pipe menu
-      menuPipes = game.add.group();
-      for (let i = 0; menuPipes.length < 3;) {
-        var randomPipeIndex = Math.floor(Math.random() * 6);
-        if (!boxedPipes.includes(randomPipeIndex)) {
-          menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
-          menuPipes.children[i].inputEnabled = true;
-          menuPipes.children[i].events.onInputDown.add(selectPipe,
-            this, 0, randomPipeIndex);
-          boxedPipes.push(randomPipeIndex);
-          i++;
+
+    // Creates unique pipe menu at start of game
+    menuPipes = game.add.group();
+    for (let i = 0; menuPipes.length < 3;) {
+      var randomPipeIndex = Math.floor(Math.random() * 6);
+      if (!boxedPipes.includes(randomPipeIndex)) {
+        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
+        menuPipes.customParam = {indexSelect: i};
+        menuPipes.children[i].inputEnabled = true;
+        menuPipes.children[i].events.onInputDown.add(selectPipe,
+          this, 0, randomPipeIndex, i);
+        boxedPipes.push(randomPipeIndex);
+        i++;
       }
-        console.log(boxedPipes);
-
-      };
-
-
-
-
+      console.log(boxedPipes);
+    };
 
     // Text
     text = game.add.text(game.width / 2, game.height / 6, 'LOSE', { fontSize: '32px', fill: '#FFF' });
@@ -203,7 +203,7 @@ let playState = {
       this.obsScreen1();
     }
 
-    
+
   },
   update: function () {
     if (win === true) {
@@ -284,7 +284,7 @@ let playState = {
     this.obsSprink = obsScreen.create(this.game.world.centerX, -543, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
     this.obsSprink.scale.setTo(0.071, 0.07);
-    
+
     // "Look out!" header
     this.lookOutHeader = game.add.text(this.game.world.centerX, -450, "LOOK OUT!", { font: 'bold 20pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
     this.lookOutHeader.anchor.setTo(0.5);
@@ -308,7 +308,7 @@ let playState = {
     this.obsTextSprinkBLine.stroke = '#000000';
     this.obsTextSprinkBLine.strokeThickness = 3;
     obsScreen.add(this.obsTextSprinkBLine);
-  
+
 
     // Continue button
     this.contButton = obsScreen.create(207, -287, 'continueButton');
@@ -390,7 +390,9 @@ function placePipe() {
   pipe.row = row;
 
   if (checkEmpty(col, row)) {
+    pipeSwap = true;
     if (checkOverlap(pipe, start)) {
+      
       if (pipe.connections.includes(start.connect))
         pipe.start = true;
     } else if (checkOverlap(pipe, end)) {
@@ -411,26 +413,78 @@ function placePipe() {
     console.log(grid);
   }
 
-  pipeSwap = true;
+  
 }
 
 function reloadPipe(menuPipes) {
 
-    var number = boxedPipes.indexOf(pipeIndex);
-    console.log("num " + number);
-    menuPipes.children[boxedPipes.indexOf(pipeIndex)].destroy();
-    
-    boxedPipes.splice(boxedPipes.indexOf(pipeIndex));
-    console.log(boxedPipes);
-    console.log(pipeIndex);
-    console.log(menuPipes.children[0]);
-    pipeSwap = false;
-    
+  var randomPipeIndex = Math.floor(Math.random() * 6);
+
+  // Variables for holding current pipes
+  var index0;
+  var index1;
+  var index2;
+
+  // Moves each pipe to a variable.
+  // If pipe was used, creates and stores new pipe instead.
+    for (i = 0; i < 3; i++) {
+      switch (i) {
+        case 0:
+          if (i != currentSelection) {
+            index0 = menuPipes.children[i];
+          } else {
+            index0 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
+            index0.inputEnabled = true;
+            index0.events.onInputDown.add(selectPipe,
+              this, 0, randomPipeIndex, i);
+          }
+          break;
+        case 1:
+          if (i != currentSelection) {
+            index1 = menuPipes.children[i];
+          } else {
+            index1 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
+            index1.inputEnabled = true;
+            index1.events.onInputDown.add(selectPipe,
+              this, 0, randomPipeIndex, i);
+          }
+          break;
+        case 2:
+          if (i != currentSelection) {
+            index2 = menuPipes.children[i];
+          } else {
+            index2 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
+            index2.inputEnabled = true;
+            index2.events.onInputDown.add(selectPipe,
+              this, 0, randomPipeIndex, i);
+          }
+          break;
+        default:
+          console.log("default");
+      }
+    }
+
+  // Clears and repopulates menu group.
+  menuPipes.removeAll();
+  menuPipes.add(index0);
+  menuPipes.add(index1);
+  menuPipes.add(index2);
+
+  // Auto changes pipe index to new pipe in selected spot.
+  pipeIndex = randomPipeIndex;
+
+  //Updates array.
+  boxedPipes[currentSelection] = pipeIndex;
+  console.log(boxedPipes);
+
+  // Signals pipe swap complete.
+  pipeSwap = false;
 }
 
-function selectPipe(pipe, pointer, index) {
+function selectPipe(pipe, pointer, index, currentIndex) {
   if (input_Enabled == true) {
     pipeIndex = index;
+    currentSelection = currentIndex;
   };
 }
 
