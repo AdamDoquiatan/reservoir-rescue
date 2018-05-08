@@ -127,7 +127,7 @@ let end = {
   object: null
 };
 
-// 2D array repressenting the grid
+// 2D array representing the grid
 // where pipes are placed
 let grid = new Array(TILES);
 for (let i = 0; i < TILES; i++) {
@@ -138,6 +138,7 @@ for (let i = 0; i < TILES; i++) {
     grid[i][j] = null;
   }
 }
+let path = [];
 
 // Text
 let text;
@@ -145,40 +146,44 @@ let text;
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
 
+// Signals
+let onWin = new Phaser.Signal();
+
 let playState = {
 
   create: function () {
+
+    // Scales the game window
+    game.stage.smoothed = false;
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
     // Tilemap creation
     map = game.add.tilemap('map', 32, 32);
     map.addTilesetImage('tileset');
     layer = map.createLayer(0);
+    layer.scale.set(1);
 
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
 
     // Pipe menu
-   
-      menuPipes = game.add.group();
-      for (let i = 0; i < pipes.length; i++) {
-        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[i].image, 0));
-      }
-      for (let i = 0; i < menuPipes.children.length; i++) {
-        menuPipes.children[i].inputEnabled = true;
-        menuPipes.children[i].events.onInputDown.add(selectPipe,
-          this, 0, i);
-      };
-   
+    menuPipes = game.add.group();
+    for (let i = 0; i < pipes.length; i++) {
+      menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[i].image, 0));
+    }
+    for (let i = 0; i < menuPipes.children.length; i++) {
+      menuPipes.children[i].inputEnabled = true;
+      menuPipes.children[i].events.onInputDown.add(selectPipe,
+        this, 0, i);
+    }
 
     // Text
     text = game.add.text(game.width / 2, game.height / 6, 'LOSE', { fontSize: '32px', fill: '#FFF' });
     text.anchor.setTo(0.5, 0);
 
-    // Event handlers
+    // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
-
-    // Scales the game window
-    game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+    onWin.add(levelComplete, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(256, 0, 'pause');
@@ -187,17 +192,14 @@ let playState = {
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
     // For testing: Turn the obstacle screen on or off.
-    var playObsScreen = true;
-    if (playObsScreen == true) {
+    let playObsScreen = true;
+    if (playObsScreen === true) {
       this.obsScreen1();
     }
-
-    
   },
+
   update: function () {
-    if (win === true) {
-      text.text = 'WIN';
-    }
+
   },
 
   pauseMenu: function (sprite, event) {
@@ -342,10 +344,7 @@ let playState = {
         return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!"
         break;
     }
-
-
   }
-
 };
 
 function placePipe() {
@@ -366,9 +365,15 @@ function placePipe() {
     }
     addToGridArray(col, row, pipe);
 
+    pipe.object.animations.add('forward',
+      [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 60, false);
+    pipe.object.animations.add('backward',
+      [17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32], 60, false);
+
     connect(pipe);
     if (startConnected && endConnected) {
       win = true;
+      onWin.dispatch();
     }
     else {
       startConnected = false;
@@ -380,9 +385,9 @@ function placePipe() {
 }
 
 function selectPipe(pipe, pointer, index) {
-  if (input_Enabled == true) {
+  if (input_Enabled === true) {
     pipeIndex = index;
-  };
+  }
 }
 
 // Checks if a tile on the grid is empty
@@ -507,3 +512,81 @@ function checkLeft(pipe) {
   return null;
 }
 
+function levelComplete() {
+  text.text = 'WIN';
+  let startingPipe = grid[start.row][start.col];
+  pathToArray(startingPipe, Connections.UP);
+  flow(null, null, 0);
+}
+
+function pathToArray(pipe, direction) {
+  pipe.flow = direction;
+  path.push(pipe);
+  let otherPipe;
+  for (let connection of pipe.connections) {
+    if (connection === direction)
+      continue;
+    switch (connection) {
+      case Connections.UP:
+        otherPipe = checkUp(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.DOWN);
+        break;
+      case Connections.RIGHT:
+        otherPipe = checkRight(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.LEFT);
+        break;
+      case Connections.DOWN:
+        otherPipe = checkDown(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.UP);
+        break;
+      case Connections.LEFT:
+        otherPipe = checkLeft(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.RIGHT);
+        break;
+    }
+  }
+}
+
+function flow(sprite, animation, index) {
+  if (index >= 0 && index < path.length) {
+    let pipe = path[index];
+    switch (pipe.flow) {
+      case Connections.UP:
+        pipe.object.animations.play('forward');
+        pipe.object.animations.getAnimation('forward')
+          .onComplete.add(flow, this, 0, ++index);
+        break;
+      case Connections.DOWN:
+        if (pipe.image === 'pipe2') {
+          pipe.object.animations.play('forward');
+          pipe.object.animations.getAnimation('forward')
+            .onComplete.add(flow, this, 0, ++index);
+        } else {
+          pipe.object.animations.play('backward');
+          pipe.object.animations.getAnimation('backward')
+            .onComplete.add(flow, this, 0, ++index);
+        }
+        break;
+      case Connections.LEFT:
+        if (pipe.image === 'pipe4') {
+          pipe.object.animations.play('backward');
+          pipe.object.animations.getAnimation('backward')
+            .onComplete.add(flow, this, 0, ++index);
+        } else {
+          pipe.object.animations.play('forward');
+          pipe.object.animations.getAnimation('forward')
+            .onComplete.add(flow, this, 0, ++index);
+        }
+        break;
+      case Connections.RIGHT:
+        pipe.object.animations.play('backward');
+        pipe.object.animations.getAnimation('backward')
+          .onComplete.add(flow, this, 0, ++index);
+        break;
+    }
+  }
+}
