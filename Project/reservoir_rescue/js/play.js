@@ -157,18 +157,22 @@ let playState = {
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
 
+    
+
+
     // Pipe menu
-   
       menuPipes = game.add.group();
-      for (let i = 0; i < pipes.length; i++) {
-        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[i].image, 0));
-      }
-      for (let i = 0; i < menuPipes.children.length; i++) {
+      for (let i = 0; i < 3; i++) {
+        var randomPipeIndex = Math.floor(Math.random() * 6);
+        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
         menuPipes.children[i].inputEnabled = true;
         menuPipes.children[i].events.onInputDown.add(selectPipe,
-          this, 0, i);
+          this, 0, randomPipeIndex);
       };
+
    
+
+
 
     // Text
     text = game.add.text(game.width / 2, game.height / 6, 'LOSE', { fontSize: '32px', fill: '#FFF' });
@@ -202,7 +206,7 @@ let playState = {
 
   pauseMenu: function (sprite, event) {
 
-    input_Enabled = false;
+    sprite.input.enabled = false;
     game.input.onDown.removeAll();
 
     // Dark Filter
@@ -232,7 +236,7 @@ let playState = {
     this.contButton.scale.setTo(0.7);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
-      input_Enabled = true;
+      sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       pauseScreen.destroy();
       darkFilter.destroy();
@@ -250,7 +254,7 @@ let playState = {
 
   obsScreen1: function (sprite, event) {
 
-    input_Enabled = false;
+    this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
     // Dummy Blurry BG
@@ -303,9 +307,10 @@ let playState = {
           filterBG.destroy();
           obsScreen.destroy();
         });
-        input_Enabled = true;
-        game.input.onDown.add(delegate, this, 0);
+
       });
+      this.pauseButton.input.enabled = true;
+      game.input.onDown.add(delegate, this, 0);
 
     }
   },
