@@ -1,22 +1,17 @@
 // GRID_X = horizontal offset
 // GRID_Y = vertical offset
 // GRID_X_MAX = horizontal bound of grid
-// GRID_Y_MAX = vertical boun of grid
-const GRID = 32;
-const TILES = 8;
+// GRID_Y_MAX = vertical bound of grid
+const SCALE = 4;
+const GRID = 32 * SCALE;
+const TILES_X = 7;
+const TILES_Y = 6;
 const GRID_X = 0;
-const GRID_Y = GRID * 4;
-const GRID_X_MAX = GRID * TILES + GRID_X;
-const GRID_Y_MAX = GRID * TILES + GRID_Y;
-
-let startConnected = false;
-let endConnected = false;
-
-var win = false;
-
-// Tilemap
-let map;
-let layer;
+const GRID_Y = GRID * 3;
+const GRID_X_MAX = GRID * TILES_X + GRID_X;
+const GRID_Y_MAX = GRID * TILES_Y + GRID_Y;
+const MENU_X = 0;
+const MENU_Y = 11;
 
 // Connections enum
 let Connections = {
@@ -33,8 +28,6 @@ Object.freeze(Connections);
 // pipe2 = down & right
 // pipe3 = down & left
 // pipe4 = up & left
-let menuPipes;
-// This should be put in a separate file
 let pipes = [
   {
     image: 'pipev',
@@ -122,26 +115,29 @@ let start = {
 let end = {
   image: 'cursor',
   connect: Connections.DOWN,
-  col: 4,
-  row: 7,
+  col: 3,
+  row: 5,
   object: null
 };
 
-// 2D array repressenting the grid
+// 2D array representing the grid
 // where pipes are placed
-let grid = new Array(TILES);
-for (let i = 0; i < TILES; i++) {
-  grid[i] = new Array(TILES);
+let grid = new Array(TILES_Y);
+for (let i = 0; i < TILES_Y; i++) {
+  grid[i] = new Array(TILES_X);
 }
-for (let i = 0; i < TILES; i++) {
-  for (let j = 0; j < TILES; j++) {
+for (let i = 0; i < TILES_Y; i++) {
+  for (let j = 0; j < TILES_X; j++) {
     grid[i][j] = null;
   }
 }
 
-// Text
-let text;
+let path = [];
 
+// Flags
+let startConnected = false;
+let endConnected = false;
+let win = false;
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
 // Tracks which pipes are in which selection spot
@@ -151,67 +147,66 @@ var currentSelection;
 // Signals a pipe menu update when true (don't change!)
 var pipeSwap = false;
 
-let playState = {
+// Game objects
+let map;
+let layer;
+let menuPipes;
+let winText;
+let testText;
+
+// Signals
+let onWin = new Phaser.Signal();
+
+let playState;
+playState = {
 
   create: function () {
 
-    // Tilemap creation
+    // Initialize tilemap
     map = game.add.tilemap('map', 32, 32);
     map.addTilesetImage('tileset');
     layer = map.createLayer(0);
+    layer.scale.set(SCALE);
 
+    // Set start and end points
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
 
-
-
-    // Creates unique pipe menu at start of game
-    menuPipes = game.add.group();
-    for (let i = 0; menuPipes.length < 3;) {
-      var randomPipeIndex = Math.floor(Math.random() * 6);
-      if (!boxedPipes.includes(randomPipeIndex)) {
-        menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
-        menuPipes.children[i].inputEnabled = true;
-        menuPipes.children[i].events.onInputDown.add(selectPipe,
-          this, 0, randomPipeIndex, i);
-        boxedPipes.push(randomPipeIndex);
-        i++;
-      }
-      console.log(boxedPipes);
-    };
+    // Initialize pipe selection menu
+    initializeMenu();
 
     // Text
-    text = game.add.text(game.width / 2, game.height / 6, 'LOSE', { fontSize: '32px', fill: '#FFF' });
-    text.anchor.setTo(0.5, 0);
+    winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
+    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
 
-    // Event handlers
+    // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
-
-    // Scales the game window
-    game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+    onWin.add(levelComplete, this);
 
     // Pause Button
-    this.pauseButton = this.game.add.sprite(256, 0, 'pause');
+    this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
+    this.pauseButton.scale.setTo(2, 2);
     this.pauseButton.anchor.setTo(1, 0);
     this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
-    // For testing: Turn the obstacle screen on or off.
-    var playObsScreen = true;
-    if (playObsScreen == true) {
+    // For testing: turn the obstacle screen on or off
+    let playObsScreen = true;
+    if (playObsScreen === true) {
       this.obsScreen1();
     }
 
 
   },
-  update: function () {
-    if (win === true) {
-      text.text = 'WIN';
-    }
 
+  update: function () {
     if (pipeSwap == true) {
       reloadPipe(menuPipes);
     }
+
+    testText.text = '('
+      + parseInt(game.input.activePointer.x) + ','
+      + parseInt(game.input.activePointer.y) + ')';
   },
 
   pauseMenu: function (sprite, event) {
@@ -219,7 +214,7 @@ let playState = {
     sprite.input.enabled = false;
     game.input.onDown.removeAll();
 
-    // Dark Filter
+    // Dark filter
     var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
     darkFilter.anchor.setTo(0.5);
 
@@ -227,7 +222,13 @@ let playState = {
     var pauseScreen = this.game.add.group();
 
     // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 60, "PAUSED", { font: 'bold 29.4pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 310 });
+    this.pauseHeader = game.add.text(this.game.world.centerX, 60, "PAUSED", {
+      font: 'bold 29.4pt Helvetica',
+      fill: 'white',
+      align: 'center',
+      wordWrap: true,
+      wordWrapWidth: 310
+    });
     this.pauseHeader.anchor.setTo(0.5);
     pauseScreen.add(this.pauseHeader);
 
@@ -276,22 +277,24 @@ let playState = {
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
-    // Dummy Blurry BG
-    var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
-    filterBG.anchor.setTo(0.5);
+    // Dummy blurry BG
+    // var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
+    // filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
     // Screen BG
-    this.obsBG = obsScreen.create(this.game.world.centerX, -448, 'obs_screen');
-    this.obsBG.anchor.setTo(0.5);
-    this.obsBG.scale.setTo(1, 2);
+    console.log(this);
+    console.log(this.game);
+    this.obsBG = obsScreen.create(this.game.world.centerX, 0, 'obs_screen');
+    this.obsBG.anchor.setTo(0.5, 0.5);
+    this.obsBG.scale.setTo(2.5, 5);
 
     // Picture of a sprinkler
-    this.obsSprink = obsScreen.create(this.game.world.centerX, -543, 'obs_screen_sprink');
+    this.obsSprink = obsScreen.create(this.game.world.centerX, 180, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
-    this.obsSprink.scale.setTo(0.071, 0.07);
+    this.obsSprink.scale.setTo(.25, .25);
 
     // "Look out!" header
     this.lookOutHeader = game.add.text(this.game.world.centerX, -450, "LOOK OUT!", { font: 'bold 20pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
@@ -319,16 +322,16 @@ let playState = {
 
 
     // Continue button
-    this.contButton = obsScreen.create(207, -287, 'continueButton');
+    this.contButton = obsScreen.create(this.game.world.centerX, -360, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(0.8);
+    this.contButton.scale.setTo(2);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({ y: element.position.y + 640 }, 700, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: this.game.world.centerY - element.y }, 1400, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     })
 
@@ -337,10 +340,10 @@ let playState = {
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
-        elementTween.to({ y: element.position.y + 640 }, 700, Phaser.Easing.Back.In, true);
+        elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
-          filterBG.destroy();
+          // filterBG.destroy();
           obsScreen.destroy();
         });
 
@@ -352,6 +355,7 @@ let playState = {
   },
 
   randomTip: function (sprite, event) {
+
     var tip = Math.floor(Math.random() * 8);
 
     switch (tip) {
@@ -383,13 +387,11 @@ let playState = {
         return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!"
         break;
     }
-
-
   }
-
 };
 
 function placePipe() {
+
   let col = parseInt((game.input.x - GRID_X) / GRID);
   let row = parseInt((game.input.y - GRID_Y) / GRID);
 
@@ -400,7 +402,7 @@ function placePipe() {
   if (checkEmpty(col, row)) {
     pipeSwap = true;
     if (checkOverlap(pipe, start)) {
-      
+
       if (pipe.connections.includes(start.connect))
         pipe.start = true;
     } else if (checkOverlap(pipe, end)) {
@@ -409,19 +411,23 @@ function placePipe() {
     }
     addToGridArray(col, row, pipe);
 
+    pipe.object.animations.add('forward',
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 60, false);
+    pipe.object.animations.add('backward',
+      [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], 60, false);
+
     connect(pipe);
     if (startConnected && endConnected) {
       win = true;
+      onWin.dispatch();
     }
     else {
       startConnected = false;
       endConnected = false;
     }
-
-    console.log(grid);
   }
 
-  
+
 }
 
 function reloadPipe(menuPipes) {
@@ -435,42 +441,45 @@ function reloadPipe(menuPipes) {
 
   // Moves each pipe to a variable.
   // If pipe was used, creates and stores new pipe instead.
-    for (i = 0; i < 3; i++) {
-      switch (i) {
-        case 0:
-          if (i != currentSelection) {
-            index0 = menuPipes.children[i];
-          } else {
-            index0 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
-            index0.inputEnabled = true;
-            index0.events.onInputDown.add(selectPipe,
-              this, 0, randomPipeIndex, i);
-          }
-          break;
-        case 1:
-          if (i != currentSelection) {
-            index1 = menuPipes.children[i];
-          } else {
-            index1 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
-            index1.inputEnabled = true;
-            index1.events.onInputDown.add(selectPipe,
-              this, 0, randomPipeIndex, i);
-          }
-          break;
-        case 2:
-          if (i != currentSelection) {
-            index2 = menuPipes.children[i];
-          } else {
-            index2 = game.add.sprite(currentSelection * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0);
-            index2.inputEnabled = true;
-            index2.events.onInputDown.add(selectPipe,
-              this, 0, randomPipeIndex, i);
-          }
-          break;
-        default:
-          console.log("default");
-      }
+  for (i = 0; i < 3; i++) {
+    switch (i) {
+      case 0:
+        if (i != currentSelection) {
+          index0 = menuPipes.children[i];
+        } else {
+          index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index0.inputEnabled = true;
+          index0.scale.setTo(SCALE, SCALE)
+          index0.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 1:
+        if (i != currentSelection) {
+          index1 = menuPipes.children[i];
+        } else {
+          index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index1.inputEnabled = true;
+          index1.scale.setTo(SCALE, SCALE)
+          index1.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 2:
+        if (i != currentSelection) {
+          index2 = menuPipes.children[i];
+        } else {
+          index2 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index2.inputEnabled = true;
+          index2.scale.setTo(SCALE, SCALE)
+          index2.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      default:
+        console.log("default");
     }
+  }
 
   // Clears and repopulates menu group.
   menuPipes.removeAll();
@@ -503,9 +512,12 @@ function checkEmpty(col, row) {
 
 // Adds to the on-screen grid but not the 2D array
 function addToGrid(col, row, object) {
-  return game.add.sprite(
+  let sprite = game.add.sprite(
     col * GRID + GRID_X,
     row * GRID + GRID_Y, object);
+  sprite.scale.setTo(SCALE, SCALE);
+  return sprite;
+
 }
 
 // Adds to on-screen grid and 2D array
@@ -581,7 +593,7 @@ function checkUp(pipe) {
 
 // Checks if there's a pipe to the right
 function checkRight(pipe) {
-  if (pipe.col < TILES - 1) {
+  if (pipe.col < TILES_X - 1) {
     let otherPipe = grid[pipe.row][pipe.col + 1];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.LEFT)) {
@@ -594,7 +606,7 @@ function checkRight(pipe) {
 
 // Checks if there's a pipe below
 function checkDown(pipe) {
-  if (pipe.row < TILES - 1) {
+  if (pipe.row < TILES_Y - 1) {
     let otherPipe = grid[pipe.row + 1][pipe.col];
     if (otherPipe !== null) {
       if (otherPipe.connections.includes(Connections.UP)) {
@@ -618,3 +630,104 @@ function checkLeft(pipe) {
   return null;
 }
 
+function levelComplete() {
+  winText.text = 'WIN';
+  let startingPipe = grid[start.row][start.col];
+  pathToArray(startingPipe, Connections.UP);
+  flow(null, null, 0);
+}
+
+function pathToArray(pipe, direction) {
+  pipe.flow = direction;
+  path.push(pipe);
+  let otherPipe;
+  for (let connection of pipe.connections) {
+    if (connection === direction)
+      continue;
+    switch (connection) {
+      case Connections.UP:
+        otherPipe = checkUp(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.DOWN);
+        break;
+      case Connections.RIGHT:
+        otherPipe = checkRight(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.LEFT);
+        break;
+      case Connections.DOWN:
+        otherPipe = checkDown(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.UP);
+        break;
+      case Connections.LEFT:
+        otherPipe = checkLeft(pipe);
+        if (otherPipe !== null)
+          pathToArray(otherPipe, Connections.RIGHT);
+        break;
+    }
+  }
+}
+
+function flow(sprite, animation, index) {
+  if (index >= 0 && index < path.length) {
+    let pipe = path[index];
+    switch (pipe.flow) {
+      case Connections.UP:
+        pipe.object.animations.play('forward');
+        pipe.object.animations.getAnimation('forward')
+          .onComplete.add(flow, this, 0, ++index);
+        break;
+      case Connections.DOWN:
+        if (pipe.image === 'pipe2') {
+          pipe.object.animations.play('forward');
+          pipe.object.animations.getAnimation('forward')
+            .onComplete.add(flow, this, 0, ++index);
+        } else {
+          pipe.object.animations.play('backward');
+          pipe.object.animations.getAnimation('backward')
+            .onComplete.add(flow, this, 0, ++index);
+        }
+        break;
+      case Connections.LEFT:
+        if (pipe.image === 'pipe4') {
+          pipe.object.animations.play('backward');
+          pipe.object.animations.getAnimation('backward')
+            .onComplete.add(flow, this, 0, ++index);
+        } else {
+          pipe.object.animations.play('forward');
+          pipe.object.animations.getAnimation('forward')
+            .onComplete.add(flow, this, 0, ++index);
+        }
+        break;
+      case Connections.RIGHT:
+        pipe.object.animations.play('backward');
+        pipe.object.animations.getAnimation('backward')
+          .onComplete.add(flow, this, 0, ++index);
+        break;
+    }
+  }
+}
+
+function initializeMenu() {
+  menuPipes = game.add.group();
+  for (let i = 0; menuPipes.length < 3;) {
+    var randomPipeIndex = Math.floor(Math.random() * 6);
+    if (!boxedPipes.includes(randomPipeIndex)) {
+      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+      pipe.scale.setTo(SCALE, SCALE)
+      menuPipes.add(pipe);
+      boxedPipes.push(randomPipeIndex);
+      i++;
+    }
+    for (let i = 0; i < menuPipes.children.length; i++) {
+      menuPipes.children[i].inputEnabled = true;
+      menuPipes.children[i].events.onInputDown.add(selectPipe,
+        this, 0, randomPipeIndex, i);
+
+    }
+    console.log(boxedPipes);
+  }
+
+
+}
