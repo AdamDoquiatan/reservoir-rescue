@@ -24,6 +24,7 @@ var loadState = {
     this.load.image('darkFilter', 'assets/images/darkFilter.png');
     this.load.image('pause_screen', 'assets/images/obs_bg_1.jpg');
     this.load.image('pause', 'assets/images/pause.png');
+    this.load.image('restart', 'assets/images/restart.png');
     this.load.image('menuButton', 'assets/images/menu.png');
   },
   create() {

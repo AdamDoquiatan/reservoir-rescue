@@ -171,7 +171,6 @@ let playState = {
       var randomPipeIndex = Math.floor(Math.random() * 6);
       if (!boxedPipes.includes(randomPipeIndex)) {
         menuPipes.add(game.add.sprite(i * GRID + 32, 12 * GRID, pipes[randomPipeIndex].image, 0));
-        menuPipes.customParam = {indexSelect: i};
         menuPipes.children[i].inputEnabled = true;
         menuPipes.children[i].events.onInputDown.add(selectPipe,
           this, 0, randomPipeIndex, i);
@@ -253,8 +252,17 @@ let playState = {
       darkFilter.destroy();
     });
 
+    // Restart button
+    this.restartButton = pauseScreen.create(56, 333.2, 'restart');
+    this.restartButton.anchor.setTo(0.5);
+    this.restartButton.scale.setTo(0.7);
+    this.restartButton.inputEnabled = true;
+    this.restartButton.events.onInputDown.add(function () {
+      window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    })
+
     // Menu button
-    this.menuButton = pauseScreen.create(56, 333.2, 'menuButton');
+    this.menuButton = pauseScreen.create(129, 380, 'menuButton');
     this.menuButton.anchor.setTo(0.5);
     this.menuButton.scale.setTo(0.7);
     this.menuButton.inputEnabled = true;
