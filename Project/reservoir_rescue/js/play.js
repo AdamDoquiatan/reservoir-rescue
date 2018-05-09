@@ -185,7 +185,7 @@ playState = {
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
-    this.pauseButton.scale.setTo(2, 2);
+    this.pauseButton.scale.setTo(2.3);
     this.pauseButton.anchor.setTo(1, 0);
     this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
@@ -217,34 +217,41 @@ playState = {
     // Dark filter
     var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
     darkFilter.anchor.setTo(0.5);
+    darkFilter.scale.setTo(4);
 
     // Group for screen componenets
     var pauseScreen = this.game.add.group();
 
     // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 60, "PAUSED", {
-      font: 'bold 29.4pt Helvetica',
+    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+      font: 'bold 100pt Helvetica',
       fill: 'white',
       align: 'center',
       wordWrap: true,
-      wordWrapWidth: 310
+      wordWrapWidth: 700
     });
     this.pauseHeader.anchor.setTo(0.5);
+    this.pauseHeader.stroke = '#000000';
+    this.pauseHeader.strokeThickness = 7;
     pauseScreen.add(this.pauseHeader);
 
     // Specifies text properties
-    var textStyle = { font: 'bold 11pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 };
+    var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
     // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 200, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
+    this.tipDisplay = game.add.text(this.game.world.centerX, 650, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
     this.tipDisplay.anchor.setTo(0.5);
     this.tipDisplay.lineSpacing = -2;
+    this.tipDisplay.addColor('#3d87ff', 0);
+    this.tipDisplay.addColor('white', 12);
+    this.tipDisplay.stroke = '#000000';
+    this.tipDisplay.strokeThickness = 7;
     pauseScreen.add(this.tipDisplay);
 
     // Continue button
-    this.contButton = pauseScreen.create(200, 333.2, 'continueButton');
+    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(0.7);
+    this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
       sprite.input.enabled = true;
@@ -254,18 +261,18 @@ playState = {
     });
 
     // Restart button
-    this.restartButton = pauseScreen.create(56, 333.2, 'restart');
+    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
     this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(0.7);
+    this.restartButton.scale.setTo(2.3);
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
     })
 
     // Menu button
-    this.menuButton = pauseScreen.create(129, 380, 'menuButton');
+    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
     this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(0.7);
+    this.menuButton.scale.setTo(2.3);
     this.menuButton.inputEnabled = true;
     this.menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
@@ -277,61 +284,59 @@ playState = {
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
-    // Dummy blurry BG
-    // var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
-    // filterBG.anchor.setTo(0.5);
+    // Dummy Blurry BG
+    //var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
+    //filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
     // Screen BG
-    console.log(this);
-    console.log(this.game);
-    this.obsBG = obsScreen.create(this.game.world.centerX, 0, 'obs_screen');
-    this.obsBG.anchor.setTo(0.5, 0.5);
-    this.obsBG.scale.setTo(2.5, 5);
+    this.obsBG = obsScreen.create(this.game.world.centerX, -300, 'obs_screen');
+    this.obsBG.anchor.setTo(0.5);
+    this.obsBG.scale.setTo(3.1, 6.8);
 
     // Picture of a sprinkler
-    this.obsSprink = obsScreen.create(this.game.world.centerX, 180, 'obs_screen_sprink');
+    this.obsSprink = obsScreen.create(this.game.world.centerX, -600, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
-    this.obsSprink.scale.setTo(.25, .25);
+    this.obsSprink.scale.setTo(0.284, 0.28);
 
     // "Look out!" header
-    this.lookOutHeader = game.add.text(this.game.world.centerX, -450, "LOOK OUT!", { font: 'bold 20pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.lookOutHeader = game.add.text(this.game.world.centerX, -260, "LOOK OUT!", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
     this.lookOutHeader.anchor.setTo(0.5);
     this.lookOutHeader.stroke = '#000000';
-    this.lookOutHeader.strokeThickness = 3;
+    this.lookOutHeader.strokeThickness = 5;
     obsScreen.add(this.lookOutHeader);
 
 
     // Obstacle text
-    this.obsTextSprink = game.add.text(this.game.world.centerX, -395, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
-    this.obsTextSprink.addColor('green', 17);
+    this.obsTextSprink = game.add.text(this.game.world.centerX, -110, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+    this.obsTextSprink.addColor('#2de276', 17);
     this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
     this.obsTextSprink.stroke = '#000000';
-    this.obsTextSprink.strokeThickness = 3;
+    this.obsTextSprink.strokeThickness = 5;
     obsScreen.add(this.obsTextSprink);
 
     // Obstacle text bottom line
-    this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -328, "Better keep our pipes clear!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, 62, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
     this.obsTextSprinkBLine.anchor.setTo(0.5);
     this.obsTextSprinkBLine.stroke = '#000000';
-    this.obsTextSprinkBLine.strokeThickness = 3;
+    this.obsTextSprinkBLine.strokeThickness = 5;
     obsScreen.add(this.obsTextSprinkBLine);
 
 
     // Continue button
-    this.contButton = obsScreen.create(this.game.world.centerX, -360, 'continueButton');
+    this.contButton = obsScreen.create(this.game.world.centerX, 207, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(2);
+    this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({ y: this.game.world.centerY - element.y }, 1400, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: element.position.y + 1000 }, 700, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     })
 
@@ -343,7 +348,7 @@ playState = {
         elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
-          // filterBG.destroy();
+          //filterBG.destroy();
           obsScreen.destroy();
         });
 
