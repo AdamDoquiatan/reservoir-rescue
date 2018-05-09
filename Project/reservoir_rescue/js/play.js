@@ -131,6 +131,7 @@ for (let i = 0; i < TILES_Y; i++) {
     grid[i][j] = null;
   }
 }
+
 let path = [];
 
 // Flags
@@ -139,6 +140,12 @@ let endConnected = false;
 let win = false;
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+// Tracks which pipes are in which selection spot
+var boxedPipes = [];
+// Tracks currently selected pipe
+var currentSelection;
+// Signals a pipe menu update when true (don't change!)
+var pipeSwap = false;
 
 // Game objects
 let map;
@@ -169,8 +176,8 @@ playState = {
     initializeMenu();
 
     // Text
-    winText = game.add.text(0, 32, 'LOSE', {fontSize: '32px', fill: '#FFF'});
-    testText = game.add.text(0, 0, '', {fontSize: '32px', fill: '#FFF'});
+    winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
+    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -188,9 +195,14 @@ playState = {
     if (playObsScreen === true) {
       this.obsScreen1();
     }
+
+
   },
 
   update: function () {
+    if (pipeSwap == true) {
+      reloadPipe(menuPipes);
+    }
 
     testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
@@ -199,7 +211,7 @@ playState = {
 
   pauseMenu: function (sprite, event) {
 
-    input_Enabled = false;
+    sprite.input.enabled = false;
     game.input.onDown.removeAll();
 
     // Dark filter
@@ -221,7 +233,7 @@ playState = {
     pauseScreen.add(this.pauseHeader);
 
     // Specifies text properties
-    var textStyle = {font: 'bold 11pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210};
+    var textStyle = { font: 'bold 11pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 };
 
     // Tip text
     this.tipDisplay = game.add.text(this.game.world.centerX, 200, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
@@ -235,14 +247,23 @@ playState = {
     this.contButton.scale.setTo(0.7);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
-      input_Enabled = true;
+      sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       pauseScreen.destroy();
       darkFilter.destroy();
     });
 
+    // Restart button
+    this.restartButton = pauseScreen.create(56, 333.2, 'restart');
+    this.restartButton.anchor.setTo(0.5);
+    this.restartButton.scale.setTo(0.7);
+    this.restartButton.inputEnabled = true;
+    this.restartButton.events.onInputDown.add(function () {
+      window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    })
+
     // Menu button
-    this.menuButton = pauseScreen.create(56, 333.2, 'menuButton');
+    this.menuButton = pauseScreen.create(129, 380, 'menuButton');
     this.menuButton.anchor.setTo(0.5);
     this.menuButton.scale.setTo(0.7);
     this.menuButton.inputEnabled = true;
@@ -253,7 +274,7 @@ playState = {
 
   obsScreen1: function (sprite, event) {
 
-    input_Enabled = false;
+    this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
     // Dummy blurry BG
@@ -275,13 +296,30 @@ playState = {
     this.obsSprink.anchor.setTo(0.5);
     this.obsSprink.scale.setTo(.25, .25);
 
-    // Specifies text properties
-    var textStyle = {font: 'bold 24pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 530};
+    // "Look out!" header
+    this.lookOutHeader = game.add.text(this.game.world.centerX, -450, "LOOK OUT!", { font: 'bold 20pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.lookOutHeader.anchor.setTo(0.5);
+    this.lookOutHeader.stroke = '#000000';
+    this.lookOutHeader.strokeThickness = 3;
+    obsScreen.add(this.lookOutHeader);
+
 
     // Obstacle text
-    this.obsTextSprink = game.add.text(this.game.world.centerX, -180, "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute! Better keep our pipes clear!", textStyle);
+    this.obsTextSprink = game.add.text(this.game.world.centerX, -395, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.obsTextSprink.addColor('green', 17);
+    this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
+    this.obsTextSprink.stroke = '#000000';
+    this.obsTextSprink.strokeThickness = 3;
     obsScreen.add(this.obsTextSprink);
+
+    // Obstacle text bottom line
+    this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -328, "Better keep our pipes clear!", { font: 'bold 12pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210 });
+    this.obsTextSprinkBLine.anchor.setTo(0.5);
+    this.obsTextSprinkBLine.stroke = '#000000';
+    this.obsTextSprinkBLine.strokeThickness = 3;
+    obsScreen.add(this.obsTextSprinkBLine);
+
 
     // Continue button
     this.contButton = obsScreen.create(this.game.world.centerX, -360, 'continueButton');
@@ -293,7 +331,7 @@ playState = {
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({y: this.game.world.centerY - element.y}, 1400, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: this.game.world.centerY - element.y }, 1400, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     })
 
@@ -302,15 +340,16 @@ playState = {
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
-        elementTween.to({y: element.position.y - 640}, 700, Phaser.Easing.Back.In, true);
+        elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
           // filterBG.destroy();
           obsScreen.destroy();
         });
-        input_Enabled = true;
-        game.input.onDown.add(delegate, this, 0);
+
       });
+      this.pauseButton.input.enabled = true;
+      game.input.onDown.add(delegate, this, 0);
 
     }
   },
@@ -361,7 +400,9 @@ function placePipe() {
   pipe.row = row;
 
   if (checkEmpty(col, row)) {
+    pipeSwap = true;
     if (checkOverlap(pipe, start)) {
+
       if (pipe.connections.includes(start.connect))
         pipe.start = true;
     } else if (checkOverlap(pipe, end)) {
@@ -371,9 +412,9 @@ function placePipe() {
     addToGridArray(col, row, pipe);
 
     pipe.object.animations.add('forward',
-      [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 60, false);
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 60, false);
     pipe.object.animations.add('backward',
-      [17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32], 60, false);
+      [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], 60, false);
 
     connect(pipe);
     if (startConnected && endConnected) {
@@ -385,12 +426,83 @@ function placePipe() {
       endConnected = false;
     }
   }
+
+
 }
 
-function selectPipe(pipe, pointer, index) {
-  if (input_Enabled === true) {
-    pipeIndex = index;
+function reloadPipe(menuPipes) {
+
+  var randomPipeIndex = Math.floor(Math.random() * 6);
+
+  // Variables for holding current pipes
+  var index0;
+  var index1;
+  var index2;
+
+  // Moves each pipe to a variable.
+  // If pipe was used, creates and stores new pipe instead.
+  for (i = 0; i < 3; i++) {
+    switch (i) {
+      case 0:
+        if (i != currentSelection) {
+          index0 = menuPipes.children[i];
+        } else {
+          index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index0.inputEnabled = true;
+          index0.scale.setTo(SCALE, SCALE)
+          index0.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 1:
+        if (i != currentSelection) {
+          index1 = menuPipes.children[i];
+        } else {
+          index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index1.inputEnabled = true;
+          index1.scale.setTo(SCALE, SCALE)
+          index1.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 2:
+        if (i != currentSelection) {
+          index2 = menuPipes.children[i];
+        } else {
+          index2 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index2.inputEnabled = true;
+          index2.scale.setTo(SCALE, SCALE)
+          index2.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      default:
+        console.log("default");
+    }
   }
+
+  // Clears and repopulates menu group.
+  menuPipes.removeAll();
+  menuPipes.add(index0);
+  menuPipes.add(index1);
+  menuPipes.add(index2);
+
+  // Auto changes pipe index to new pipe in selected spot.
+  pipeIndex = randomPipeIndex;
+
+  //Updates array.
+  boxedPipes[currentSelection] = pipeIndex;
+  console.log(boxedPipes);
+
+  // Signals pipe swap complete.
+  pipeSwap = false;
+}
+
+function selectPipe(pipe, pointer, index, currentIndex) {
+  if (input_Enabled == true) {
+    pipeIndex = index;
+    currentSelection = currentIndex;
+  };
 }
 
 // Checks if a tile on the grid is empty
@@ -519,7 +631,7 @@ function checkLeft(pipe) {
 }
 
 function levelComplete() {
-  text.text = 'WIN';
+  winText.text = 'WIN';
   let startingPipe = grid[start.row][start.col];
   pathToArray(startingPipe, Connections.UP);
   flow(null, null, 0);
@@ -599,16 +711,23 @@ function flow(sprite, animation, index) {
 
 function initializeMenu() {
   menuPipes = game.add.group();
-  for (let i = 0; i < pipes.length; i++) {
-    let pipe = game.add.sprite(
-      i * GRID + (GRID / 2) + MENU_X,
-      MENU_Y * GRID - (GRID / 2), pipes[i].image, 0);
-    pipe.scale.setTo(SCALE, SCALE);
-    menuPipes.add(pipe);
+  for (let i = 0; menuPipes.length < 3;) {
+    var randomPipeIndex = Math.floor(Math.random() * 6);
+    if (!boxedPipes.includes(randomPipeIndex)) {
+      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+      pipe.scale.setTo(SCALE, SCALE)
+      menuPipes.add(pipe);
+      boxedPipes.push(randomPipeIndex);
+      i++;
+    }
+    for (let i = 0; i < menuPipes.children.length; i++) {
+      menuPipes.children[i].inputEnabled = true;
+      menuPipes.children[i].events.onInputDown.add(selectPipe,
+        this, 0, randomPipeIndex, i);
+
+    }
+    console.log(boxedPipes);
   }
-  for (let i = 0; i < menuPipes.children.length; i++) {
-    menuPipes.children[i].inputEnabled = true;
-    menuPipes.children[i].events.onInputDown.add(selectPipe,
-      this, 0, i);
-  }
+
+
 }
