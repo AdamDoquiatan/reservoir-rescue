@@ -43,7 +43,7 @@ let pipes = [
   new Pipe('pipe1', [Connections.UP, Connections.RIGHT]),
   new Pipe('pipe2', [Connections.DOWN, Connections.RIGHT]),
   new Pipe('pipe3', [Connections.LEFT, Connections.DOWN]),
-  new Pipe('pipe3', [Connections.UP, Connections.LEFT])
+  new Pipe('pipe4', [Connections.UP, Connections.LEFT])
 ];
 
 let pipeIndex = 0;
@@ -83,6 +83,7 @@ for (let i = 0; i < TILES_Y; i++) {
   }
 }
 
+// Path from start to end
 let path = [];
 
 // Variables
@@ -106,6 +107,8 @@ let otherLayer;
 let menuPipes;
 let winText;
 let testText;
+let score;
+let scoreText;
 let obstacles;
 
 // Signals
@@ -115,6 +118,9 @@ let playState;
 playState = {
 
   create: function () {
+
+    // Variables
+    score = 1000;
 
     // Initialize tilemap
     map = game.add.tilemap('map');
@@ -147,6 +153,7 @@ playState = {
     // Text
     winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
+    scoreText = game.add.text(0, 64, 'score', { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -455,7 +462,7 @@ function reloadPipe(menuPipes) {
     switch (i) {
       case 0:
         if (i != currentSelection) {
-          index0 = menuPipes.children[  i];
+          index0 = menuPipes.children[i];
         } else {
           index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
