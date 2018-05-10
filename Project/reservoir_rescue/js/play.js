@@ -12,6 +12,7 @@ const GRID_X_MAX = GRID * TILES_X + GRID_X;
 const GRID_Y_MAX = GRID * TILES_Y + GRID_Y;
 const MENU_X = 0;
 const MENU_Y = 11;
+const SCORE_RATE = 1000;
 
 // Connections enum
 let Connections = {
@@ -21,7 +22,6 @@ let Connections = {
   LEFT: 4
 };
 Object.freeze(Connections);
-
 
 function Pipe(image, connections, col, row) {
   this.type = 'pipe';
@@ -107,7 +107,8 @@ let otherLayer;
 let menuPipes;
 let winText;
 let testText;
-let score;
+let score = 100;
+let scoreLabel = 'SCORE: ';
 let scoreText;
 let obstacles;
 
@@ -119,8 +120,7 @@ playState = {
 
   create: function () {
 
-    // Variables
-    score = 1000;
+    console.log(score);
 
     // Initialize tilemap
     map = game.add.tilemap('map');
@@ -153,11 +153,13 @@ playState = {
     // Text
     winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
-    scoreText = game.add.text(0, 64, 'score', { fontSize: '32px', fill: '#FFF' });
+    scoreText = game.add.text(0, 64, score, { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
+    // Decreasing score
+    game.time.events.loop(SCORE_RATE, decreaseScore, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -181,6 +183,11 @@ playState = {
     testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
+
+    if (score > 0) {
+      score -= SCORE_RATE;
+      scoreText.text = scoreLabel + score;
+    }
   },
 
   pauseMenu: function (sprite, event) {
@@ -668,4 +675,8 @@ function checkLeft(pipe) {
   return null;
 }
 
+function decreaseScore() {
+  score--;
+  scoreText.setText(score);
+}
 
