@@ -131,6 +131,7 @@ for (let i = 0; i < TILES_Y; i++) {
     grid[i][j] = null;
   }
 }
+
 let path = [];
 
 // Variables
@@ -140,6 +141,12 @@ let win = false;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+// Tracks which pipes are in which selection spot
+var boxedPipes = [];
+// Tracks currently selected pipe
+var currentSelection;
+// Signals a pipe menu update when true (don't change!)
+var pipeSwap = false;
 
 // Game objects
 let map;
@@ -170,8 +177,8 @@ playState = {
     initializeMenu();
 
     // Text
-    winText = game.add.text(0, 32, 'LOSE', {fontSize: '32px', fill: '#FFF'});
-    testText = game.add.text(0, 0, '', {fontSize: '32px', fill: '#FFF'});
+    winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
+    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -179,7 +186,7 @@ playState = {
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
-    this.pauseButton.scale.setTo(2, 2);
+    this.pauseButton.scale.setTo(2.3);
     this.pauseButton.anchor.setTo(1, 0);
     this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
@@ -189,9 +196,14 @@ playState = {
     if (playObsScreen === true) {
       this.obsScreen1();
     }
+
+
   },
 
   update: function () {
+    if (pipeSwap == true) {
+      reloadPipe(menuPipes);
+    }
 
     testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
@@ -200,52 +212,68 @@ playState = {
 
   pauseMenu: function (sprite, event) {
 
-    input_Enabled = false;
+    sprite.input.enabled = false;
     game.input.onDown.removeAll();
 
     // Dark filter
     var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
     darkFilter.anchor.setTo(0.5);
+    darkFilter.scale.setTo(4);
 
     // Group for screen componenets
     var pauseScreen = this.game.add.group();
 
     // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 60, "PAUSED", {
-      font: 'bold 29.4pt Helvetica',
+    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+      font: 'bold 100pt Helvetica',
       fill: 'white',
       align: 'center',
       wordWrap: true,
-      wordWrapWidth: 310
+      wordWrapWidth: 700
     });
     this.pauseHeader.anchor.setTo(0.5);
+    this.pauseHeader.stroke = '#000000';
+    this.pauseHeader.strokeThickness = 7;
     pauseScreen.add(this.pauseHeader);
 
     // Specifies text properties
-    var textStyle = {font: 'bold 11pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 210};
+    var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
     // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 200, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
+    this.tipDisplay = game.add.text(this.game.world.centerX, 650, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
     this.tipDisplay.anchor.setTo(0.5);
     this.tipDisplay.lineSpacing = -2;
+    this.tipDisplay.addColor('#3d87ff', 0);
+    this.tipDisplay.addColor('white', 12);
+    this.tipDisplay.stroke = '#000000';
+    this.tipDisplay.strokeThickness = 7;
     pauseScreen.add(this.tipDisplay);
 
     // Continue button
-    this.contButton = pauseScreen.create(200, 333.2, 'continueButton');
+    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(0.7);
+    this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
-      input_Enabled = true;
+      sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       pauseScreen.destroy();
       darkFilter.destroy();
     });
 
+    // Restart button
+    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
+    this.restartButton.anchor.setTo(0.5);
+    this.restartButton.scale.setTo(2.3);
+    this.restartButton.inputEnabled = true;
+    this.restartButton.events.onInputDown.add(function () {
+      window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    })
+
     // Menu button
-    this.menuButton = pauseScreen.create(56, 333.2, 'menuButton');
+    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
     this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(0.7);
+    this.menuButton.scale.setTo(2.3);
     this.menuButton.inputEnabled = true;
     this.menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
@@ -254,47 +282,62 @@ playState = {
 
   obsScreen1: function (sprite, event) {
 
-    input_Enabled = false;
+    this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
-    // Dummy blurry BG
-    // var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
-    // filterBG.anchor.setTo(0.5);
+    // Dummy Blurry BG
+    //var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
+    //filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
     // Screen BG
-    console.log(this);
-    console.log(this.game);
-    this.obsBG = obsScreen.create(this.game.world.centerX, 0, 'obs_screen');
-    this.obsBG.anchor.setTo(0.5, 0.5);
-    this.obsBG.scale.setTo(2.5, 5);
+    this.obsBG = obsScreen.create(this.game.world.centerX, -300, 'obs_screen');
+    this.obsBG.anchor.setTo(0.5);
+    this.obsBG.scale.setTo(3.1, 6.8);
 
     // Picture of a sprinkler
-    this.obsSprink = obsScreen.create(this.game.world.centerX, 180, 'obs_screen_sprink');
+    this.obsSprink = obsScreen.create(this.game.world.centerX, -600, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
-    this.obsSprink.scale.setTo(.25, .25);
+    this.obsSprink.scale.setTo(0.284, 0.28);
 
-    // Specifies text properties
-    var textStyle = {font: 'bold 24pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 530};
+    // "Look out!" header
+    this.lookOutHeader = game.add.text(this.game.world.centerX, -260, "LOOK OUT!", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+    this.lookOutHeader.anchor.setTo(0.5);
+    this.lookOutHeader.stroke = '#000000';
+    this.lookOutHeader.strokeThickness = 5;
+    obsScreen.add(this.lookOutHeader);
+
 
     // Obstacle text
-    this.obsTextSprink = game.add.text(this.game.world.centerX, -180, "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute! Better keep our pipes clear!", textStyle);
+    this.obsTextSprink = game.add.text(this.game.world.centerX, -110, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+    this.obsTextSprink.addColor('#2de276', 17);
+    this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
+    this.obsTextSprink.stroke = '#000000';
+    this.obsTextSprink.strokeThickness = 5;
     obsScreen.add(this.obsTextSprink);
 
+    // Obstacle text bottom line
+    this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, 62, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+    this.obsTextSprinkBLine.anchor.setTo(0.5);
+    this.obsTextSprinkBLine.stroke = '#000000';
+    this.obsTextSprinkBLine.strokeThickness = 5;
+    obsScreen.add(this.obsTextSprinkBLine);
+
+
     // Continue button
-    this.contButton = obsScreen.create(this.game.world.centerX, -360, 'continueButton');
+    this.contButton = obsScreen.create(this.game.world.centerX, 207, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(2);
+    this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({y: this.game.world.centerY - element.y}, 1400, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: element.position.y + 1000 }, 700, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     });
 
@@ -303,15 +346,16 @@ playState = {
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
-        elementTween.to({y: element.position.y - 640}, 700, Phaser.Easing.Back.In, true);
+        elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
-          // filterBG.destroy();
+          //filterBG.destroy();
           obsScreen.destroy();
         });
-        input_Enabled = true;
-        game.input.onDown.add(delegate, this, 0);
+
       });
+      this.pauseButton.input.enabled = true;
+      game.input.onDown.add(delegate, this, 0);
 
     }
   },
@@ -363,17 +407,22 @@ function levelComplete() {
 // Initializes the pipe selection menu
 function initializeMenu() {
   menuPipes = game.add.group();
-  for (let i = 0; i < pipes.length; i++) {
-    let pipe = game.add.sprite(
-      i * GRID + (GRID / 2) + MENU_X,
-      MENU_Y * GRID - (GRID / 2), pipes[i].image, 0);
-    pipe.scale.setTo(SCALE, SCALE);
-    menuPipes.add(pipe);
-  }
-  for (let i = 0; i < menuPipes.children.length; i++) {
-    menuPipes.children[i].inputEnabled = true;
-    menuPipes.children[i].events.onInputDown.add(selectPipe,
-      this, 0, i);
+  for (let i = 0; menuPipes.length < 3;) {
+    var randomPipeIndex = Math.floor(Math.random() * 6);
+    if (!boxedPipes.includes(randomPipeIndex)) {
+      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+      pipe.scale.setTo(SCALE, SCALE)
+      menuPipes.add(pipe);
+      boxedPipes.push(randomPipeIndex);
+      i++;
+    }
+    for (let i = 0; i < menuPipes.children.length; i++) {
+      menuPipes.children[i].inputEnabled = true;
+      menuPipes.children[i].events.onInputDown.add(selectPipe,
+        this, 0, randomPipeIndex, i);
+
+    }
+    console.log(boxedPipes);
   }
 }
 
@@ -393,7 +442,9 @@ function placePipe() {
   pipe.row = row;
 
   if (checkEmpty(col, row)) {
+    pipeSwap = true;
     if (checkOverlap(pipe, start)) {
+
       if (pipe.connections.includes(start.connect))
         pipe.start = true;
     } else if (checkOverlap(pipe, end)) {
@@ -403,9 +454,9 @@ function placePipe() {
     addToGridArray(col, row, pipe);
 
     pipe.object.animations.add('forward',
-      [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 60, false);
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 60, false);
     pipe.object.animations.add('backward',
-      [17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32], 60, false);
+      [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], 60, false);
 
     connect(pipe);
     if (startConnected && endConnected) {
@@ -417,6 +468,76 @@ function placePipe() {
       endConnected = false;
     }
   }
+
+
+}
+
+function reloadPipe(menuPipes) {
+
+  var randomPipeIndex = Math.floor(Math.random() * 6);
+
+  // Variables for holding current pipes
+  var index0;
+  var index1;
+  var index2;
+
+  // Moves each pipe to a variable.
+  // If pipe was used, creates and stores new pipe instead.
+  for (i = 0; i < 3; i++) {
+    switch (i) {
+      case 0:
+        if (i != currentSelection) {
+          index0 = menuPipes.children[i];
+        } else {
+          index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index0.inputEnabled = true;
+          index0.scale.setTo(SCALE, SCALE)
+          index0.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 1:
+        if (i != currentSelection) {
+          index1 = menuPipes.children[i];
+        } else {
+          index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index1.inputEnabled = true;
+          index1.scale.setTo(SCALE, SCALE)
+          index1.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      case 2:
+        if (i != currentSelection) {
+          index2 = menuPipes.children[i];
+        } else {
+          index2 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index2.inputEnabled = true;
+          index2.scale.setTo(SCALE, SCALE)
+          index2.events.onInputDown.add(selectPipe,
+            this, 0, randomPipeIndex, i);
+        }
+        break;
+      default:
+        console.log("default");
+    }
+  }
+
+  // Clears and repopulates menu group.
+  menuPipes.removeAll();
+  menuPipes.add(index0);
+  menuPipes.add(index1);
+  menuPipes.add(index2);
+
+  // Auto changes pipe index to new pipe in selected spot.
+  pipeIndex = randomPipeIndex;
+
+  //Updates array.
+  boxedPipes[currentSelection] = pipeIndex;
+  console.log(boxedPipes);
+
+  // Signals pipe swap complete.
+  pipeSwap = false;
 }
 
 // Checks if a tile on the grid is empty
@@ -566,4 +687,5 @@ function checkLeft(pipe) {
   }
   return null;
 }
+
 
