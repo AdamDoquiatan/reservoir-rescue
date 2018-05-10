@@ -5,6 +5,7 @@ var loadState = {
     // Gameplay stuff
     game.load.image('loading_bg', 'assets/images/loading_bg.jpg');
     game.load.image('cursor', 'assets/images/cursor.png');
+    game.load.image('boxSelector', 'assets/images/boxSelector.png');
 
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
@@ -26,7 +27,6 @@ var loadState = {
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
 
     // In-Game Menu Stuff
-    this.load.image('BG_blur', 'assets/images/BG_blur.jpg');
     this.load.image('obs_screen', 'assets/images/obs_bg_1.jpg');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
     this.load.image('continueButton', 'assets/images/continueButton.jpg');

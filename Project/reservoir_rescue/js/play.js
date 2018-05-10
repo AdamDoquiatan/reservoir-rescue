@@ -12,7 +12,6 @@ const GRID_X_MAX = GRID * TILES_X + GRID_X;
 const GRID_Y_MAX = GRID * TILES_Y + GRID_Y;
 const MENU_X = 0;
 const MENU_Y = 11;
-const SCORE_RATE = 1000;
 
 // Connections enum
 let Connections = {
@@ -93,6 +92,8 @@ let win = false;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+// Ensures that player makes a selection before placing pipes
+var can_Place = false;
 // Tracks which pipes are in which selection spot
 var boxedPipes = [];
 // Tracks currently selected pipe
@@ -107,20 +108,18 @@ let otherLayer;
 let menuPipes;
 let winText;
 let testText;
-let score = 100;
-let scoreLabel = 'SCORE: ';
 let scoreText;
 let obstacles;
+var boxSelector;
 
 // Signals
 let onWin = new Phaser.Signal();
 
 let playState;
+
 playState = {
 
   create: function () {
-
-    console.log(score);
 
     // Initialize tilemap
     map = game.add.tilemap('map');
@@ -130,6 +129,7 @@ playState = {
     otherLayer = map.createLayer('Other');
     otherLayer.scale.set(SCALE);
 
+    // Create obstacles from object layer of tilemap
     obstacles = game.add.group();
     map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacles);
     obstacles.forEach(function (element) {
@@ -153,13 +153,10 @@ playState = {
     // Text
     winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
-    scoreText = game.add.text(0, 64, score, { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
-    // Decreasing score
-    game.time.events.loop(SCORE_RATE, decreaseScore, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -176,6 +173,7 @@ playState = {
   },
 
   update: function () {
+
     if (pipeSwap === true) {
       reloadPipe(menuPipes);
     }
@@ -183,91 +181,90 @@ playState = {
     testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
-
-    if (score > 0) {
-      score -= SCORE_RATE;
-      scoreText.text = scoreLabel + score;
-    }
   },
 
   pauseMenu: function (sprite, event) {
 
-    sprite.input.enabled = false;
-    game.input.onDown.removeAll();
+    if (input_Enabled === true) {
+      // Turns off input to everything but pause screen
+      input_Enabled = false;
+      sprite.input.enabled = false;
+      game.input.onDown.removeAll();
 
-    // Dark filter
-    var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-    darkFilter.anchor.setTo(0.5);
-    darkFilter.scale.setTo(4);
+      // Dark filter
+      var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+      darkFilter.anchor.setTo(0.5);
+      darkFilter.scale.setTo(4);
 
-    // Group for screen componenets
-    var pauseScreen = this.game.add.group();
+      // Group for screen componenets
+      var pauseScreen = this.game.add.group();
 
-    // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
-      font: 'bold 100pt Helvetica',
-      fill: 'white',
-      align: 'center',
-      wordWrap: true,
-      wordWrapWidth: 700
-    });
-    this.pauseHeader.anchor.setTo(0.5);
-    this.pauseHeader.stroke = '#000000';
-    this.pauseHeader.strokeThickness = 7;
-    pauseScreen.add(this.pauseHeader);
+      // Big pause header
+      this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+        font: 'bold 100pt Helvetica',
+        fill: 'white',
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 700
+      });
+      this.pauseHeader.anchor.setTo(0.5);
+      this.pauseHeader.stroke = '#000000';
+      this.pauseHeader.strokeThickness = 7;
+      pauseScreen.add(this.pauseHeader);
 
-    // Specifies text properties
-    var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+      // Specifies text properties
+      var textStyle = {font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850};
 
-    // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 650, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
-    this.tipDisplay.anchor.setTo(0.5);
-    this.tipDisplay.lineSpacing = -2;
-    this.tipDisplay.addColor('#3d87ff', 0);
-    this.tipDisplay.addColor('white', 12);
-    this.tipDisplay.stroke = '#000000';
-    this.tipDisplay.strokeThickness = 7;
-    pauseScreen.add(this.tipDisplay);
+      // Tip text
+      this.tipDisplay = game.add.text(this.game.world.centerX, 650,
+        "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
+      this.tipDisplay.anchor.setTo(0.5);
+      this.tipDisplay.lineSpacing = -2;
+      this.tipDisplay.addColor('#3d87ff', 0);
+      this.tipDisplay.addColor('white', 12);
+      this.tipDisplay.stroke = '#000000';
+      this.tipDisplay.strokeThickness = 7;
+      pauseScreen.add(this.tipDisplay);
 
-    // Continue button
-    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
-    this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(2.3);
-    this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(function () {
-      sprite.input.enabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      pauseScreen.destroy();
-      darkFilter.destroy();
-    });
+      // Continue button
+      this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
+      this.contButton.anchor.setTo(0.5);
+      this.contButton.scale.setTo(2.3);
+      this.contButton.inputEnabled = true;
+      this.contButton.events.onInputDown.add(function () {
+        input_Enabled = true;
+        sprite.input.enabled = true;
+        game.input.onDown.add(delegate, this, 0);
+        pauseScreen.destroy();
+        darkFilter.destroy();
+      });
 
-    // Restart button
-    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
-    this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(2.3);
-    this.restartButton.inputEnabled = true;
-    this.restartButton.events.onInputDown.add(function () {
-      window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
-    });
+      // Restart button
+      this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
+      this.restartButton.anchor.setTo(0.5);
+      this.restartButton.scale.setTo(2.3);
+      this.restartButton.inputEnabled = true;
+      this.restartButton.events.onInputDown.add(function () {
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+      });
 
-    // Menu button
-    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
-    this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(2.3);
-    this.menuButton.inputEnabled = true;
-    this.menuButton.events.onInputDown.add(function () {
-      window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-    });
+      // Menu button
+      this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
+      this.menuButton.anchor.setTo(0.5);
+      this.menuButton.scale.setTo(2.3);
+      this.menuButton.inputEnabled = true;
+      this.menuButton.events.onInputDown.add(function () {
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+      });
+    }
   },
 
   obsScreen1: function (sprite, event) {
 
+    // Prevents input to anything but obs screen
+    input_Enabled = false;
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
-
-    // Dummy Blurry BG
-    //var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
-    //filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
@@ -289,7 +286,6 @@ playState = {
     this.lookOutHeader.strokeThickness = 5;
     obsScreen.add(this.lookOutHeader);
 
-
     // Obstacle text
     this.obsTextSprink = game.add.text(this.game.world.centerX, -110, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
     this.obsTextSprink.addColor('#2de276', 17);
@@ -305,7 +301,6 @@ playState = {
     this.obsTextSprinkBLine.stroke = '#000000';
     this.obsTextSprinkBLine.strokeThickness = 5;
     obsScreen.add(this.obsTextSprinkBLine);
-
 
     // Continue button
     this.contButton = obsScreen.create(this.game.world.centerX, 207, 'continueButton');
@@ -329,14 +324,13 @@ playState = {
         elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
-          //filterBG.destroy();
           obsScreen.destroy();
         });
 
       });
+      input_Enabled = true;
       this.pauseButton.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
-
     }
   },
 
@@ -346,71 +340,40 @@ playState = {
 
     switch (tip) {
       case 0:
-        return "Did you know water gushes from the average faucet at 9.4 litres per second? That\u0027s a lot of H2O swirling down your drain, there. While you\u0027re brushing your teeth with one hand, try turning off the faucet with the other. Save some of that good stuff for the rest of us!"
-        break;
+        return "Did you know water gushes from the average faucet at 9.4 litres per second? " +
+          "That\u0027s a lot of H2O swirling down your drain, there. While you\u0027re brushing " +
+          "your teeth with one hand, try turning off the faucet with the other. Save some of that " +
+          "good stuff for the rest of us!";
       case 1:
-        return "What\u0027s that dripping? Why it\u0027s the sound of 19 litres of water being wasted every day because somebody didn\u0027t fix a leaky faucet (not pointing any fingers). Seriously, people! Fix it yourself or hire a plumber. A racoon plumber!"
-        break;
+        return "What\u0027s that dripping? Why it\u0027s the sound of 19 litres of water being " +
+          "wasted every day because somebody didn\u0027t fix a leaky faucet (not pointing any fingers). " +
+          "Seriously, people! Fix it yourself or hire a plumber. A racoon plumber!";
       case 2:
-        return "You know what plants crave? Exactly! That water you just cooked your pasta in; save it, let it cool, and water your plants with it. Just, uh, make sure it\u0027s cooled off first. Like, cold. Otherwise, you can say goodbye to your begonias."
-        break;
+        return "You know what plants crave? Exactly! That water you just cooked your pasta in; save it, " +
+          "let it cool, and water your plants with it. Just, uh, make sure it\u0027s cooled off first. " +
+          "Like, cold. Otherwise, you can say goodbye to your begonias.";
       case 3:
-        return "How long does it take to have a shower? I mean, what are you people doing in there!? Showers use up 15-19 litres of water per minute, so maybe do your daydreaming somewhere else."
-        break;
+        return "How long does it take to have a shower? I mean, what are you people doing in there!? " +
+          "Showers use up 15-19 litres of water per minute, so maybe do your daydreaming somewhere else.";
       case 4:
-        return "Did you know that most lawns are overwatered? People are dumping as much as 340 litres per square foot per year on that thankless green patch in front of their houses. Just let it go brown! I mean what did that grass ever do for you?"
-        break;
+        return "Did you know that most lawns are overwatered? People are dumping as much as " +
+          "340 litres per square foot per year on that thankless green patch in front of their houses. " +
+          "Just let it go brown! I mean what did that grass ever do for you?";
       case 5:
-        return "You know what uses a lot of water? Power plants and hydro-electric dams! If you want to save water on the sly, using less electricity might just be the way to do it."
-        break;
+        return "You know what uses a lot of water? Power plants and hydro-electric dams! " +
+          "If you want to save water on the sly, using less electricity might just be the way to do it.";
       case 6:
-        return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!"
-        break;
+        return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. " +
+          "The environment will thank you. The cows will thank you too!";
       case 7:
-        return "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun lies a dark truth: These things can toss out up to 16 liters/minute!"
-        break;
+        return "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun " +
+          "lies a dark truth: These things can toss out up to 16 liters/minute!";
       default:
-        return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!"
-        break;
+        return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. " +
+          "The environment will thank you. The cows will thank you too!";
     }
   }
 };
-
-// Actions to take once level is complete
-function levelComplete() {
-  winText.text = 'WIN';
-  let startingPipe = grid[start.row][start.col];
-  pathToArray(startingPipe, Connections.UP);
-  flow(null, null, 0);
-}
-
-// Initializes the pipe selection menu
-function initializeMenu() {
-  menuPipes = game.add.group();
-  for (let i = 0; menuPipes.length < 3;) {
-    var randomPipeIndex = Math.floor(Math.random() * 6);
-    if (!boxedPipes.includes(randomPipeIndex)) {
-      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
-      pipe.scale.setTo(SCALE, SCALE)
-      menuPipes.add(pipe);
-      boxedPipes.push(randomPipeIndex);
-      i++;
-    }
-    for (let i = 0; i < menuPipes.children.length; i++) {
-      menuPipes.children[i].inputEnabled = true;
-      menuPipes.children[i].events.onInputDown.add(selectPipe,
-        this, 0, randomPipeIndex, i);
-
-    }
-    console.log(boxedPipes);
-  }
-}
-
-function selectPipe(pipe, pointer, index) {
-  if (input_Enabled === true) {
-    pipeIndex = index;
-  }
-}
 
 function placePipe() {
 
@@ -423,10 +386,14 @@ function placePipe() {
     col, row
   );
   
-  if (checkEmpty(col, row)) {
-    pipeSwap = true;
-    if (checkOverlap(pipe, start)) {
+  if (checkEmpty(col, row) && can_Place === true) {
+    let pipe = Object.assign({}, pipes[pipeIndex]);
+    pipe.col = col;
+    pipe.row = row;
 
+    pipeSwap = true;
+
+    if (checkOverlap(pipe, start)) {
       if (pipe.connections.includes(start.connect))
         pipe.start = true;
     } else if (checkOverlap(pipe, end)) {
@@ -438,7 +405,7 @@ function placePipe() {
     pipe.object.animations.add('forward',
       [1, 2, 3, 4, 5, 6, 7, 8], 30, false);
     pipe.object.animations.add('backward',
-      [17, 18, 19, 20, 21, 22, 23, 24], 30, false);
+      [9, 10, 11, 12, 13, 14, 15, 16], 30, false);
 
     connect(pipe);
     if (startConnected && endConnected) {
@@ -454,6 +421,7 @@ function placePipe() {
   console.log(grid);
 }
 
+// Replaces pipe in current selection box with new random pipe
 function reloadPipe(menuPipes) {
 
   var randomPipeIndex = Math.floor(Math.random() * 6);
@@ -468,34 +436,36 @@ function reloadPipe(menuPipes) {
   for (i = 0; i < 3; i++) {
     switch (i) {
       case 0:
-        if (i != currentSelection) {
+        if (i !== currentSelection) {
           index0 = menuPipes.children[i];
         } else {
           index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
-          index0.scale.setTo(SCALE, SCALE)
+          index0.scale.setTo(SCALE, SCALE);
           index0.events.onInputDown.add(selectPipe,
             this, 0, randomPipeIndex, i);
         }
         break;
       case 1:
-        if (i != currentSelection) {
+        if (i !== currentSelection) {
           index1 = menuPipes.children[i];
         } else {
           index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index1.inputEnabled = true;
-          index1.scale.setTo(SCALE, SCALE)
+          index1.scale.setTo(SCALE, SCALE);
           index1.events.onInputDown.add(selectPipe,
             this, 0, randomPipeIndex, i);
         }
         break;
       case 2:
-        if (i != currentSelection) {
+        if (i !== currentSelection) {
           index2 = menuPipes.children[i];
         } else {
-          index2 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index2 = game.add.sprite(
+            currentSelection * 2 * GRID + (GRID) + MENU_X,
+            MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index2.inputEnabled = true;
-          index2.scale.setTo(SCALE, SCALE)
+          index2.scale.setTo(SCALE, SCALE);
           index2.events.onInputDown.add(selectPipe,
             this, 0, randomPipeIndex, i);
         }
@@ -520,6 +490,15 @@ function reloadPipe(menuPipes) {
 
   // Signals pipe swap complete.
   pipeSwap = false;
+}
+
+function selectPipe(pipe, pointer, index, currentIndex) {
+  if (input_Enabled === true) {
+    currentSelection = currentIndex;
+    pipeIndex = index;
+    boxCreator(pointer);
+    can_Place = true;
+  }
 }
 
 // Checks if a tile on the grid is empty
@@ -675,8 +654,48 @@ function checkLeft(pipe) {
   return null;
 }
 
-function decreaseScore() {
-  score--;
-  scoreText.setText(score);
+function levelComplete() {
+  game.input.onDown.removeAll();
+  can_Place = false;
+  input_Enabled = false;
+  winText.text = 'WIN';
+  let startingPipe = grid[start.row][start.col];
+  pathToArray(startingPipe, Connections.UP);
+  flow(null, null, 0);
+}
+
+// Creates starting selection of random (but unique) pipes
+function initializeMenu() {
+  menuPipes = game.add.group();
+  for (let i = 0; menuPipes.length < 3;) {
+    var randomPipeIndex = Math.floor(Math.random() * 6);
+    if (!boxedPipes.includes(randomPipeIndex)) {
+      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+      pipe.scale.setTo(SCALE, SCALE)
+      menuPipes.add(pipe);
+      boxedPipes.push(randomPipeIndex);
+      i++;
+    }
+    for (let i = 0; i < menuPipes.children.length; i++) {
+      menuPipes.children[i].inputEnabled = true;
+      menuPipes.children[i].events.onInputDown.add(selectPipe,
+        this, 0, randomPipeIndex, i);
+
+    }
+    console.log(boxedPipes);
+  }
+}
+
+// Creates a box around player's selected pipe
+function boxCreator(selector) {
+
+  if (boxSelector != null) {
+    boxSelector.destroy();
+  }
+
+  boxSelector = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), 'boxSelector', 0);
+  boxSelector.scale.setTo(SCALE + 3.1, SCALE + 3.1);
+  boxSelector.x += -55;
+  boxSelector.y += -55;
 }
 
