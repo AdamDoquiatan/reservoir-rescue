@@ -28,6 +28,7 @@ var loadState = {
     this.load.image('pause', 'assets/images/pause.png');
     this.load.image('restart', 'assets/images/restart.png');
     this.load.image('menuButton', 'assets/images/menu.png');
+    this.load.image('winButton', 'assets/images/win.png');
   },
   create() {
 

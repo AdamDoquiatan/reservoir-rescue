@@ -157,6 +157,8 @@ let menuPipes;
 let winText;
 let testText;
 var boxSelector;
+var health = 90;
+var score = 100;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -194,13 +196,19 @@ playState = {
     this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
+    // For testing: Win Button
+    this.winButton = this.game.add.sprite(game.width, 100, 'winButton');
+    this.winButton.scale.setTo(2.3);
+    this.winButton.anchor.setTo(1, 0);
+    this.winButton.inputEnabled = input_Enabled;
+    this.winButton.events.onInputDown.add(winScreen, this);
+
+
     // For testing: turn the obstacle screen on or off
     let playObsScreen = true;
     if (playObsScreen === true) {
       this.obsScreen1();
     }
-
-
   },
 
   update: function () {
@@ -294,6 +302,12 @@ playState = {
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
+    // Dark Filter
+    this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+    this.darkFilter.anchor.setTo(0.5);
+    this.darkFilter.scale.setTo(4);
+    this.darkFilter.alpha = 1;
+
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
@@ -349,6 +363,9 @@ playState = {
     // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
 
+      darkFilterTween = this.game.add.tween(this.darkFilter);
+      darkFilterTween.to({alpha: 0}, 1200, Phaser.Easing.Cubic.Out, true);
+
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
         elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
@@ -398,8 +415,103 @@ playState = {
         return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. The environment will thank you. The cows will thank you too!"
         break;
     }
+  },
+
+  winButton: function (sprite, event) {
+    winScreen();
   }
 };
+
+
+function winScreen() {
+  // Turns off input to everything but win screen
+  input_Enabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter Fades In
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 0;
+
+  // Group for screen components
+  var winScreen = this.game.add.group();
+
+  // Big win header
+  this.winHeader = game.add.text(this.game.world.centerX, 400, "VICTORY", {
+    font: 'bold 140pt Helvetica',
+    fill: 'white',
+    align: 'center',
+    wordWrap: true,
+    wordWrapWidth: 700
+  });
+  this.winHeader.anchor.setTo(0.5);
+  this.winHeader.stroke = '#000000';
+  this.winHeader.strokeThickness = 10;
+  this.winHeader.alpha = 0;
+
+  // Specifies text properties
+  var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+
+  // Water-Saved text
+  this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
+  this.waterSavedDisplay.lineSpacing = -2;
+  this.waterSavedDisplay.addColor('#3d87ff', 11);
+  this.waterSavedDisplay.addColor('white', 21);
+  this.waterSavedDisplay.stroke = '#000000';
+  this.waterSavedDisplay.strokeThickness = 7;
+  winScreen.add(this.waterSavedDisplay);
+
+  // Score text
+  this.scoreDisplay = game.add.text(game.world.centerX + 600, 850, "Score: " + score, textStyle);
+  this.scoreDisplay.anchor.setTo(0.5);
+  this.scoreDisplay.lineSpacing = -2;
+  this.scoreDisplay.addColor('#3d87ff', 7);
+  this.scoreDisplay.addColor('white', 10);
+  this.scoreDisplay.stroke = '#000000';
+  this.scoreDisplay.strokeThickness = 7;
+  winScreen.add(this.scoreDisplay);
+
+  
+  // Continue (to next level) button -- currently just copied from pause screen
+  this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(2.3);
+  /*
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(function () {
+    input_Enabled = true;
+    sprite.input.enabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    winScreen.destroy();
+  });
+  */
+
+  // Restart button
+  this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
+  this.restartButton.anchor.setTo(0.5);
+  this.restartButton.scale.setTo(2.3);
+  this.restartButton.inputEnabled = true;
+  this.restartButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+  })
+
+  // Text and Button Tweens
+  darkFilterTween = this.game.add.tween(this.darkFilter);
+  darkFilterTween.to({alpha: 1}, 1500, Phaser.Easing.Cubic.Out, true);
+
+  victoryTween = this.game.add.tween(this.winHeader);
+  victoryTween.to({alpha: 1}, 1300, Phaser.Easing.Cubic.Out, true);
+
+  var xMovement = 400;
+  winScreen.forEach(function (element) {
+    var elementTween = this.game.add.tween(element);
+    elementTween.to({ x: element.position.x - xMovement }, 1000, Phaser.Easing.Cubic.Out, true);
+    elementTween.start();
+    xMovement += 200;
+  })
+}
+
 
 function placePipe() {
 
@@ -648,6 +760,7 @@ function levelComplete() {
   game.input.onDown.removeAll();
   can_Place = false;
   input_Enabled = false;
+  winScreen();
   winText.text = 'WIN';
   let startingPipe = grid[start.row][start.col];
   pathToArray(startingPipe, Connections.UP);
