@@ -151,9 +151,12 @@ var pipeSwap = false;
 // Game objects
 let map;
 let layer;
+let objectsLayer;
+let otherLayer;
 let menuPipes;
 let winText;
 let testText;
+let obstacles;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -164,10 +167,20 @@ playState = {
   create: function () {
 
     // Initialize tilemap
-    map = game.add.tilemap('map', 32, 32);
-    map.addTilesetImage('tileset');
-    layer = map.createLayer(0);
+    map = game.add.tilemap('map');
+    map.addTilesetImage('tileset', 'tileset');
+    layer = map.createLayer('Background');
     layer.scale.set(SCALE);
+    otherLayer = map.createLayer('Other');
+    otherLayer.scale.set(SCALE);
+
+    obstacles = game.add.group();
+    map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacles);
+    obstacles.forEach(function (element) {
+      element.scale.set(SCALE);
+      element.x *= SCALE;
+      element.y *= SCALE;
+    });
 
     // Set start and end points
     start.object = addToGrid(start.col, start.row, start.image);
@@ -454,9 +467,9 @@ function placePipe() {
     addToGridArray(col, row, pipe);
 
     pipe.object.animations.add('forward',
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 60, false);
+      [1, 2, 3, 4, 5, 6, 7, 8], 30, false);
     pipe.object.animations.add('backward',
-      [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], 60, false);
+      [17, 18, 19, 20, 21, 22, 23, 24], 30, false);
 
     connect(pipe);
     if (startConnected && endConnected) {
