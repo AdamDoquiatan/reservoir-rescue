@@ -140,6 +140,8 @@ let endConnected = false;
 let win = false;
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
+// Ensures that player makes a selection before placing pipes
+var can_Place = false;
 // Tracks which pipes are in which selection spot
 var boxedPipes = [];
 // Tracks currently selected pipe
@@ -153,6 +155,7 @@ let layer;
 let menuPipes;
 let winText;
 let testText;
+var boxSelector;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -211,6 +214,7 @@ playState = {
 
   pauseMenu: function (sprite, event) {
 
+    input_Enabled = false;
     sprite.input.enabled = false;
     game.input.onDown.removeAll();
 
@@ -254,6 +258,7 @@ playState = {
     this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
+      input_Enabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       pauseScreen.destroy();
@@ -281,6 +286,7 @@ playState = {
 
   obsScreen1: function (sprite, event) {
 
+    input_Enabled = false;
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
@@ -353,6 +359,7 @@ playState = {
         });
 
       });
+      input_Enabled = true;
       this.pauseButton.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
 
@@ -404,7 +411,7 @@ function placePipe() {
   pipe.col = col;
   pipe.row = row;
 
-  if (checkEmpty(col, row)) {
+  if (checkEmpty(col, row) && can_Place == true) {
     pipeSwap = true;
     if (checkOverlap(pipe, start)) {
 
@@ -505,8 +512,11 @@ function reloadPipe(menuPipes) {
 
 function selectPipe(pipe, pointer, index, currentIndex) {
   if (input_Enabled == true) {
-    pipeIndex = index;
+    
     currentSelection = currentIndex;
+    pipeIndex = index;
+    boxCreator(pointer);
+    can_Place = true;
   };
 }
 
@@ -636,6 +646,7 @@ function checkLeft(pipe) {
 }
 
 function levelComplete() {
+  game.input.onDown.removeAll();
   winText.text = 'WIN';
   let startingPipe = grid[start.row][start.col];
   pathToArray(startingPipe, Connections.UP);
@@ -733,6 +744,18 @@ function initializeMenu() {
     }
     console.log(boxedPipes);
   }
+}
 
 
+function boxCreator(selector){
+  
+  if (boxSelector != null) {
+    boxSelector.destroy();
+  }
+
+  boxSelector = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), 'boxSelector', 0);
+  boxSelector.scale.setTo(SCALE + 3.1, SCALE + 3.1);
+  boxSelector.x += -55;
+  boxSelector.y += -55;
+  
 }
