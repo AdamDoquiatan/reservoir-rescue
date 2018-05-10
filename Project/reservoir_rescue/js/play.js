@@ -80,8 +80,8 @@ let pipes = [
   {
     image: 'pipe3',
     connections: [
-      Connections.DOWN,
-      Connections.LEFT
+      Connections.LEFT,
+      Connections.DOWN
     ],
     start: false,
     end: false,
@@ -133,10 +133,11 @@ for (let i = 0; i < TILES_Y; i++) {
 }
 let path = [];
 
-// Flags
+// Variables
 let startConnected = false;
 let endConnected = false;
 let win = false;
+
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
 
@@ -295,7 +296,7 @@ playState = {
       var elementTween = this.game.add.tween(element);
       elementTween.to({y: this.game.world.centerY - element.y}, 1400, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
-    })
+    });
 
     // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
@@ -351,6 +352,37 @@ playState = {
   }
 };
 
+// Actions to take once level is complete
+function levelComplete() {
+  winText.text = 'WIN';
+  let startingPipe = grid[start.row][start.col];
+  pathToArray(startingPipe, Connections.UP);
+  flow(null, null, 0);
+}
+
+// Initializes the pipe selection menu
+function initializeMenu() {
+  menuPipes = game.add.group();
+  for (let i = 0; i < pipes.length; i++) {
+    let pipe = game.add.sprite(
+      i * GRID + (GRID / 2) + MENU_X,
+      MENU_Y * GRID - (GRID / 2), pipes[i].image, 0);
+    pipe.scale.setTo(SCALE, SCALE);
+    menuPipes.add(pipe);
+  }
+  for (let i = 0; i < menuPipes.children.length; i++) {
+    menuPipes.children[i].inputEnabled = true;
+    menuPipes.children[i].events.onInputDown.add(selectPipe,
+      this, 0, i);
+  }
+}
+
+function selectPipe(pipe, pointer, index) {
+  if (input_Enabled === true) {
+    pipeIndex = index;
+  }
+}
+
 function placePipe() {
 
   let col = parseInt((game.input.x - GRID_X) / GRID);
@@ -387,12 +419,6 @@ function placePipe() {
   }
 }
 
-function selectPipe(pipe, pointer, index) {
-  if (input_Enabled === true) {
-    pipeIndex = index;
-  }
-}
-
 // Checks if a tile on the grid is empty
 function checkEmpty(col, row) {
   return grid[row][col] === null;
@@ -405,7 +431,6 @@ function addToGrid(col, row, object) {
     row * GRID + GRID_Y, object);
   sprite.scale.setTo(SCALE, SCALE);
   return sprite;
-
 }
 
 // Adds to on-screen grid and 2D array
@@ -437,6 +462,30 @@ function connect(pipe, direction) {
     startConnected = true;
   if (pipe.end === true)
     endConnected = true;
+  checkDirections(pipe, direction, connect);
+}
+
+// Converts path from start point to end goal into an array
+function pathToArray(pipe, direction) {
+  let index = pipe.connections.indexOf(direction);
+  pipe.animation = (index === 0) ? 'forward' : 'backward';
+  path.push(pipe);
+  checkDirections(pipe, direction, pathToArray);
+}
+
+// Plays water flow animations in order
+function flow(sprite, animation, index) {
+  if (index >= 0 && index < path.length) {
+    let pipe = path[index];
+    pipe.object.animations.play(pipe.animation);
+    pipe.object.animations.getAnimation(pipe.animation)
+      .onComplete.add(flow, this, 0, ++index);
+  }
+}
+
+// Checks for pipes adjacent to the specified pipe
+// and performs action on them
+function checkDirections(pipe, direction, action) {
   let otherPipe;
   for (let connection of pipe.connections) {
     if (connection === direction)
@@ -445,22 +494,22 @@ function connect(pipe, direction) {
       case Connections.UP:
         otherPipe = checkUp(pipe);
         if (otherPipe !== null)
-          connect(otherPipe, Connections.DOWN);
+          action(otherPipe, Connections.DOWN);
         break;
       case Connections.RIGHT:
         otherPipe = checkRight(pipe);
         if (otherPipe !== null)
-          connect(otherPipe, Connections.LEFT);
+          action(otherPipe, Connections.LEFT);
         break;
       case Connections.DOWN:
         otherPipe = checkDown(pipe);
         if (otherPipe !== null)
-          connect(otherPipe, Connections.UP);
+          action(otherPipe, Connections.UP);
         break;
       case Connections.LEFT:
         otherPipe = checkLeft(pipe);
         if (otherPipe !== null)
-          connect(otherPipe, Connections.RIGHT);
+          action(otherPipe, Connections.RIGHT);
         break;
     }
   }
@@ -518,97 +567,3 @@ function checkLeft(pipe) {
   return null;
 }
 
-function levelComplete() {
-  text.text = 'WIN';
-  let startingPipe = grid[start.row][start.col];
-  pathToArray(startingPipe, Connections.UP);
-  flow(null, null, 0);
-}
-
-function pathToArray(pipe, direction) {
-  pipe.flow = direction;
-  path.push(pipe);
-  let otherPipe;
-  for (let connection of pipe.connections) {
-    if (connection === direction)
-      continue;
-    switch (connection) {
-      case Connections.UP:
-        otherPipe = checkUp(pipe);
-        if (otherPipe !== null)
-          pathToArray(otherPipe, Connections.DOWN);
-        break;
-      case Connections.RIGHT:
-        otherPipe = checkRight(pipe);
-        if (otherPipe !== null)
-          pathToArray(otherPipe, Connections.LEFT);
-        break;
-      case Connections.DOWN:
-        otherPipe = checkDown(pipe);
-        if (otherPipe !== null)
-          pathToArray(otherPipe, Connections.UP);
-        break;
-      case Connections.LEFT:
-        otherPipe = checkLeft(pipe);
-        if (otherPipe !== null)
-          pathToArray(otherPipe, Connections.RIGHT);
-        break;
-    }
-  }
-}
-
-function flow(sprite, animation, index) {
-  if (index >= 0 && index < path.length) {
-    let pipe = path[index];
-    switch (pipe.flow) {
-      case Connections.UP:
-        pipe.object.animations.play('forward');
-        pipe.object.animations.getAnimation('forward')
-          .onComplete.add(flow, this, 0, ++index);
-        break;
-      case Connections.DOWN:
-        if (pipe.image === 'pipe2') {
-          pipe.object.animations.play('forward');
-          pipe.object.animations.getAnimation('forward')
-            .onComplete.add(flow, this, 0, ++index);
-        } else {
-          pipe.object.animations.play('backward');
-          pipe.object.animations.getAnimation('backward')
-            .onComplete.add(flow, this, 0, ++index);
-        }
-        break;
-      case Connections.LEFT:
-        if (pipe.image === 'pipe4') {
-          pipe.object.animations.play('backward');
-          pipe.object.animations.getAnimation('backward')
-            .onComplete.add(flow, this, 0, ++index);
-        } else {
-          pipe.object.animations.play('forward');
-          pipe.object.animations.getAnimation('forward')
-            .onComplete.add(flow, this, 0, ++index);
-        }
-        break;
-      case Connections.RIGHT:
-        pipe.object.animations.play('backward');
-        pipe.object.animations.getAnimation('backward')
-          .onComplete.add(flow, this, 0, ++index);
-        break;
-    }
-  }
-}
-
-function initializeMenu() {
-  menuPipes = game.add.group();
-  for (let i = 0; i < pipes.length; i++) {
-    let pipe = game.add.sprite(
-      i * GRID + (GRID / 2) + MENU_X,
-      MENU_Y * GRID - (GRID / 2), pipes[i].image, 0);
-    pipe.scale.setTo(SCALE, SCALE);
-    menuPipes.add(pipe);
-  }
-  for (let i = 0; i < menuPipes.children.length; i++) {
-    menuPipes.children[i].inputEnabled = true;
-    menuPipes.children[i].events.onInputDown.add(selectPipe,
-      this, 0, i);
-  }
-}
