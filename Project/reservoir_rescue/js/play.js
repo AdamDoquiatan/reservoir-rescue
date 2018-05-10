@@ -22,6 +22,15 @@ let Connections = {
 };
 Object.freeze(Connections);
 
+
+function Pipe(image, connections, col, row) {
+  this.type = 'pipe';
+  this.image = image;
+  this.connections = connections;
+  this.col = col;
+  this.row = row;
+}
+
 // pipev = vertical pipe
 // pipeh = horizontal pipe
 // pipe1 = up & right
@@ -29,80 +38,22 @@ Object.freeze(Connections);
 // pipe3 = down & left
 // pipe4 = up & left
 let pipes = [
-  {
-    image: 'pipev',
-    connections: [
-      Connections.UP,
-      Connections.DOWN
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  },
-  {
-    image: 'pipeh',
-    connections: [
-      Connections.LEFT,
-      Connections.RIGHT
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  },
-  {
-    image: 'pipe1',
-    connections: [
-      Connections.UP,
-      Connections.RIGHT
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  },
-  {
-    image: 'pipe2',
-    connections: [
-      Connections.DOWN,
-      Connections.RIGHT
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  },
-  {
-    image: 'pipe3',
-    connections: [
-      Connections.LEFT,
-      Connections.DOWN
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  },
-  {
-    image: 'pipe4',
-    connections: [
-      Connections.UP,
-      Connections.LEFT
-    ],
-    start: false,
-    end: false,
-    object: null,
-    col: 0,
-    row: 0
-  }
+  new Pipe('pipev', [Connections.UP, Connections.DOWN]),
+  new Pipe('pipeh', [Connections.LEFT, Connections.RIGHT]),
+  new Pipe('pipe1', [Connections.UP, Connections.RIGHT]),
+  new Pipe('pipe2', [Connections.DOWN, Connections.RIGHT]),
+  new Pipe('pipe3', [Connections.LEFT, Connections.DOWN]),
+  new Pipe('pipe3', [Connections.UP, Connections.LEFT])
 ];
+
 let pipeIndex = 0;
+
+function Obstacle(image, col, row) {
+  this.type = 'obstacle';
+  this.image = image;
+  this.col = col;
+  this.row = row;
+}
 
 // Start and end points
 let start = {
@@ -151,7 +102,6 @@ var pipeSwap = false;
 // Game objects
 let map;
 let layer;
-let objectsLayer;
 let otherLayer;
 let menuPipes;
 let winText;
@@ -180,6 +130,11 @@ playState = {
       element.scale.set(SCALE);
       element.x *= SCALE;
       element.y *= SCALE;
+      let col = parseInt((element.x - GRID_X) / GRID);
+      let row = parseInt((element.y - GRID_Y) / GRID);
+      let obstacle = new Obstacle(element.key, col, row);
+      obstacle.object = element;
+      console.log(addObjectToGridArray(obstacle));
     });
 
     // Set start and end points
@@ -209,12 +164,10 @@ playState = {
     if (playObsScreen === true) {
       this.obsScreen1();
     }
-
-
   },
 
   update: function () {
-    if (pipeSwap == true) {
+    if (pipeSwap === true) {
       reloadPipe(menuPipes);
     }
 
@@ -281,7 +234,7 @@ playState = {
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
-    })
+    });
 
     // Menu button
     this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
@@ -290,7 +243,7 @@ playState = {
     this.menuButton.inputEnabled = true;
     this.menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-    })
+    });
   },
 
   obsScreen1: function (sprite, event) {
@@ -450,10 +403,12 @@ function placePipe() {
   let col = parseInt((game.input.x - GRID_X) / GRID);
   let row = parseInt((game.input.y - GRID_Y) / GRID);
 
-  let pipe = Object.assign({}, pipes[pipeIndex]);
-  pipe.col = col;
-  pipe.row = row;
-
+  let pipe = new Pipe(
+    pipes[pipeIndex].image,
+    pipes[pipeIndex].connections,
+    col, row
+  );
+  
   if (checkEmpty(col, row)) {
     pipeSwap = true;
     if (checkOverlap(pipe, start)) {
@@ -482,7 +437,7 @@ function placePipe() {
     }
   }
 
-
+  console.log(grid);
 }
 
 function reloadPipe(menuPipes) {
@@ -500,7 +455,7 @@ function reloadPipe(menuPipes) {
     switch (i) {
       case 0:
         if (i != currentSelection) {
-          index0 = menuPipes.children[i];
+          index0 = menuPipes.children[  i];
         } else {
           index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
@@ -571,6 +526,11 @@ function addToGrid(col, row, object) {
 function addToGridArray(col, row, object) {
   object.object = addToGrid(col, row, object.image);
   return grid[row][col] = object;
+}
+
+// Adds already created object to 2D array
+function addObjectToGridArray(object) {
+  return grid[object.row][object.col] = object;
 }
 
 // This calls specifc functions based
@@ -652,10 +612,10 @@ function checkDirections(pipe, direction, action) {
 // Checks if there's a pipe above
 function checkUp(pipe) {
   if (pipe.row > 0) {
-    let otherPipe = grid[pipe.row - 1][pipe.col];
-    if (otherPipe !== null) {
-      if (otherPipe.connections.includes(Connections.DOWN)) {
-        return otherPipe;
+    let other = grid[pipe.row - 1][pipe.col];
+    if (other !== null && other.type === 'pipe') {
+      if (other.connections.includes(Connections.DOWN)) {
+        return other;
       }
     }
   }
@@ -665,10 +625,10 @@ function checkUp(pipe) {
 // Checks if there's a pipe to the right
 function checkRight(pipe) {
   if (pipe.col < TILES_X - 1) {
-    let otherPipe = grid[pipe.row][pipe.col + 1];
-    if (otherPipe !== null) {
-      if (otherPipe.connections.includes(Connections.LEFT)) {
-        return otherPipe;
+    let other = grid[pipe.row][pipe.col + 1];
+    if (other !== null && other.type === 'pipe') {
+      if (other.connections.includes(Connections.LEFT)) {
+        return other;
       }
     }
   }
@@ -678,10 +638,10 @@ function checkRight(pipe) {
 // Checks if there's a pipe below
 function checkDown(pipe) {
   if (pipe.row < TILES_Y - 1) {
-    let otherPipe = grid[pipe.row + 1][pipe.col];
-    if (otherPipe !== null) {
-      if (otherPipe.connections.includes(Connections.UP)) {
-        return otherPipe;
+    let other = grid[pipe.row + 1][pipe.col];
+    if (other !== null && other.type === 'pipe') {
+      if (other.connections.includes(Connections.UP)) {
+        return other;
       }
     }
   }
@@ -691,10 +651,10 @@ function checkDown(pipe) {
 // Checks if there's a pipe to the left
 function checkLeft(pipe) {
   if (pipe.col > 0) {
-    let otherPipe = grid[pipe.row][pipe.col - 1];
-    if (otherPipe !== null) {
-      if (otherPipe.connections.includes(Connections.RIGHT)) {
-        return otherPipe;
+    let other = grid[pipe.row][pipe.col - 1];
+    if (other !== null && other.type === 'pipe') {
+      if (other.connections.includes(Connections.RIGHT)) {
+        return other;
       }
     }
   }
