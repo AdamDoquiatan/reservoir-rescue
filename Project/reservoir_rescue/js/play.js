@@ -138,6 +138,7 @@ let path = [];
 let startConnected = false;
 let endConnected = false;
 let win = false;
+
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
 // Ensures that player makes a selection before placing pipes
@@ -213,86 +214,85 @@ playState = {
   },
 
   pauseMenu: function (sprite, event) {
+    if (input_Enabled == true) {
+      // Turns off input to everything but pause screen
+      input_Enabled = false;
+      sprite.input.enabled = false;
+      game.input.onDown.removeAll();
 
-    input_Enabled = false;
-    sprite.input.enabled = false;
-    game.input.onDown.removeAll();
+      // Dark filter
+      var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+      darkFilter.anchor.setTo(0.5);
+      darkFilter.scale.setTo(4);
 
-    // Dark filter
-    var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-    darkFilter.anchor.setTo(0.5);
-    darkFilter.scale.setTo(4);
+      // Group for screen componenets
+      var pauseScreen = this.game.add.group();
 
-    // Group for screen componenets
-    var pauseScreen = this.game.add.group();
+      // Big pause header
+      this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+        font: 'bold 100pt Helvetica',
+        fill: 'white',
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 700
+      });
+      this.pauseHeader.anchor.setTo(0.5);
+      this.pauseHeader.stroke = '#000000';
+      this.pauseHeader.strokeThickness = 7;
+      pauseScreen.add(this.pauseHeader);
 
-    // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
-      font: 'bold 100pt Helvetica',
-      fill: 'white',
-      align: 'center',
-      wordWrap: true,
-      wordWrapWidth: 700
-    });
-    this.pauseHeader.anchor.setTo(0.5);
-    this.pauseHeader.stroke = '#000000';
-    this.pauseHeader.strokeThickness = 7;
-    pauseScreen.add(this.pauseHeader);
+      // Specifies text properties
+      var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
-    // Specifies text properties
-    var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+      // Tip text
+      this.tipDisplay = game.add.text(this.game.world.centerX, 650, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
+      this.tipDisplay.anchor.setTo(0.5);
+      this.tipDisplay.lineSpacing = -2;
+      this.tipDisplay.addColor('#3d87ff', 0);
+      this.tipDisplay.addColor('white', 12);
+      this.tipDisplay.stroke = '#000000';
+      this.tipDisplay.strokeThickness = 7;
+      pauseScreen.add(this.tipDisplay);
 
-    // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 650, "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
-    this.tipDisplay.anchor.setTo(0.5);
-    this.tipDisplay.lineSpacing = -2;
-    this.tipDisplay.addColor('#3d87ff', 0);
-    this.tipDisplay.addColor('white', 12);
-    this.tipDisplay.stroke = '#000000';
-    this.tipDisplay.strokeThickness = 7;
-    pauseScreen.add(this.tipDisplay);
+      // Continue button
+      this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
+      this.contButton.anchor.setTo(0.5);
+      this.contButton.scale.setTo(2.3);
+      this.contButton.inputEnabled = true;
+      this.contButton.events.onInputDown.add(function () {
+        input_Enabled = true;
+        sprite.input.enabled = true;
+        game.input.onDown.add(delegate, this, 0);
+        pauseScreen.destroy();
+        darkFilter.destroy();
+      });
 
-    // Continue button
-    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
-    this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(2.3);
-    this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(function () {
-      input_Enabled = true;
-      sprite.input.enabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      pauseScreen.destroy();
-      darkFilter.destroy();
-    });
+      // Restart button
+      this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
+      this.restartButton.anchor.setTo(0.5);
+      this.restartButton.scale.setTo(2.3);
+      this.restartButton.inputEnabled = true;
+      this.restartButton.events.onInputDown.add(function () {
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+      })
 
-    // Restart button
-    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
-    this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(2.3);
-    this.restartButton.inputEnabled = true;
-    this.restartButton.events.onInputDown.add(function () {
-      window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
-    })
-
-    // Menu button
-    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
-    this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(2.3);
-    this.menuButton.inputEnabled = true;
-    this.menuButton.events.onInputDown.add(function () {
-      window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-    })
+      // Menu button
+      this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
+      this.menuButton.anchor.setTo(0.5);
+      this.menuButton.scale.setTo(2.3);
+      this.menuButton.inputEnabled = true;
+      this.menuButton.events.onInputDown.add(function () {
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+      })
+    }
   },
 
   obsScreen1: function (sprite, event) {
 
+    // Prevents input to anything but obs screen
     input_Enabled = false;
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
-
-    // Dummy Blurry BG
-    //var filterBG = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'BG_blur');
-    //filterBG.anchor.setTo(0.5);
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
@@ -354,7 +354,6 @@ playState = {
         elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
-          //filterBG.destroy();
           obsScreen.destroy();
         });
 
@@ -442,6 +441,7 @@ function placePipe() {
 
 }
 
+// Replaces pipe in current selection box with new random pipe
 function reloadPipe(menuPipes) {
 
   var randomPipeIndex = Math.floor(Math.random() * 6);
@@ -512,7 +512,6 @@ function reloadPipe(menuPipes) {
 
 function selectPipe(pipe, pointer, index, currentIndex) {
   if (input_Enabled == true) {
-    
     currentSelection = currentIndex;
     pipeIndex = index;
     boxCreator(pointer);
@@ -647,6 +646,8 @@ function checkLeft(pipe) {
 
 function levelComplete() {
   game.input.onDown.removeAll();
+  can_Place = false;
+  input_Enabled = false;
   winText.text = 'WIN';
   let startingPipe = grid[start.row][start.col];
   pathToArray(startingPipe, Connections.UP);
@@ -725,6 +726,7 @@ function flow(sprite, animation, index) {
   }
 }
 
+// Creates starting selection of random (but unique) pipes
 function initializeMenu() {
   menuPipes = game.add.group();
   for (let i = 0; menuPipes.length < 3;) {
@@ -746,9 +748,9 @@ function initializeMenu() {
   }
 }
 
+// Creates a box around player's selected pipe
+function boxCreator(selector) {
 
-function boxCreator(selector){
-  
   if (boxSelector != null) {
     boxSelector.destroy();
   }
@@ -757,5 +759,5 @@ function boxCreator(selector){
   boxSelector.scale.setTo(SCALE + 3.1, SCALE + 3.1);
   boxSelector.x += -55;
   boxSelector.y += -55;
-  
+
 }
