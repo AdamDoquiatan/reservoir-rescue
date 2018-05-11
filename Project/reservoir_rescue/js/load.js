@@ -8,8 +8,12 @@ var loadState = {
     game.load.image('boxSelector', 'assets/images/boxSelector.png');
 
     // Tilemaps
-    game.load.tilemap('map', 'assets/maps/tilemap.csv');
     game.load.image('tileset', 'assets/maps/tileset.png');
+    game.load.tilemap('map', 'assets/maps/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
+    // game.load.tilemap('map', 'assets/maps/tilemap_Background.csv');
+    // game.load.tilemap('objectsMap', 'assets/maps/tilemap_Objects.csv');
+    // game.load.tilemap('otherMap', 'assets/maps/tilemap_Other.csv');
+    // game.load.tilemap('map', 'assets/maps/tilemap.csv');
 
     // Pipes
     game.load.spritesheet('pipev', 'assets/images/pipev.png', 32, 32);
@@ -18,6 +22,9 @@ var loadState = {
     game.load.spritesheet('pipe2', 'assets/images/pipe2.png', 32, 32);
     game.load.spritesheet('pipe3', 'assets/images/pipe3.png', 32, 32);
     game.load.spritesheet('pipe4', 'assets/images/pipe4.png', 32, 32);
+
+    // Obstacles
+    game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
 
     // In-Game Menu Stuff
     this.load.image('obs_screen', 'assets/images/obs_bg_1.jpg');
