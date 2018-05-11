@@ -203,6 +203,12 @@ playState = {
     this.winButton.inputEnabled = input_Enabled;
     this.winButton.events.onInputDown.add(winScreen, this);
 
+    // For testing: Lose Button
+    this.loseButton = this.game.add.sprite(game.width, 200, 'loseButton');
+    this.loseButton.scale.setTo(2.3);
+    this.loseButton.anchor.setTo(1, 0);
+    this.loseButton.inputEnabled = input_Enabled;
+    this.loseButton.events.onInputDown.add(loseScreen, this);
 
     // For testing: turn the obstacle screen on or off
     let playObsScreen = true;
@@ -364,7 +370,7 @@ playState = {
     function endObsScreen(sprite, event) {
 
       darkFilterTween = this.game.add.tween(this.darkFilter);
-      darkFilterTween.to({alpha: 0}, 1200, Phaser.Easing.Cubic.Out, true);
+      darkFilterTween.to({ alpha: 0 }, 1200, Phaser.Easing.Cubic.Out, true);
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
@@ -416,10 +422,6 @@ playState = {
         break;
     }
   },
-
-  winButton: function (sprite, event) {
-    winScreen();
-  }
 };
 
 
@@ -472,8 +474,9 @@ function winScreen() {
   this.scoreDisplay.strokeThickness = 7;
   winScreen.add(this.scoreDisplay);
 
-  
-  // Continue (to next level) button -- currently just copied from pause screen
+
+
+  // Continue (to next level) button -- doesn't do anything yet
   this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
   this.contButton.anchor.setTo(0.5);
   this.contButton.scale.setTo(2.3);
@@ -487,6 +490,7 @@ function winScreen() {
   });
   */
 
+
   // Restart button
   this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
   this.restartButton.anchor.setTo(0.5);
@@ -498,10 +502,10 @@ function winScreen() {
 
   // Text and Button Tweens
   darkFilterTween = this.game.add.tween(this.darkFilter);
-  darkFilterTween.to({alpha: 1}, 1500, Phaser.Easing.Cubic.Out, true);
+  darkFilterTween.to({ alpha: 1 }, 1500, Phaser.Easing.Cubic.Out, true);
 
   victoryTween = this.game.add.tween(this.winHeader);
-  victoryTween.to({alpha: 1}, 1300, Phaser.Easing.Cubic.Out, true);
+  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 
   var xMovement = 400;
   winScreen.forEach(function (element) {
@@ -510,6 +514,85 @@ function winScreen() {
     elementTween.start();
     xMovement += 200;
   })
+}
+
+function loseScreen() {
+  // Turns off input to everything but lose screen
+  input_Enabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 1;
+
+  // Group for screen components
+  var loseScreen = this.game.add.group();
+
+  // Big lose header
+  this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
+    font: 'bold 140pt Helvetica',
+    fill: 'white',
+    align: 'center',
+    wordWrap: true,
+    wordWrapWidth: 700
+  });
+  this.loseHeader.anchor.setTo(0.5);
+  this.loseHeader.stroke = '#000000';
+  this.loseHeader.strokeThickness = 10;
+  this.loseHeader.alpha = 0;
+
+  // Specifies text properties
+  var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
+
+  // Water-Saved text
+  this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
+  this.sadText.lineSpacing = -7;
+  this.sadText.anchor.setTo(0.5);
+  this.sadText.stroke = '#000000';
+  this.sadText.strokeThickness = 7;
+  loseScreen.add(this.sadText);
+
+  // Menu Button
+  this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
+  this.menuButton.anchor.setTo(0.5);
+  this.menuButton.scale.setTo(2.3);
+  this.menuButton.inputEnabled = true;
+  this.menuButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+  })
+  /*
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(function () {
+    input_Enabled = true;
+    sprite.input.enabled = tmenu
+    game.input.onDown.add(delegate, this, 0);
+    loseScreen.destroy();
+  });
+  */
+
+  // Restart button
+  this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
+  this.restartButton.anchor.setTo(0.5);
+  this.restartButton.scale.setTo(2.3);
+  this.restartButton.inputEnabled = true;
+  this.restartButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+  })
+
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 1;
+
+  // Text and Filter Tweens
+  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
+
+  victoryTween = this.game.add.tween(this.loseHeader);
+  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 
 
