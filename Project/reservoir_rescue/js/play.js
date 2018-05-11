@@ -22,11 +22,13 @@ const MENU_X = 0;
 // Vertical offset of pipe selection menu
 const MENU_Y = 11;
 // Rate at which health goes down in milliseconds
-const HP_RATE = 500;
+const HP_RATE = 250;
 // The initial health
 const HP = 100;
 // Rate at which water flows in frames per second
 const FLOW_RATE = 60;
+// Delay before water level starts decreasing
+const DELAY = 500;
 
 // Connections enum
 let Connections = {
@@ -138,6 +140,9 @@ var boxSelector;
 let counter;
 var health = HP;
 var score = HP;
+let hpBar;
+let hpBarRate;
+let hpBarCounter;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -171,6 +176,11 @@ playState = {
       console.log(addObjectToGridArray(obstacle));
     });
 
+    // HP Bar
+    hpBar = game.add.sprite(0, GRID * 1, 'hp_bar', 0);
+    hpBar.scale.setTo(SCALE);
+    hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
+
     // Set start and end points
     start.object = addToGrid(start.col, start.row, start.image);
     end.object = addToGrid(end.col, end.row, end.image);
@@ -187,7 +197,6 @@ playState = {
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
-    counter = game.time.events.loop(HP_RATE, function() { healthText.text = --health; }, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -197,14 +206,14 @@ playState = {
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
     // For testing: Win Button
-    this.winButton = this.game.add.sprite(game.width, 100, 'winButton');
-    this.winButton.scale.setTo(2.3);
+    this.winButton = this.game.add.sprite(game.width - 450, 0, 'winButton');
+    this.winButton.scale.setTo(2.6);
     this.winButton.anchor.setTo(1, 0);
     this.winButton.inputEnabled = input_Enabled;
     this.winButton.events.onInputDown.add(levelComplete, this);
 
     // For testing: Lose Button
-    this.loseButton = this.game.add.sprite(game.width, 200, 'loseButton');
+    this.loseButton = this.game.add.sprite(game.width - 190, 0, 'loseButton');
     this.loseButton.scale.setTo(2.3);
     this.loseButton.anchor.setTo(1, 0);
     this.loseButton.inputEnabled = input_Enabled;
@@ -393,6 +402,8 @@ playState = {
       input_Enabled = true;
       this.pauseButton.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
+
+      game.time.events.add(DELAY, startCounter, this);
     }
   },
 
@@ -885,6 +896,7 @@ function checkLeft(pipe) {
 
 function levelComplete() {
   counter.timer.stop();
+  hpBarCounter.timer.stop();
   win = true;
   can_Place = false;
   winText.text = 'WIN';
@@ -897,6 +909,8 @@ function levelComplete() {
 
 function gameOver() {
   counter.timer.stop();
+  hpBarCounter.timer.stop();
+  hpBar.frame = hpBar.animations.frameTotal - 1;
   lose = true;
   can_Place = false;
   winText.text = 'LOSE';
@@ -969,5 +983,15 @@ function initializeTestControls() {
   key6.onDown.add(function () {
     can_Place = true;
     pipeIndex = 5;
+  }, this);
+}
+
+// Starts water level counter
+function startCounter() {
+  counter = game.time.events.loop(HP_RATE, function() {
+    healthText.text = --health;
+  }, this);
+  hpBarCounter = game.time.events.loop(hpBarRate, function() {
+    hpBar.frame += 1;
   }, this);
 }
