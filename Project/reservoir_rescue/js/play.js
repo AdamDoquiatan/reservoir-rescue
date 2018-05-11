@@ -1,3 +1,6 @@
+// For enabling/disabling testing features
+let testMode = true;
+
 // GRID_X = horizontal offset
 // GRID_Y = vertical offset
 // GRID_X_MAX = horizontal bound of grid
@@ -91,6 +94,7 @@ let endConnected = false;
 let win = false;
 let lose = false;
 let score = 100;
+let key1, key2, key3, key4, key5, key6;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
@@ -163,9 +167,7 @@ playState = {
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
-    counter = game.time.events.loop(Phaser.Timer.SECOND / 4, function () {
-      scoreText.text = --score;
-    }, this);
+    counter = game.time.events.loop(500, function() { scoreText.text = --score; });
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -178,6 +180,10 @@ playState = {
     let playObsScreen = true;
     if (playObsScreen === true) {
       this.obsScreen1();
+    }
+
+    if (testMode) {
+      initializeTestControls();
     }
   },
 
@@ -715,3 +721,36 @@ function boxCreator(selector) {
   boxSelector.y += -55;
 }
 
+function initializeTestControls() {
+  // For testing: select specific pipes
+  key1 = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+  key2 = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
+  key3 = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
+  key4 = game.input.keyboard.addKey(Phaser.Keyboard.FOUR);
+  key5 = game.input.keyboard.addKey(Phaser.Keyboard.FIVE);
+  key6 = game.input.keyboard.addKey(Phaser.Keyboard.SIX);
+  key1.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 0;
+  }, this);
+  key2.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 1;
+  }, this);
+  key3.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 2;
+  }, this);
+  key4.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 3;
+  }, this);
+  key5.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 4;
+  }, this);
+  key6.onDown.add(function () {
+    can_Place = true;
+    pipeIndex = 5;
+  }, this);
+}
