@@ -39,9 +39,48 @@
     animation: wave-front .7s infinite linear;
   }
 
+  #flushing {
+    background-color: white;
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    font-size: 16px;
+    margin: 20px auto;
+  }
+
   img {
     margin: 20px auto;
     display: block;
+  }
+
+  h1 {
+    margin: 20px auto;
+    font-size: 40px;
+    display: block;
+    text-align: center;
+    color: black;
+    animation-name: headerText;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+  }
+
+  @keyframes headerText {
+    0% {
+      color: black;
+    }
+    25% {
+      color: red;
+    }
+    50% {
+      color: blue;
+    }
+    100% {
+      color: green;
+    }
   }
 
   @keyframes wave-front {
