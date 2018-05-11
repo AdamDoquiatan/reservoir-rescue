@@ -1,20 +1,32 @@
 // For enabling/disabling testing features
 let testMode = true;
 
-// GRID_X = horizontal offset
-// GRID_Y = vertical offset
-// GRID_X_MAX = horizontal bound of grid
-// GRID_Y_MAX = vertical bound of grid
+// How many time to multiply resolution
 const SCALE = 4;
+// Size of each grid tile in pixels
 const GRID = 32 * SCALE;
+// Number of grid tiles across
 const TILES_X = 7;
+// Number of grid tiles down
 const TILES_Y = 6;
+// Horizontal offset of grid
 const GRID_X = 0;
+// Vertical offset of grid
 const GRID_Y = GRID * 3;
+// Horizontal bound of grid
 const GRID_X_MAX = GRID * TILES_X + GRID_X;
+// Vertical bound of grid
 const GRID_Y_MAX = GRID * TILES_Y + GRID_Y;
+// Horizontal offset of pipe selection menu
 const MENU_X = 0;
+// Vertical offset of pipe selection menu
 const MENU_Y = 11;
+// Rate at which health goes down in milliseconds
+const HP_RATE = 500;
+// The initial health
+const HP = 100;
+// Rate at which water flows in frames per second
+const FLOW_RATE = 60;
 
 // Connections enum
 let Connections = {
@@ -32,7 +44,6 @@ function Pipe(image, connections, col, row) {
   this.col = col;
   this.row = row;
 }
-
 // pipev = vertical pipe
 // pipeh = horizontal pipe
 // pipe1 = up & right
@@ -47,7 +58,8 @@ let pipes = [
   new Pipe('pipe3', [Connections.LEFT, Connections.DOWN]),
   new Pipe('pipe4', [Connections.UP, Connections.LEFT])
 ];
-
+// The index of the currently
+// selected pipe from the pipes array
 let pipeIndex = 0;
 
 function Obstacle(image, col, row) {
@@ -88,14 +100,16 @@ for (let i = 0; i < TILES_Y; i++) {
 // Path from start to end
 let path = [];
 
-// Variables
+// If last pipe placed is connected to start point
 let startConnected = false;
+// If last pipe placed is connected to end point
 let endConnected = false;
+// If player won
 let win = false;
+// If player lost
 let lose = false;
-let score = 100;
+// Number keys for selecting pipes
 let key1, key2, key3, key4, key5, key6;
-
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
 // Ensures that player makes a selection before placing pipes
@@ -107,17 +121,23 @@ var currentSelection;
 // Signals a pipe menu update when true (don't change!)
 var pipeSwap = false;
 
-// Game objects
+// The main tilemap
 let map;
+// Background layer
 let layer;
+// Other layer
 let otherLayer;
+// Group for pipe selection menu
 let menuPipes;
+// Group for obstacles
+let obstacles;
 let winText;
 let testText;
-let scoreText;
-let obstacles;
+let healthText;
 var boxSelector;
 let counter;
+var health = HP;
+var score = HP;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -161,13 +181,13 @@ playState = {
     // Text
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
     winText = game.add.text(0, 32, '', { fontSize: '32px', fill: '#FFF' });
-    scoreText = game.add.text(0, 64, score, { fontSize: '32px', fill: '#FFF' });
+    healthText = game.add.text(0, 64, health, { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
-    counter = game.time.events.loop(500, function() { scoreText.text = --score; });
+    counter = game.time.events.loop(HP_RATE, function() { healthText.text = --health; }, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -175,6 +195,20 @@ playState = {
     this.pauseButton.anchor.setTo(1, 0);
     this.pauseButton.inputEnabled = input_Enabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
+
+    // For testing: Win Button
+    this.winButton = this.game.add.sprite(game.width, 100, 'winButton');
+    this.winButton.scale.setTo(2.3);
+    this.winButton.anchor.setTo(1, 0);
+    this.winButton.inputEnabled = input_Enabled;
+    this.winButton.events.onInputDown.add(levelComplete, this);
+
+    // For testing: Lose Button
+    this.loseButton = this.game.add.sprite(game.width, 200, 'loseButton');
+    this.loseButton.scale.setTo(2.3);
+    this.loseButton.anchor.setTo(1, 0);
+    this.loseButton.inputEnabled = input_Enabled;
+    this.loseButton.events.onInputDown.add(gameOver, this);
 
     // For testing: turn the obstacle screen on or off
     let playObsScreen = true;
@@ -193,9 +227,7 @@ playState = {
       reloadPipe(menuPipes);
     }
 
-    if (score === 0 && !lose) {
-      counter.timer.stop();
-      lose = true;
+    if (health === 0 && !lose) {
       onLose.dispatch();
     }
 
@@ -287,6 +319,12 @@ playState = {
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
+    // Dark Filter
+    this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+    this.darkFilter.anchor.setTo(0.5);
+    this.darkFilter.scale.setTo(4);
+    this.darkFilter.alpha = 1;
+
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
@@ -339,6 +377,9 @@ playState = {
 
     // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
+
+      darkFilterTween = this.game.add.tween(this.darkFilter);
+      darkFilterTween.to({ alpha: 0 }, 1200, Phaser.Easing.Cubic.Out, true);
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
@@ -393,8 +434,180 @@ playState = {
         return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. " +
           "The environment will thank you. The cows will thank you too!";
     }
-  }
+  },
 };
+
+
+function winScreen() {
+  // Turns off input to everything but win screen
+  input_Enabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter Fades In
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 0;
+
+  // Group for screen components
+  var winScreen = this.game.add.group();
+
+  // Big win header
+  this.winHeader = game.add.text(this.game.world.centerX, 400, "VICTORY", {
+    font: 'bold 140pt Helvetica',
+    fill: 'white',
+    align: 'center',
+    wordWrap: true,
+    wordWrapWidth: 700
+  });
+  this.winHeader.anchor.setTo(0.5);
+  this.winHeader.stroke = '#000000';
+  this.winHeader.strokeThickness = 10;
+  this.winHeader.alpha = 0;
+
+  // Specifies text properties
+  var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+
+  // Water-Saved text
+  this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
+  this.waterSavedDisplay.lineSpacing = -2;
+  this.waterSavedDisplay.addColor('#3d87ff', 11);
+  this.waterSavedDisplay.addColor('white', 21);
+  this.waterSavedDisplay.stroke = '#000000';
+  this.waterSavedDisplay.strokeThickness = 7;
+  winScreen.add(this.waterSavedDisplay);
+
+  // Score text
+  this.scoreDisplay = game.add.text(game.world.centerX + 600, 850, "Score: " + health, textStyle);
+  this.scoreDisplay.anchor.setTo(0.5);
+  this.scoreDisplay.lineSpacing = -2;
+  this.scoreDisplay.addColor('#3d87ff', 7);
+  this.scoreDisplay.addColor('white', 10);
+  this.scoreDisplay.stroke = '#000000';
+  this.scoreDisplay.strokeThickness = 7;
+  winScreen.add(this.scoreDisplay);
+
+
+
+  // Continue (to next level) button -- doesn't do anything yet
+  this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(2.3);
+  /*
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(function () {
+    input_Enabled = true;
+    sprite.input.enabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    winScreen.destroy();
+  });
+  */
+
+
+  // Restart button
+  this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
+  this.restartButton.anchor.setTo(0.5);
+  this.restartButton.scale.setTo(2.3);
+  this.restartButton.inputEnabled = true;
+  this.restartButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+  })
+
+  // Text and Button Tweens
+  darkFilterTween = this.game.add.tween(this.darkFilter);
+  darkFilterTween.to({ alpha: 1 }, 1500, Phaser.Easing.Cubic.Out, true);
+
+  victoryTween = this.game.add.tween(this.winHeader);
+  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
+
+  var xMovement = 400;
+  winScreen.forEach(function (element) {
+    var elementTween = this.game.add.tween(element);
+    elementTween.to({ x: element.position.x - xMovement }, 1000, Phaser.Easing.Cubic.Out, true);
+    elementTween.start();
+    xMovement += 200;
+  })
+}
+
+function loseScreen() {
+  // Turns off input to everything but lose screen
+  input_Enabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 1;
+
+  // Group for screen components
+  var loseScreen = this.game.add.group();
+
+  // Big lose header
+  this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
+    font: 'bold 140pt Helvetica',
+    fill: 'white',
+    align: 'center',
+    wordWrap: true,
+    wordWrapWidth: 700
+  });
+  this.loseHeader.anchor.setTo(0.5);
+  this.loseHeader.stroke = '#000000';
+  this.loseHeader.strokeThickness = 10;
+  this.loseHeader.alpha = 0;
+
+  // Specifies text properties
+  var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
+
+  // Water-Saved text
+  this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
+  this.sadText.lineSpacing = -7;
+  this.sadText.anchor.setTo(0.5);
+  this.sadText.stroke = '#000000';
+  this.sadText.strokeThickness = 7;
+  loseScreen.add(this.sadText);
+
+  // Menu Button
+  this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
+  this.menuButton.anchor.setTo(0.5);
+  this.menuButton.scale.setTo(2.3);
+  this.menuButton.inputEnabled = true;
+  this.menuButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+  })
+  /*
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(function () {
+    input_Enabled = true;
+    sprite.input.enabled = tmenu
+    game.input.onDown.add(delegate, this, 0);
+    loseScreen.destroy();
+  });
+  */
+
+  // Restart button
+  this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
+  this.restartButton.anchor.setTo(0.5);
+  this.restartButton.scale.setTo(2.3);
+  this.restartButton.inputEnabled = true;
+  this.restartButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+  })
+
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 1;
+
+  // Text and Filter Tweens
+  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
+
+  victoryTween = this.game.add.tween(this.loseHeader);
+  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
+}
+
 
 function placePipe() {
 
@@ -418,13 +631,12 @@ function placePipe() {
     addToGridArray(col, row, pipe);
 
     pipe.object.animations.add('forward',
-      [1, 2, 3, 4, 5, 6, 7, 8], 30, false);
+      [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
     pipe.object.animations.add('backward',
-      [9, 10, 11, 12, 13, 14, 15, 16], 30, false);
+      [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
 
     connect(pipe);
     if (startConnected && endConnected) {
-      win = true;
       onWin.dispatch();
     }
     else {
@@ -582,6 +794,8 @@ function flow(sprite, animation, index) {
     pipe.object.animations.play(pipe.animation);
     pipe.object.animations.getAnimation(pipe.animation)
       .onComplete.add(flow, this, 0, ++index);
+  } else {
+    winScreen();
   }
 }
 
@@ -670,20 +884,23 @@ function checkLeft(pipe) {
 }
 
 function levelComplete() {
-  game.input.onDown.removeAll();
+  counter.timer.stop();
+  win = true;
   can_Place = false;
-  input_Enabled = false;
-  let startingPipe = grid[start.row][start.col];
-  pathToArray(startingPipe, Connections.UP);
-  flow(null, null, 0);
   winText.text = 'WIN';
+  if (startConnected && endConnected) {
+    let startingPipe = grid[start.row][start.col];
+    pathToArray(startingPipe, Connections.UP);
+  }
+  flow(null, null, 0);
 }
 
 function gameOver() {
-  game.input.onDown.removeAll();
+  counter.timer.stop();
+  lose = true;
   can_Place = false;
-  input_Enabled = false;
   winText.text = 'LOSE';
+  loseScreen();
 }
 
 // Creates starting selection of random (but unique) pipes
