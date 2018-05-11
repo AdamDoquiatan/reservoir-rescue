@@ -89,6 +89,8 @@ let path = [];
 let startConnected = false;
 let endConnected = false;
 let win = false;
+let lose = false;
+let score = 100;
 
 // Pause Variable for turning off inputEnabled buttons
 var input_Enabled = true;
@@ -111,9 +113,11 @@ let testText;
 let scoreText;
 let obstacles;
 var boxSelector;
+let counter;
 
 // Signals
 let onWin = new Phaser.Signal();
+let onLose = new Phaser.Signal();
 
 let playState;
 
@@ -151,12 +155,17 @@ playState = {
     initializeMenu();
 
     // Text
-    winText = game.add.text(0, 32, 'LOSE', { fontSize: '32px', fill: '#FFF' });
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
+    winText = game.add.text(0, 32, '', { fontSize: '32px', fill: '#FFF' });
+    scoreText = game.add.text(0, 64, score, { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
+    onLose.add(gameOver, this);
+    counter = game.time.events.loop(Phaser.Timer.SECOND / 4, function () {
+      scoreText.text = --score;
+    }, this);
 
     // Pause Button
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
@@ -176,6 +185,12 @@ playState = {
 
     if (pipeSwap === true) {
       reloadPipe(menuPipes);
+    }
+
+    if (score === 0 && !lose) {
+      counter.timer.stop();
+      lose = true;
+      onLose.dispatch();
     }
 
     testText.text = '('
@@ -380,12 +395,6 @@ function placePipe() {
   let col = parseInt((game.input.x - GRID_X) / GRID);
   let row = parseInt((game.input.y - GRID_Y) / GRID);
 
-  let pipe = new Pipe(
-    pipes[pipeIndex].image,
-    pipes[pipeIndex].connections,
-    col, row
-  );
-  
   if (checkEmpty(col, row) && can_Place === true) {
     let pipe = Object.assign({}, pipes[pipeIndex]);
     pipe.col = col;
@@ -658,10 +667,17 @@ function levelComplete() {
   game.input.onDown.removeAll();
   can_Place = false;
   input_Enabled = false;
-  winText.text = 'WIN';
   let startingPipe = grid[start.row][start.col];
   pathToArray(startingPipe, Connections.UP);
   flow(null, null, 0);
+  winText.text = 'WIN';
+}
+
+function gameOver() {
+  game.input.onDown.removeAll();
+  can_Place = false;
+  input_Enabled = false;
+  winText.text = 'LOSE';
 }
 
 // Creates starting selection of random (but unique) pipes
