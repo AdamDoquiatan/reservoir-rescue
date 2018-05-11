@@ -43,6 +43,7 @@ a {
 #title {
     margin: 20px auto;
     display: block;
+    cursor: default;
 }
 
 button {
