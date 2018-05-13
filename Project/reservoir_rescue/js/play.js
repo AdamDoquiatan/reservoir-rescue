@@ -498,7 +498,6 @@ function winScreen() {
   this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
   this.waterSavedDisplay.lineSpacing = -2;
   this.waterSavedDisplay.addColor('#3d87ff', 11);
-  this.waterSavedDisplay.addColor('white', 21);
   this.waterSavedDisplay.stroke = '#000000';
   this.waterSavedDisplay.strokeThickness = 7;
   winScreen.add(this.waterSavedDisplay);
@@ -527,9 +526,7 @@ function winScreen() {
   });
   */
 
-
-
-  // Restart button
+  // Restart button (If we have multiple levels, maybe remove this?)
   this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
   this.restartButton.anchor.setTo(0.5);
   this.restartButton.scale.setTo(2.3);
@@ -995,9 +992,9 @@ function boxCreator(selector) {
   }
 
   boxSelector = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), 'boxSelector', 0);
-  boxSelector.scale.setTo(SCALE + 3.1, SCALE + 3.1);
-  boxSelector.x += -55;
-  boxSelector.y += -55;
+  boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
+  boxSelector.x += -60;
+  boxSelector.y += -60;
 }
 
 function initializeTestControls() {
