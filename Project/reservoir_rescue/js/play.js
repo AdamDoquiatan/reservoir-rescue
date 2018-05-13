@@ -24,7 +24,7 @@ const MENU_Y = 11;
 // Rate at which health goes down in milliseconds
 const HP_RATE = 250;
 // The initial health
-const HP = 100;
+const HP = 1000;
 // Rate at which water flows in frames per second
 const FLOW_RATE = 60;
 // Delay before water level starts decreasing
@@ -247,6 +247,9 @@ playState = {
 
   pauseMenu: function (sprite, event) {
 
+    counter.timer.pause();
+    hpBarCounter.timer.pause();
+
     if (input_Enabled === true) {
       // Turns off input to everything but pause screen
       input_Enabled = false;
@@ -275,7 +278,7 @@ playState = {
       pauseScreen.add(this.pauseHeader);
 
       // Specifies text properties
-      var textStyle = {font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850};
+      var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
@@ -297,6 +300,8 @@ playState = {
         input_Enabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
+        counter.timer.resume();
+        hpBarCounter.timer.resume();
         pauseScreen.destroy();
         darkFilter.destroy();
       });
@@ -307,7 +312,16 @@ playState = {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
-        window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+        restartLightflash()
+        input_Enabled = true;
+        sprite.input.enabled = true;
+        game.input.onDown.add(delegate, this, 0);
+        hpBar.frame = hpBar.animations.frameTotal;
+        health = HP;
+        counter.timer.resume();
+        hpBarCounter.timer.resume();
+        pauseScreen.destroy();
+        darkFilter.destroy();
       });
 
       // Menu button
@@ -337,11 +351,6 @@ playState = {
     // Group for screen componenets
     var obsScreen = this.game.add.group();
 
-    // Screen BG
-    this.obsBG = obsScreen.create(this.game.world.centerX, -300, 'obs_screen');
-    this.obsBG.anchor.setTo(0.5);
-    this.obsBG.scale.setTo(3.1, 6.8);
-
     // Picture of a sprinkler
     this.obsSprink = obsScreen.create(this.game.world.centerX, -600, 'obs_screen_sprink');
     this.obsSprink.anchor.setTo(0.5);
@@ -356,7 +365,7 @@ playState = {
 
     // Obstacle text
     this.obsTextSprink = game.add.text(this.game.world.centerX, -110, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-    this.obsTextSprink.addColor('#2de276', 17);
+    this.obsTextSprink.addColor('#3d87ff', 17);
     this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
     this.obsTextSprink.stroke = '#000000';
@@ -377,10 +386,16 @@ playState = {
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
+    // Screen BG
+    this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300, 'borderWindow');
+    this.obsBorder.anchor.setTo(0.5);
+    this.obsBorder.scale.setTo(1.9, 2);
+    obsScreen.add(this.obsBorder);
+
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({ y: element.position.y + 1000 }, 700, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     });
 
@@ -388,7 +403,7 @@ playState = {
     function endObsScreen(sprite, event) {
 
       darkFilterTween = this.game.add.tween(this.darkFilter);
-      darkFilterTween.to({ alpha: 0 }, 1200, Phaser.Easing.Cubic.Out, true);
+      darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
@@ -498,8 +513,6 @@ function winScreen() {
   this.scoreDisplay.strokeThickness = 7;
   winScreen.add(this.scoreDisplay);
 
-
-
   // Continue (to next level) button -- doesn't do anything yet
   this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
   this.contButton.anchor.setTo(0.5);
@@ -515,14 +528,33 @@ function winScreen() {
   */
 
 
+
   // Restart button
   this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
   this.restartButton.anchor.setTo(0.5);
   this.restartButton.scale.setTo(2.3);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
-    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    restartLightflash();
+    input_Enabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    win = false;
+    hpBar.frame = hpBar.animations.frameTotal;
+    health = HP;
+    can_Place = true;
+    winText.text = '';
+    counter.timer.resume();
+    hpBarCounter.timer.resume();
+    winHeader.destroy();
+    winScreen.destroy();
+    darkFilter.destroy();
   })
+
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 0;
 
   // Text and Button Tweens
   darkFilterTween = this.game.add.tween(this.darkFilter);
@@ -602,21 +634,37 @@ function loseScreen() {
   this.restartButton.scale.setTo(2.3);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
-    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    restartLightflash();
+    input_Enabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    hpBar.frame = hpBar.animations.frameTotal;
+    health = HP;
+    lose = false;
+    can_Place = true;
+    winText.text = '';
+    counter.timer.resume();
+    hpBarCounter.timer.resume();
+
+    this.whiteFilter.alpha = 1;
+    whiteFilterTween = this.game.add.tween(this.whiteFilter);
+    whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    loseHeader.destroy();
+    loseScreen.destroy();
+    darkFilter.destroy();
   })
 
   // White Filter
   this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
   this.whiteFilter.anchor.setTo(0.5);
   this.whiteFilter.scale.setTo(4);
-  this.whiteFilter.alpha = 1;
-
+  
   // Text and Filter Tweens
   whiteFilterTween = this.game.add.tween(this.whiteFilter);
   whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
 
-  victoryTween = this.game.add.tween(this.loseHeader);
-  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
+  loseTween = this.game.add.tween(this.loseHeader);
+  loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 
 
@@ -895,8 +943,8 @@ function checkLeft(pipe) {
 }
 
 function levelComplete() {
-  counter.timer.stop();
-  hpBarCounter.timer.stop();
+  counter.timer.pause();
+  hpBarCounter.timer.pause();
   win = true;
   can_Place = false;
   winText.text = 'WIN';
@@ -908,8 +956,8 @@ function levelComplete() {
 }
 
 function gameOver() {
-  counter.timer.stop();
-  hpBarCounter.timer.stop();
+  counter.timer.pause();
+  hpBarCounter.timer.pause();
   hpBar.frame = hpBar.animations.frameTotal - 1;
   lose = true;
   can_Place = false;
@@ -988,10 +1036,21 @@ function initializeTestControls() {
 
 // Starts water level counter
 function startCounter() {
-  counter = game.time.events.loop(HP_RATE, function() {
+  counter = game.time.events.loop(HP_RATE, function () {
     healthText.text = --health;
   }, this);
-  hpBarCounter = game.time.events.loop(hpBarRate, function() {
+  hpBarCounter = game.time.events.loop(hpBarRate, function () {
     hpBar.frame += 1;
   }, this);
+}
+
+function restartLightflash() {
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 1;
+
+  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 }
