@@ -1,189 +1,103 @@
+const SCALE = 4;
+const MENU_X = 0;
+const MENU_Y = 11;
+const HP = 100;
+const HP_RATE = 250;
+const FLOW_RATE = 10;
+const DELAY = 500;
+
 // For enabling/disabling testing features
 let testMode = true;
 
-// How many time to multiply resolution
-const SCALE = 4;
-// Size of each grid tile in pixels
-const GRID = 32 * SCALE;
-// Number of grid tiles across
-const TILES_X = 7;
-// Number of grid tiles down
-const TILES_Y = 6;
-// Horizontal offset of grid
-const GRID_X = 0;
-// Vertical offset of grid
-const GRID_Y = GRID * 3;
-// Horizontal bound of grid
-const GRID_X_MAX = GRID * TILES_X + GRID_X;
-// Vertical bound of grid
-const GRID_Y_MAX = GRID * TILES_Y + GRID_Y;
-// Horizontal offset of pipe selection menu
-const MENU_X = 0;
-// Vertical offset of pipe selection menu
-const MENU_Y = 11;
-// Rate at which health goes down in milliseconds
-const HP_RATE = 250;
-// The initial health
-const HP = 100;
-// Rate at which water flows in frames per second
-const FLOW_RATE = 60;
-// Delay before water level starts decreasing
-const DELAY = 500;
+/* Game Objects */
 
-// Connections enum
-let Connections = {
-  UP: 1,
-  RIGHT: 2,
-  DOWN: 3,
-  LEFT: 4
-};
-Object.freeze(Connections);
-
-function Pipe(image, connections, col, row) {
-  this.type = 'pipe';
-  this.image = image;
-  this.connections = connections;
-  this.col = col;
-  this.row = row;
-}
-// pipev = vertical pipe
-// pipeh = horizontal pipe
-// pipe1 = up & right
-// pipe2 = down & right
-// pipe3 = down & left
-// pipe4 = up & left
-let pipes = [
-  new Pipe('pipev', [Connections.UP, Connections.DOWN]),
-  new Pipe('pipeh', [Connections.LEFT, Connections.RIGHT]),
-  new Pipe('pipe1', [Connections.UP, Connections.RIGHT]),
-  new Pipe('pipe2', [Connections.DOWN, Connections.RIGHT]),
-  new Pipe('pipe3', [Connections.LEFT, Connections.DOWN]),
-  new Pipe('pipe4', [Connections.UP, Connections.LEFT])
-];
-// The index of the currently
-// selected pipe from the pipes array
-let pipeIndex = 0;
-
-function Obstacle(image, col, row) {
-  this.type = 'obstacle';
-  this.image = image;
-  this.col = col;
-  this.row = row;
-}
-
-// Start and end points
-let start = {
-  image: 'cursor',
-  connect: Connections.UP,
-  col: 3,
-  row: 0,
-  object: null
-};
-let end = {
-  image: 'cursor',
-  connect: Connections.DOWN,
-  col: 3,
-  row: 5,
-  object: null
-};
-
-// 2D array representing the grid
-// where pipes are placed
-let grid = new Array(TILES_Y);
-for (let i = 0; i < TILES_Y; i++) {
-  grid[i] = new Array(TILES_X);
-}
-for (let i = 0; i < TILES_Y; i++) {
-  for (let j = 0; j < TILES_X; j++) {
-    grid[i][j] = null;
-  }
-}
-
-// Path from start to end
-let path = [];
-
-// If last pipe placed is connected to start point
-let startConnected = false;
-// If last pipe placed is connected to end point
-let endConnected = false;
-// If player won
-let win = false;
-// If player lost
-let lose = false;
 // Number keys for selecting pipes
 let key1, key2, key3, key4, key5, key6;
-// Pause Variable for turning off inputEnabled buttons
-var input_Enabled = true;
-// Ensures that player makes a selection before placing pipes
-var can_Place = false;
-// Tracks which pipes are in which selection spot
-var boxedPipes = [];
-// Tracks currently selected pipe
-var currentSelection;
-// Signals a pipe menu update when true (don't change!)
-var pipeSwap = false;
 
-// The main tilemap
 let map;
-// Background layer
-let layer;
-// Other layer
-let otherLayer;
-// Group for pipe selection menu
-let menuPipes;
-// Group for obstacles
-let obstacles;
+let layer1;
+let layer2;
 let winText;
 let testText;
 let healthText;
-var boxSelector;
-let counter;
-var health = HP;
-var score = HP;
 let hpBar;
-let hpBarRate;
 let hpBarCounter;
+let hpCounter;
+let boxSelector;
 
-// Signals
+/* Groups */
+
+// Tracks which pipes are in which selection spot
+let boxedPipes = [];
+
+let pipeMenu;
+let obstacles;
+let obstacleArray = [];
+
+/* Global Variables */
+
+// Index of currently selected pipe
+let pipeIndex = 0;
+
+// Signals a pipe menu update when true (don't change!)
+let pipeSwap = false;
+
+// Pause Variable for turning off inputEnabled buttons
+let input_Enabled = true;
+
+// Ensures that player makes a selection before placing pipes
+let canPlace = false;
+
+// Tracks currently selected pipe
+let currentSelection;
+
+let win = false;
+let lose = false;
+let startConnected = false;
+let endConnected = false;
+let health = HP;
+let score = HP;
+let hpBarRate;
+
+/* Signals */
+
 let onWin = new Phaser.Signal();
 let onLose = new Phaser.Signal();
 
-let playState;
-
-playState = {
+let playState = {
 
   create: function () {
-
     // Initialize tilemap
     map = game.add.tilemap('map');
     map.addTilesetImage('tileset', 'tileset');
-    layer = map.createLayer('Background');
-    layer.scale.set(SCALE);
-    otherLayer = map.createLayer('Other');
-    otherLayer.scale.set(SCALE);
+    layer1 = map.createLayer('Tile Layer 1');
+    layer1.scale.set(SCALE);
+    layer2 = map.createLayer('Tile Layer 2');
+    layer2.scale.set(SCALE);
 
-    // Create obstacles from object layer of tilemap
+    // Create obstacles from object layer of 
     obstacles = game.add.group();
     map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacles);
     obstacles.forEach(function (element) {
       element.scale.set(SCALE);
       element.x *= SCALE;
       element.y *= SCALE;
-      let col = parseInt((element.x - GRID_X) / GRID);
-      let row = parseInt((element.y - GRID_Y) / GRID);
+      let col = parseInt((element.x - GRID_X) / GRID_SIZE);
+      let row = parseInt((element.y - GRID_Y) / GRID_SIZE);
       let obstacle = new Obstacle(element.key, col, row);
       obstacle.object = element;
-      console.log(addObjectToGridArray(obstacle));
+      addObjectToGridArray(obstacle);
+      obstacleArray.push(obstacle);
     });
 
-    // HP Bar
-    hpBar = game.add.sprite(0, GRID * 1, 'hp_bar', 0);
+    // HP bar
+    hpBar = game.add.sprite(0, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
     hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
 
     // Set start and end points
-    start.object = addToGrid(start.col, start.row, start.image);
-    end.object = addToGrid(end.col, end.row, end.image);
+    startTile.object = addToGrid(startTile.col, startTile.row, startTile.image);
+    endTile.object = addToGrid(endTile.col, endTile.row, endTile.image);
 
     // Initialize pipe selection menu
     initializeMenu();
@@ -233,7 +147,7 @@ playState = {
   update: function () {
 
     if (pipeSwap === true) {
-      reloadPipe(menuPipes);
+      reloadPipe(pipeMenu;);
     }
 
     if (health === 0 && !lose) {
@@ -448,7 +362,6 @@ playState = {
   },
 };
 
-
 function winScreen() {
   // Turns off input to everything but win screen
   input_Enabled = false;
@@ -513,7 +426,6 @@ function winScreen() {
     winScreen.destroy();
   });
   */
-
 
   // Restart button
   this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
@@ -619,46 +531,6 @@ function loseScreen() {
   victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 
-
-function placePipe() {
-
-  let col = parseInt((game.input.x - GRID_X) / GRID);
-  let row = parseInt((game.input.y - GRID_Y) / GRID);
-
-  if (checkEmpty(col, row) && can_Place === true) {
-    let pipe = Object.assign({}, pipes[pipeIndex]);
-    pipe.col = col;
-    pipe.row = row;
-
-    pipeSwap = true;
-
-    if (checkOverlap(pipe, start)) {
-      if (pipe.connections.includes(start.connect))
-        pipe.start = true;
-    } else if (checkOverlap(pipe, end)) {
-      if (pipe.connections.includes(end.connect))
-        pipe.end = true;
-    }
-    addToGridArray(col, row, pipe);
-
-    pipe.object.animations.add('forward',
-      [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
-    pipe.object.animations.add('backward',
-      [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
-
-    connect(pipe);
-    if (startConnected && endConnected) {
-      onWin.dispatch();
-    }
-    else {
-      startConnected = false;
-      endConnected = false;
-    }
-  }
-
-  console.log(grid);
-}
-
 // Replaces pipe in current selection box with new random pipe
 function reloadPipe(menuPipes) {
 
@@ -677,7 +549,7 @@ function reloadPipe(menuPipes) {
         if (i !== currentSelection) {
           index0 = menuPipes.children[i];
         } else {
-          index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index0 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipes[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
           index0.scale.setTo(SCALE, SCALE);
           index0.events.onInputDown.add(selectPipe,
@@ -688,7 +560,7 @@ function reloadPipe(menuPipes) {
         if (i !== currentSelection) {
           index1 = menuPipes.children[i];
         } else {
-          index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipes[randomPipeIndex].image, 0);
           index1.inputEnabled = true;
           index1.scale.setTo(SCALE, SCALE);
           index1.events.onInputDown.add(selectPipe,
@@ -700,8 +572,8 @@ function reloadPipe(menuPipes) {
           index2 = menuPipes.children[i];
         } else {
           index2 = game.add.sprite(
-            currentSelection * 2 * GRID + (GRID) + MENU_X,
-            MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
+            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipes[randomPipeIndex].image, 0);
           index2.inputEnabled = true;
           index2.scale.setTo(SCALE, SCALE);
           index2.events.onInputDown.add(selectPipe,
@@ -730,212 +602,13 @@ function reloadPipe(menuPipes) {
   pipeSwap = false;
 }
 
+// Selects a pipe from the menu
 function selectPipe(pipe, pointer, index, currentIndex) {
   if (input_Enabled === true) {
     currentSelection = currentIndex;
     pipeIndex = index;
     boxCreator(pointer);
-    can_Place = true;
-  }
-}
-
-// Checks if a tile on the grid is empty
-function checkEmpty(col, row) {
-  return grid[row][col] === null;
-}
-
-// Adds to the on-screen grid but not the 2D array
-function addToGrid(col, row, object) {
-  let sprite = game.add.sprite(
-    col * GRID + GRID_X,
-    row * GRID + GRID_Y, object);
-  sprite.scale.setTo(SCALE, SCALE);
-  return sprite;
-}
-
-// Adds to on-screen grid and 2D array
-function addToGridArray(col, row, object) {
-  object.object = addToGrid(col, row, object.image);
-  return grid[row][col] = object;
-}
-
-// Adds already created object to 2D array
-function addObjectToGridArray(object) {
-  return grid[object.row][object.col] = object;
-}
-
-// This calls specifc functions based
-// on where the player touched the screen
-function delegate(pointer) {
-  if (pointer.x >= GRID_X
-    && pointer.x < GRID_X_MAX
-    && pointer.y >= GRID_Y
-    && pointer.y <= GRID_Y_MAX) {
-    placePipe();
-  }
-}
-
-// Checks if two objects occupy the same tile on the grid
-function checkOverlap(objectA, objectB) {
-  return objectA.col === objectB.col && objectA.row === objectB.row;
-}
-
-// Checks if connected pipes include pipes on the start and
-// end tiles
-function connect(pipe, direction) {
-  if (pipe.start === true)
-    startConnected = true;
-  if (pipe.end === true)
-    endConnected = true;
-  checkDirections(pipe, direction, connect);
-}
-
-// Converts path from start point to end goal into an array
-function pathToArray(pipe, direction) {
-  let index = pipe.connections.indexOf(direction);
-  pipe.animation = (index === 0) ? 'forward' : 'backward';
-  path.push(pipe);
-  checkDirections(pipe, direction, pathToArray);
-}
-
-// Plays water flow animations in order
-function flow(sprite, animation, index) {
-  if (index >= 0 && index < path.length) {
-    let pipe = path[index];
-    pipe.object.animations.play(pipe.animation);
-    pipe.object.animations.getAnimation(pipe.animation)
-      .onComplete.add(flow, this, 0, ++index);
-  } else {
-    winScreen();
-  }
-}
-
-// Checks for pipes adjacent to the specified pipe
-// and performs action on them
-function checkDirections(pipe, direction, action) {
-  let otherPipe;
-  for (let connection of pipe.connections) {
-    if (connection === direction)
-      continue;
-    switch (connection) {
-      case Connections.UP:
-        otherPipe = checkUp(pipe);
-        if (otherPipe !== null)
-          action(otherPipe, Connections.DOWN);
-        break;
-      case Connections.RIGHT:
-        otherPipe = checkRight(pipe);
-        if (otherPipe !== null)
-          action(otherPipe, Connections.LEFT);
-        break;
-      case Connections.DOWN:
-        otherPipe = checkDown(pipe);
-        if (otherPipe !== null)
-          action(otherPipe, Connections.UP);
-        break;
-      case Connections.LEFT:
-        otherPipe = checkLeft(pipe);
-        if (otherPipe !== null)
-          action(otherPipe, Connections.RIGHT);
-        break;
-    }
-  }
-}
-
-// Checks if there's a pipe above
-function checkUp(pipe) {
-  if (pipe.row > 0) {
-    let other = grid[pipe.row - 1][pipe.col];
-    if (other !== null && other.type === 'pipe') {
-      if (other.connections.includes(Connections.DOWN)) {
-        return other;
-      }
-    }
-  }
-  return null;
-}
-
-// Checks if there's a pipe to the right
-function checkRight(pipe) {
-  if (pipe.col < TILES_X - 1) {
-    let other = grid[pipe.row][pipe.col + 1];
-    if (other !== null && other.type === 'pipe') {
-      if (other.connections.includes(Connections.LEFT)) {
-        return other;
-      }
-    }
-  }
-  return null;
-}
-
-// Checks if there's a pipe below
-function checkDown(pipe) {
-  if (pipe.row < TILES_Y - 1) {
-    let other = grid[pipe.row + 1][pipe.col];
-    if (other !== null && other.type === 'pipe') {
-      if (other.connections.includes(Connections.UP)) {
-        return other;
-      }
-    }
-  }
-  return null;
-}
-
-// Checks if there's a pipe to the left
-function checkLeft(pipe) {
-  if (pipe.col > 0) {
-    let other = grid[pipe.row][pipe.col - 1];
-    if (other !== null && other.type === 'pipe') {
-      if (other.connections.includes(Connections.RIGHT)) {
-        return other;
-      }
-    }
-  }
-  return null;
-}
-
-function levelComplete() {
-  counter.timer.stop();
-  hpBarCounter.timer.stop();
-  win = true;
-  can_Place = false;
-  winText.text = 'WIN';
-  if (startConnected && endConnected) {
-    let startingPipe = grid[start.row][start.col];
-    pathToArray(startingPipe, Connections.UP);
-  }
-  flow(null, null, 0);
-}
-
-function gameOver() {
-  counter.timer.stop();
-  hpBarCounter.timer.stop();
-  hpBar.frame = hpBar.animations.frameTotal - 1;
-  lose = true;
-  can_Place = false;
-  winText.text = 'LOSE';
-  loseScreen();
-}
-
-// Creates starting selection of random (but unique) pipes
-function initializeMenu() {
-  menuPipes = game.add.group();
-  for (let i = 0; menuPipes.length < 3;) {
-    var randomPipeIndex = Math.floor(Math.random() * 6);
-    if (!boxedPipes.includes(randomPipeIndex)) {
-      let pipe = game.add.sprite(i * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
-      pipe.scale.setTo(SCALE, SCALE)
-      menuPipes.add(pipe);
-      boxedPipes.push(randomPipeIndex);
-      i++;
-    }
-    for (let i = 0; i < menuPipes.children.length; i++) {
-      menuPipes.children[i].inputEnabled = true;
-      menuPipes.children[i].events.onInputDown.add(selectPipe,
-        this, 0, randomPipeIndex, i);
-
-    }
-    console.log(boxedPipes);
+    canPlace = true;
   }
 }
 
@@ -946,13 +619,118 @@ function boxCreator(selector) {
     boxSelector.destroy();
   }
 
-  boxSelector = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), 'boxSelector', 0);
+  boxSelector = game.add.sprite(
+    currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
+    MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 'boxSelector', 0);
   boxSelector.scale.setTo(SCALE + 3.1, SCALE + 3.1);
   boxSelector.x += -55;
   boxSelector.y += -55;
 }
 
+// This calls specifc functions based
+// on where the player touched the screen
+function delegate(pointer) {
+  if (pointer.x >= GRID_X
+    && pointer.x < GRID_X_BOUND
+    && pointer.y >= GRID_Y
+    && pointer.y <= GRID_Y_BOUND) {
+    placePipe();
+  }
+}
+
+function startWaterFlow(pipe, connection) {
+  if (pipe !== null) {
+    let adjacentObstacles = getAdjacent(pipe, Obstacle);
+    for (o of adjacentObstacles) {
+      if (!o.sap && o.warning) {
+        health -= o.damage;
+        healthText.text = health;
+        o.warning.animations.play('flash');
+        setHealthBar(health);
+        o.sap = true;
+      }
+    }
+    let index = pipe.connections.indexOf(connection);
+    pipe.animation = (index === 0) ? 'forward' : 'backward';
+    let connectedPipes = getConnectedPipes(pipe, connection);
+    pipe.object.animations.play(pipe.animation);
+    pipe.object.animations.getAnimation(pipe.animation)
+      .onComplete.add(function () {
+        if (connectedPipes.length === 0) {
+          winScreen();
+          return;
+        }
+        if (health <= 0) {
+          onLose.dispatch();
+          return;
+        }
+        for (let p of connectedPipes) {
+          startWaterFlow(p, p.connection);
+        }
+      }, this);
+  } 
+}
+
+// Starts water level counter
+function startCounter() {
+  hpCounter = game.time.events.loop(HP_RATE, function() {
+    healthText.text = --health;
+  }, this);
+  hpBarCounter = game.time.events.loop(hpBarRate, function() {
+    hpBar.frame += 1;
+  }, this);
+}
+
+function levelComplete() {
+  hpCounter.timer.stop();
+  hpBarCounter.timer.stop();
+  win = true;
+  canPlace = false;
+  winText.text = 'WIN';
+  startWaterFlow(grid[startTile.row][startTile.col], startTile.connect);
+}
+
+function gameOver() {
+  hpCounter.timer.stop();
+  hpBarCounter.timer.stop();
+  hpBar.frame = hpBar.animations.frameTotal - 1;
+  lose = true;
+  canPlace = false;
+  winText.text = 'LOSE';
+  loseScreen();
+}
+
+// Creates starting selection of random (but unique) pipes
+function initializeMenu() {
+
+  pipeMenu; = game.add.group();
+
+  for (let i = 0; pipeMenu;.length < 3;) {
+    var randomPipeIndex = Math.floor(Math.random() * 6);
+    if (!boxedPipes.includes(randomPipeIndex)) {
+      let pipe = game.add.sprite(
+        i * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
+        MENU_Y * GRID_SIZE - (GRID_SIZE / 2),
+        pipes[randomPipeIndex].image, 0);
+      pipe.scale.setTo(SCALE, SCALE)
+      pipeMenu;.add(pipe);
+      boxedPipes.push(randomPipeIndex);
+      i++;
+    }
+
+    for (let i = 0; i < pipeMenu;.children.length; i++) {
+      pipeMenu;.children[i].inputEnabled = true;
+      pipeMenu;.children[i].events.onInputDown.add(selectPipe,
+        this, 0, randomPipeIndex, i);
+
+    }
+
+    console.log(boxedPipes);
+  }
+}
+
 function initializeTestControls() {
+
   // For testing: select specific pipes
   key1 = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
   key2 = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
@@ -961,37 +739,35 @@ function initializeTestControls() {
   key5 = game.input.keyboard.addKey(Phaser.Keyboard.FIVE);
   key6 = game.input.keyboard.addKey(Phaser.Keyboard.SIX);
   key1.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 0;
   }, this);
   key2.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 1;
   }, this);
   key3.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 2;
   }, this);
   key4.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 3;
   }, this);
   key5.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 4;
   }, this);
   key6.onDown.add(function () {
-    can_Place = true;
+    canPlace = true;
     pipeIndex = 5;
   }, this);
 }
 
-// Starts water level counter
-function startCounter() {
-  counter = game.time.events.loop(HP_RATE, function() {
-    healthText.text = --health;
-  }, this);
-  hpBarCounter = game.time.events.loop(hpBarRate, function() {
-    hpBar.frame += 1;
-  }, this);
+function setHealthBar(health) {
+  let percentGone = (HP - health) / HP;
+  let nextFrame = parseInt(hpBar.animations.frameTotal * percentGone) - 1;
+  if (nextFrame >= 0 && nextFrame < hpBar.animations.frameTotal) {
+    hpBar.frame = nextFrame;
+  }
 }

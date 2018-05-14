@@ -7,6 +7,7 @@ var loadState = {
     game.load.image('cursor', 'assets/images/cursor.png');
     game.load.image('boxSelector', 'assets/images/boxSelector.png');
     game.load.spritesheet('hp_bar', 'assets/images/hp_bar.png', 224, 32);
+    game.load.spritesheet('warning', 'assets/images/warning.png', 32, 32);
 
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
