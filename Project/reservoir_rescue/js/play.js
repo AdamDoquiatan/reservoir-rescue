@@ -17,7 +17,6 @@ let key1, key2, key3, key4, key5, key6;
 let map;
 let layer1;
 let layer2;
-let winText;
 let testText;
 let healthText;
 let hpBar;
@@ -45,7 +44,7 @@ let pipeIndex = 0;
 let pipeSwap = false;
 
 // Pause Variable for turning off inputEnabled buttons
-let input_Enabled = true;
+let inputEnabled = true;
 
 // Ensures that player makes a selection before placing pipes
 let canPlace = false;
@@ -53,8 +52,7 @@ let canPlace = false;
 // Tracks currently selected pipe
 let currentSelection;
 
-let win = false;
-let lose = false;
+lose = false;
 let startConnected = false;
 let endConnected = false;
 let health = HP;
@@ -112,21 +110,21 @@ let playState = {
     this.pauseButton = this.game.add.sprite(game.width, 0, 'pause');
     this.pauseButton.scale.setTo(2.3);
     this.pauseButton.anchor.setTo(1, 0);
-    this.pauseButton.inputEnabled = input_Enabled;
+    this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(this.pauseMenu, this);
 
     // For testing: Win Button
     this.winButton = this.game.add.sprite(game.width - 450, 0, 'winButton');
     this.winButton.scale.setTo(2.6);
     this.winButton.anchor.setTo(1, 0);
-    this.winButton.inputEnabled = input_Enabled;
+    this.winButton.inputEnabled = inputEnabled;
     this.winButton.events.onInputDown.add(levelComplete, this);
 
     // For testing: Lose Button
     this.loseButton = this.game.add.sprite(game.width - 190, 0, 'loseButton');
     this.loseButton.scale.setTo(2.3);
     this.loseButton.anchor.setTo(1, 0);
-    this.loseButton.inputEnabled = input_Enabled;
+    this.loseButton.inputEnabled = inputEnabled;
     this.loseButton.events.onInputDown.add(gameOver, this);
 
     // For testing: turn the obstacle screen on or off
@@ -145,6 +143,7 @@ let playState = {
     }
 
     if (health === 0 && !lose) {
+      lose = true;
       onLose.dispatch();
     }
 
@@ -153,9 +152,13 @@ let playState = {
       + parseInt(game.input.activePointer.y) + ')';
   },
   pauseMenu: function (sprite, event) {
-    if (input_Enabled === true) {
+
+    hpCounter.timer.pause();
+    hpBarCounter.timer.pause();
+
+    if (inputEnabled === true) {
       // Turns off input to everything but pause screen
-      input_Enabled = false;
+      inputEnabled = false;
       sprite.input.enabled = false;
       game.input.onDown.removeAll();
 
@@ -181,7 +184,7 @@ let playState = {
       pauseScreen.add(this.pauseHeader);
 
       // Specifies text properties
-      var textStyle = {font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850};
+      var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
@@ -200,9 +203,11 @@ let playState = {
       this.contButton.scale.setTo(2.3);
       this.contButton.inputEnabled = true;
       this.contButton.events.onInputDown.add(function () {
-        input_Enabled = true;
+        inputEnabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
+        hpCounter.timer.resume();
+        hpBarCounter.timer.resume();
         pauseScreen.destroy();
         darkFilter.destroy();
       });
@@ -213,7 +218,16 @@ let playState = {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
-        window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+        restartLightflash()
+        inputEnabled = true;
+        sprite.input.enabled = true;
+        game.input.onDown.add(delegate, this, 0);
+        hpBar.frame = hpBar.animations.frameTotal;
+        health = HP;
+        hpCounter.timer.resume();
+        hpBarCounter.timer.resume();
+        pauseScreen.destroy();
+        darkFilter.destroy();
       });
 
       // Menu button
@@ -228,7 +242,7 @@ let playState = {
   },
   obsScreen1: function (sprite, event) {
     // Prevents input to anything but obs screen
-    input_Enabled = false;
+    inputEnabled = false;
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
 
@@ -240,11 +254,6 @@ let playState = {
 
     // Group for screen componenets
     var obsScreen = this.game.add.group();
-
-    // Screen BG
-    this.obsBG = obsScreen.create(this.game.world.centerX, -300, 'obs_screen');
-    this.obsBG.anchor.setTo(0.5);
-    this.obsBG.scale.setTo(3.1, 6.8);
 
     // Picture of a sprinkler
     this.obsSprink = obsScreen.create(this.game.world.centerX, -600, 'obs_screen_sprink');
@@ -260,7 +269,7 @@ let playState = {
 
     // Obstacle text
     this.obsTextSprink = game.add.text(this.game.world.centerX, -110, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-    this.obsTextSprink.addColor('#2de276', 17);
+    this.obsTextSprink.addColor('#3d87ff', 17);
     this.obsTextSprink.addColor('white', 26);
     this.obsTextSprink.anchor.setTo(0.5);
     this.obsTextSprink.stroke = '#000000';
@@ -281,10 +290,16 @@ let playState = {
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
+    // Screen BG
+    this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300, 'borderWindow');
+    this.obsBorder.anchor.setTo(0.5);
+    this.obsBorder.scale.setTo(1.9, 2);
+    obsScreen.add(this.obsBorder);
+
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
-      elementTween.to({ y: element.position.y + 1000 }, 700, Phaser.Easing.Elastic.Out, true);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     });
 
@@ -292,7 +307,7 @@ let playState = {
     function endObsScreen(sprite, event) {
 
       darkFilterTween = this.game.add.tween(this.darkFilter);
-      darkFilterTween.to({ alpha: 0 }, 1200, Phaser.Easing.Cubic.Out, true);
+      darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
 
       obsScreen.forEach(function (element) {
         var elementTween = this.game.add.tween(element);
@@ -303,7 +318,7 @@ let playState = {
         });
 
       });
-      input_Enabled = true;
+      inputEnabled = true;
       this.pauseButton.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
 
@@ -353,7 +368,7 @@ let playState = {
 // Displays win screen
 function winScreen() {
   // Turns off input to everything but win screen
-  input_Enabled = false;
+  inputEnabled = false;
   game.input.onDown.removeAll();
 
   // Dark Filter Fades In
@@ -385,7 +400,6 @@ function winScreen() {
   this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
   this.waterSavedDisplay.lineSpacing = -2;
   this.waterSavedDisplay.addColor('#3d87ff', 11);
-  this.waterSavedDisplay.addColor('white', 21);
   this.waterSavedDisplay.stroke = '#000000';
   this.waterSavedDisplay.strokeThickness = 7;
   winScreen.add(this.waterSavedDisplay);
@@ -405,14 +419,38 @@ function winScreen() {
   this.contButton.anchor.setTo(0.5);
   this.contButton.scale.setTo(2.3);
 
-  // Restart button
+  // this.contButton.inputEnabled = true;
+  // this.contButton.events.onInputDown.add(function () {
+  //   inputEnabled = true;
+  //   sprite.input.enabled = true;
+  //   game.input.onDown.add(delegate, this, 0);
+  //   winScreen.destroy();
+  // });
+
+  // Restart button (If we have multiple levels, maybe remove this?)
   this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
   this.restartButton.anchor.setTo(0.5);
   this.restartButton.scale.setTo(2.3);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
-    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    restartLightflash();
+    inputEnabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    hpBar.frame = hpBar.animations.frameTotal;
+    health = HP;
+    canPlace = true;
+    hpCounter.timer.resume();
+    hpBarCounter.timer.resume();
+    winHeader.destroy();
+    winScreen.destroy();
+    darkFilter.destroy();
   })
+
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 0;
 
   // Text and Button Tweens
   darkFilterTween = this.game.add.tween(this.darkFilter);
@@ -433,7 +471,7 @@ function winScreen() {
 // Displays lose screen
 function loseScreen() {
   // Turns off input to everything but lose screen
-  input_Enabled = false;
+  inputEnabled = false;
   game.input.onDown.removeAll();
 
   // Dark Filter
@@ -493,21 +531,37 @@ function loseScreen() {
   this.restartButton.scale.setTo(2.3);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
-    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/game.html');
+    restartLightflash();
+    inputEnabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    hpBar.frame = hpBar.animations.frameTotal;
+    health = HP;
+    lose = false;
+    canPlace = true;
+    winText.text = '';
+    hpCounter.timer.resume();
+    hpBarCounter.timer.resume();
+
+    this.whiteFilter.alpha = 1;
+    whiteFilterTween = this.game.add.tween(this.whiteFilter);
+    whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    loseHeader.destroy();
+    loseScreen.destroy();
+    darkFilter.destroy();
   })
 
   // White Filter
   this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
   this.whiteFilter.anchor.setTo(0.5);
   this.whiteFilter.scale.setTo(4);
-  this.whiteFilter.alpha = 1;
-
+  
   // Text and Filter Tweens
   whiteFilterTween = this.game.add.tween(this.whiteFilter);
   whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
 
-  victoryTween = this.game.add.tween(this.loseHeader);
-  victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
+  loseTween = this.game.add.tween(this.loseHeader);
+  loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 
 // Replaces pipe in current selection box with new random pipe
@@ -527,7 +581,10 @@ function reloadPipe(menuPipes) {
         if (i !== currentSelection) {
           index0 = menuPipes.children[i];
         } else {
-          index0 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
+          index0 = game.add.sprite(
+            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
+            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
+            pipeSelection[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
           index0.scale.setTo(SCALE, SCALE);
           index0.events.onInputDown.add(selectPipe,
@@ -538,7 +595,10 @@ function reloadPipe(menuPipes) {
         if (i !== currentSelection) {
           index1 = menuPipes.children[i];
         } else {
-          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
+          index1 = game.add.sprite(
+            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
+            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
+            pipeSelection[randomPipeIndex].image, 0);
           index1.inputEnabled = true;
           index1.scale.setTo(SCALE, SCALE);
           index1.events.onInputDown.add(selectPipe,
@@ -551,7 +611,8 @@ function reloadPipe(menuPipes) {
         } else {
           index2 = game.add.sprite(
             currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
-            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
+            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
+            pipeSelection[randomPipeIndex].image, 0);
           index2.inputEnabled = true;
           index2.scale.setTo(SCALE, SCALE);
           index2.events.onInputDown.add(selectPipe,
@@ -582,7 +643,7 @@ function reloadPipe(menuPipes) {
 
 // Selects a pipe from the menu
 function selectPipe(pipe, pointer, index, currentIndex) {
-  if (input_Enabled === true) {
+  if (inputEnabled === true) {
     currentSelection = currentIndex;
     pipeIndex = index;
     boxCreator(pointer);
@@ -650,7 +711,7 @@ function startWaterFlow(pipe, connection) {
   } 
 }
 
-// Starts water level counter
+// Starts water level hpCounter
 function startCounter() {
   hpCounter = game.time.events.loop(HP_RATE, function() {
     healthText.text = --health;
@@ -662,8 +723,8 @@ function startCounter() {
 
 // Stops gameplay and begins water flow animation
 function levelComplete() {
-  hpCounter.timer.stop();
-  hpBarCounter.timer.stop();
+  hpCounter.timer.pause();
+  hpBarCounter.timer.pause();
   canPlace = false;
   let startingPipe = grid[startTile.row][startTile.col];
   startWaterFlow(startingPipe, startTile.connection);
@@ -671,8 +732,8 @@ function levelComplete() {
 
 // Stops gameplay and displays lose screen
 function gameOver() {
-  hpCounter.timer.stop();
-  hpBarCounter.timer.stop();
+  hpCounter.timer.pause();
+  hpBarCounter.timer.pause();
   hpBar.frame = hpBar.animations.frameTotal - 1;
   canPlace = false;
   loseScreen();
@@ -716,6 +777,19 @@ function initializeMenu() {
   }
 }
 
+// Creates a box around player's selected pipe
+function boxCreator(selector) {
+
+  if (boxSelector != null) {
+    boxSelector.destroy();
+  }
+
+  boxSelector = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), 'boxSelector', 0);
+  boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
+  boxSelector.x += -60;
+  boxSelector.y += -60;
+}
+
 // Initializes controls for manually selecting pipes
 function initializeTestControls() {
   // For testing: select specific pipes
@@ -751,3 +825,23 @@ function initializeTestControls() {
   }, this);
 }
 
+// Starts water level hpCounter
+function startCounter() {
+  hpCounter = game.time.events.loop(HP_RATE, function () {
+    healthText.text = --health;
+  }, this);
+  hpBarCounter = game.time.events.loop(hpBarRate, function () {
+    hpBar.frame += 1;
+  }, this);
+}
+
+function restartLightflash() {
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
+  this.whiteFilter.alpha = 1;
+
+  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+}
