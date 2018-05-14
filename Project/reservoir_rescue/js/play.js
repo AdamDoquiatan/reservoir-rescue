@@ -22,9 +22,9 @@ const MENU_X = 0;
 // Vertical offset of pipe selection menu
 const MENU_Y = 11;
 // Rate at which health goes down in milliseconds
-const HP_RATE = 250;
+const HP_RATE = 150;
 // The initial health
-const HP = 100;
+const HP = 440;
 // Rate at which water flows in frames per second
 const FLOW_RATE = 60;
 // Delay before water level starts decreasing
@@ -143,6 +143,11 @@ var score = HP;
 let hpBar;
 let hpBarRate;
 let hpBarCounter;
+
+// Used when swapping pipes to prevent a randomized pipe
+var doNotRandomize = false;
+// Holds the pipe that is getting swapped back to the selection menu
+var pipeSwappedBack = null;
 
 // Signals
 let onWin = new Phaser.Signal();
@@ -480,7 +485,7 @@ function winScreen() {
   var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
   // Water-Saved text
-  this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
+  this.waterSavedDisplay = game.add.text(50 + 400, 500, "You saved: " + health + " litres!", textStyle);
   this.waterSavedDisplay.lineSpacing = -2;
   this.waterSavedDisplay.addColor('#3d87ff', 11);
   this.waterSavedDisplay.addColor('white', 21);
@@ -489,11 +494,11 @@ function winScreen() {
   winScreen.add(this.waterSavedDisplay);
 
   // Score text
-  this.scoreDisplay = game.add.text(game.world.centerX + 600, 850, "Score: " + health, textStyle);
+  this.scoreDisplay = game.add.text(game.world.centerX + 600, 800, "That's " + ((health / HP) * 100).toFixed(1) + "% of the average person's daily water usage!", textStyle);
   this.scoreDisplay.anchor.setTo(0.5);
   this.scoreDisplay.lineSpacing = -2;
   this.scoreDisplay.addColor('#3d87ff', 7);
-  this.scoreDisplay.addColor('white', 10);
+  this.scoreDisplay.addColor('white', 12);
   this.scoreDisplay.stroke = '#000000';
   this.scoreDisplay.strokeThickness = 7;
   winScreen.add(this.scoreDisplay);
@@ -654,6 +659,38 @@ function placePipe() {
       startConnected = false;
       endConnected = false;
     }
+  } else if (grid[row][col] !== null && grid[row][col].type == "pipe" && can_Place === true){
+      let pipe = Object.assign({}, pipes[pipeIndex]);
+      pipe.col = col;
+      pipe.row = row;
+      
+      pipeSwappedBack = Object.assign({}, grid[row][col]);
+      
+      doNotRandomize = true;
+      pipeSwap = true;
+
+      if (checkOverlap(pipe, start)) {
+          if (pipe.connections.includes(start.connect))
+          pipe.start = true;
+      } else if (checkOverlap(pipe, end)) {
+          if (pipe.connections.includes(end.connect))
+          pipe.end = true;
+      }
+      addToGridArray(col, row, pipe);
+
+      pipe.object.animations.add('forward',
+          [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
+      pipe.object.animations.add('backward',
+          [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
+
+      connect(pipe);
+      if (startConnected && endConnected) {
+          onWin.dispatch();
+      }
+      else {
+          startConnected = false;
+          endConnected = false;
+      }
   }
 
   console.log(grid);
@@ -663,12 +700,21 @@ function placePipe() {
 function reloadPipe(menuPipes) {
 
   var randomPipeIndex = Math.floor(Math.random() * 6);
-
+  var swapBackPipeIndex = 0;
+      
   // Variables for holding current pipes
   var index0;
   var index1;
   var index2;
-
+  
+  if (pipeSwappedBack != null) {
+  for (let i = 0; i < pipes.length; i++) {
+      if (pipes[i].image === pipeSwappedBack.image) {
+          swapBackPipeIndex = i;
+      }
+  }
+  }
+    
   // Moves each pipe to a variable.
   // If pipe was used, creates and stores new pipe instead.
   for (i = 0; i < 3; i++) {
@@ -676,7 +722,14 @@ function reloadPipe(menuPipes) {
       case 0:
         if (i !== currentSelection) {
           index0 = menuPipes.children[i];
-        } else {
+        } else if (doNotRandomize) {
+          index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[swapBackPipeIndex].image, 0);
+          index0.inputEnabled = true;
+          index0.scale.setTo(SCALE, SCALE);
+          index0.events.onInputDown.add(selectPipe,
+          this, 0, swapBackPipeIndex, i);
+        }
+        else {
           index0 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index0.inputEnabled = true;
           index0.scale.setTo(SCALE, SCALE);
@@ -687,7 +740,14 @@ function reloadPipe(menuPipes) {
       case 1:
         if (i !== currentSelection) {
           index1 = menuPipes.children[i];
-        } else {
+        } else if (doNotRandomize) {
+          index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[swapBackPipeIndex].image, 0);
+          index1.inputEnabled = true;
+          index1.scale.setTo(SCALE, SCALE);
+          index1.events.onInputDown.add(selectPipe,
+            this, 0, swapBackPipeIndex, i);
+        }
+          else {
           index1 = game.add.sprite(currentSelection * 2 * GRID + (GRID) + MENU_X, MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index1.inputEnabled = true;
           index1.scale.setTo(SCALE, SCALE);
@@ -698,10 +758,19 @@ function reloadPipe(menuPipes) {
       case 2:
         if (i !== currentSelection) {
           index2 = menuPipes.children[i];
-        } else {
+        } else if (doNotRandomize) {
           index2 = game.add.sprite(
-            currentSelection * 2 * GRID + (GRID) + MENU_X,
-            MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
+          currentSelection * 2 * GRID + (GRID) + MENU_X,
+          MENU_Y * GRID - (GRID / 2), pipes[swapBackPipeIndex].image, 0);
+          index2.inputEnabled = true;
+          index2.scale.setTo(SCALE, SCALE);
+          index2.events.onInputDown.add(selectPipe,
+            this, 0, swapBackPipeIndex, i);  
+        }
+          else {
+          index2 = game.add.sprite(
+          currentSelection * 2 * GRID + (GRID) + MENU_X,
+          MENU_Y * GRID - (GRID / 2), pipes[randomPipeIndex].image, 0);
           index2.inputEnabled = true;
           index2.scale.setTo(SCALE, SCALE);
           index2.events.onInputDown.add(selectPipe,
@@ -718,14 +787,19 @@ function reloadPipe(menuPipes) {
   menuPipes.add(index0);
   menuPipes.add(index1);
   menuPipes.add(index2);
-
+  
   // Auto changes pipe index to new pipe in selected spot.
   pipeIndex = randomPipeIndex;
+    
+  if (doNotRandomize) {
+      pipeIndex = swapBackPipeIndex;
+  }
 
   //Updates array.
   boxedPipes[currentSelection] = pipeIndex;
   console.log(boxedPipes);
-
+  
+  doNotRandomize = false;
   // Signals pipe swap complete.
   pipeSwap = false;
 }
@@ -750,6 +824,8 @@ function addToGrid(col, row, object) {
     col * GRID + GRID_X,
     row * GRID + GRID_Y, object);
   sprite.scale.setTo(SCALE, SCALE);
+  sprite.inputEnabled = true;
+  sprite.events.onInputDown.add(destroySprite, this);
   return sprite;
 }
 
@@ -994,4 +1070,10 @@ function startCounter() {
   hpBarCounter = game.time.events.loop(hpBarRate, function() {
     hpBar.frame += 1;
   }, this);
+}
+
+// Destroys the sprite
+
+function destroySprite (sprite) {
+    sprite.destroy();
 }
