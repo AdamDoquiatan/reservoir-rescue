@@ -24,7 +24,7 @@ const MENU_Y = 11;
 // Rate at which health goes down in milliseconds
 const HP_RATE = 250;
 // The initial health
-const HP = 1000;
+const HP = 100;
 // Rate at which water flows in frames per second
 const FLOW_RATE = 60;
 // Delay before water level starts decreasing
