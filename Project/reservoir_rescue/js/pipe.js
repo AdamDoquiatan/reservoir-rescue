@@ -141,3 +141,38 @@ function invertConnection(connection) {
       return Connections.RIGHT;
   }
 }
+
+// Plays water flow animation
+function startWaterFlow(pipe, connection) {
+  if (pipe !== null) {
+    let adjacentObstacles = getAdjacentObjects(pipe, Obstacle);
+    for (o of adjacentObstacles) {
+      if (!o.sap && o.warning) {
+        health -= o.damage;
+        healthText.text = health;
+        o.warning.animations.play('flash');
+        setHealthBar(health);
+        o.sap = true;
+      }
+    }
+    let index = pipe.connections.indexOf(connection);
+    pipe.animation = (index === 0) ? 'forward' : 'backward';
+    let connectedPipes = getConnectedPipes(pipe, connection);
+    pipe.sprite.animations.play(pipe.animation);
+    pipe.sprite.animations.getAnimation(pipe.animation)
+      .onComplete.add(function () {
+        console.log(grid);
+        if (connectedPipes.length === 0) {
+          winScreen();
+          return;
+        }
+        if (health <= 0) {
+          onLose.dispatch();
+          return;
+        }
+        for (let p of connectedPipes) {
+          startWaterFlow(p, p.connection);
+        }
+      }, this);
+  } 
+}
