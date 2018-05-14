@@ -28,12 +28,11 @@ var loadState = {
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
 
     // In-Game Menu Stuff
-    this.load.image('obs_screen', 'assets/images/obs_bg_1.jpg');
+    this.load.image('borderWindow', 'assets/images/borderWindow.png');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
     this.load.image('continueButton', 'assets/images/continueButton.jpg');
     this.load.image('darkFilter', 'assets/images/darkFilter.png');
     this.load.image('whiteFilter', 'assets/images/whiteFilter.png');
-    this.load.image('pause_screen', 'assets/images/obs_bg_1.jpg');
     this.load.image('pause', 'assets/images/pause.png');
     this.load.image('restart', 'assets/images/restart.png');
     this.load.image('menuButton', 'assets/images/menu.png');
