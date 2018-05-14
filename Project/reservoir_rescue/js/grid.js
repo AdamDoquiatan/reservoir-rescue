@@ -18,24 +18,27 @@ for (let i = 0; i < TILES_Y; i++) {
 }
 
 let startTile = {
-  image: 'cursor',
   connection: Connections.UP,
   col: 3,
-  row: 0,
-  gameObject: null
+  row: 0
 };
 
 let endTile = {
-  image: 'cursor',
   connection: Connections.DOWN,
   col: 3,
-  row: 5,
-  gameObject: null
+  row: 5
 };
 
 // Adds object to grid
-function addToGrid(object, col, row) {
+function addObjectToGrid(object, col, row) {
   return grid[row][col] = object;
+}
+
+// Adds sprites to grid
+function addSpriteToGrid(sprite, col, row) {
+  let s = game.add.sprite(GRID_X + GRID_SIZE * col, GRID_Y + GRID_SIZE * row, sprite);
+  s.scale.set(SCALE);
+  return s;
 }
 
 // Checks if two objects occupy same tile 
@@ -49,19 +52,19 @@ function getAdjacentObjects(object, type) {
   let temp;
 
   temp = checkUp(object);
-  if (other !== null && other instanceof type) {
+  if (temp !== null && temp instanceof type) {
     objects.push(temp);
   }
   temp = checkRight(object);
-  if (other !== null && other instanceof type) {
+  if (temp !== null && temp instanceof type) {
     objects.push(temp);
   }
   temp = checkDown(object);
-  if (other !== null && other instanceof type) {
+  if (temp !== null && temp instanceof type) {
     objects.push(temp);
   }
   temp = checkLeft(object);
-  if (other !== null && other instanceof type) {
+  if (temp !== null && temp instanceof type) {
     objects.push(temp);
   }
 
@@ -71,9 +74,7 @@ function getAdjacentObjects(object, type) {
 // Returns object above or null if empty
 function checkUp(object) {
   if (object.row > 0) {
-    if (grid[object.row - 1][object.col] !== null) {
-      return other;
-    }
+    return grid[object.row - 1][object.col];
   }
   return null;
 }
@@ -81,9 +82,7 @@ function checkUp(object) {
 // Returns object to right or null if empty
 function checkRight(object) {
   if (object.col < TILES_X - 1) {
-    if (grid[object.row + 1][object.col] !== null) {
-      return other;
-    }
+    return grid[object.row][object.col + 1];
   }
   return null;
 }
@@ -91,9 +90,7 @@ function checkRight(object) {
 // Returns object below or null if empty
 function checkDown(object) {
   if (object.row < TILES_Y - 1) {
-    if (grid[object.row + 1][object.col] !== null) {
-      return other;
-    }
+    return grid[object.row + 1][object.col];
   }
   return null;
 }
@@ -101,23 +98,7 @@ function checkDown(object) {
 // Returns object to the left or null if empty
 function checkLeft(object) {
   if (object.col > 0) {
-    if (grid[object.row][object.col - 1] !== null) {
-      return other;
-    }
+    return grid[object.row][object.col - 1];
   }
   return null;
-}
-
-// Returns inverse of specified connection
-function invertConnection(connection) {
-  switch (connection) {
-    case Connections.UP:
-      return Connections.DOWN;
-    case Connections.RIGHT:
-      return Connections.LEFT;
-    case Connections.DOWN:
-      return Connections.UP;
-    case Connections.LEFT:
-      return Connections.RIGHT;
-  }
 }

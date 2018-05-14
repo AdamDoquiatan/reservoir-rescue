@@ -19,9 +19,10 @@ function Pipe(image, connections, col, row) {
     this.row = row;
     this.connectedToStart = false;
     this.connectedToEnd = false;
+    this.sprite = null;
 }
 
-let pipes = [
+let pipeSelection = [
     new Pipe(PIPE_VERTICAL, [Connections.UP, Connections.DOWN]),
     new Pipe(PIPE_HORIZONTAL, [Connections.LEFT, Connections.RIGHT]),
     new Pipe(PIPE_UP_RIGHT, [Connections.UP, Connections.RIGHT]),
@@ -32,41 +33,34 @@ let pipes = [
 
 // Places pipe on grid
 function placePipe() {
-    let col = parseInt((game.input.x - GRID_X) / GRID_SIZE);
-    let row = parseInt((game.input.y - GRID_Y) / GRID_SIZE);
+    let x = game.input.x - GRID_X;
+    let y = game.input.y - GRID_Y;
+    let col = parseInt(x / GRID_SIZE);
+    let row = parseInt(y / GRID_SIZE);
   
     if (grid[row][col] === null && canPlace) {
-      let pipe = new Pipe(pipes[pipeIndex].image, pipes[pipeIndex].connections, col, row);
-  
+      let pipe = new Pipe(pipeSelection[pipeIndex].image, pipeSelection[pipeIndex].connections, col, row);
+      pipe.sprite = addSpriteToGrid(pipe.image, col, row);
+      pipe.sprite.animations.add('forward',
+        [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
+      pipe.sprite.animations.add('backward',
+        [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
+      addObjectToGrid(pipe, col, row);
+
       pipeSwap = true;
   
-      if (!startConnected && checkCollision(pipe, startTile)) {
-        startConnected = pipe.connectedToStart = true;
-      }
-      if (!endConnected && checkOverlap(pipe, endTile)) {
-        endConnected = pipe.connectedToEnd = true;
-      }
-  
-      addToGridArray(col, row, pipe);
-  
-      pipe.object.animations.add('forward',
-        [1,2,3,4,5,6,7,8], FLOW_RATE, false);
-      pipe.object.animations.add('backward',
-        [9,10,11,12,13,14,15,16], FLOW_RATE, false);
-  
-      connect(pipe);
+      checkConnections(pipe);
+
       if (pipe.connectedToStart) {
-        setWarnings(obstacleArray);
+        setWarnings();
       }
-    
-      console.log(grid);
     }
   }
 
 // Returns array of connected pipes
 function getConnectedPipes(pipe, connection) {
-  let pipeArray = [];
-  let other;
+  let pipes = [];
+  let temp;
   let cInverse;
 
   for (let c of pipe.connections) {
@@ -74,48 +68,76 @@ function getConnectedPipes(pipe, connection) {
       continue;
     switch (c) {
       case Connections.UP:
-        other = checkUp(pipe);
+        temp = checkUp(pipe);
         break;
       case Connections.RIGHT:
-        other = checkRight(pipe);
+        temp = checkRight(pipe);
         break;
       case Connections.DOWN:
-        other = checkDown(pipe);
+        temp = checkDown(pipe);
         break;
       case Connections.LEFT:
-        other = checkLeft(pipe);
+        temp = checkLeft(pipe);
         break;
     }
-    if (other !== null && other instanceof Pipe) {
-      cInverse = connectionInverse(c);
-      if (other.connections.includes(cInverse)) {
-        other.connection = cInverse;
-        pipeArray.push(other);
+    if (temp !== null && temp instanceof Pipe) {
+      cInverse = invertConnection(c);
+      if (temp.connections.includes(cInverse)) {
+        temp.connection = cInverse;
+        pipes.push(temp);
       }
     }
   }
 
-  return pipeArray;
+  return pipes;
 }
 
-function connect(pipe, connection) {
+// Checks if pipe is connected to start and end tiles
+function checkConnections(pipe, connection) {
+  if (!startConnected 
+  && checkCollision(pipe, startTile)
+  && pipe.connections.includes(startTile.connection)) {
+    startConnected = pipe.connectedToStart = true;
+  }
+  if (!endConnected 
+  && checkCollision(pipe, endTile)
+  && pipe.connections.includes(endTile.connection)) {
+    endConnected = pipe.connectedToEnd = true;
+  }
+
   let connectedPipes = getConnectedPipes(pipe, connection);
-  if (!pipe.start) {
+
+  if (!pipe.connectedToStart) {
     for (let p of connectedPipes) {
-      if (!pipe.start && p.start) {
-        pipe.start = true;
+      if (!pipe.connectedToStart && p.connectedToStart) {
+        pipe.connectedToStart = true;
       }
     }
   }
-  if (pipe.start) {
-    if (pipe.end) {
+
+  if (pipe.connectedToStart) {
+    if (pipe.connectedToEnd) {
       onWin.dispatch();
       return;
     }
     for (let p of connectedPipes) {
-      if (!p.start) {
-        connect(p);
+      if (!p.connectedToStart) {
+        checkConnections(p);
       }
     }
   }   
+}
+
+// Returns inverse of specified connection
+function invertConnection(connection) {
+  switch (connection) {
+    case Connections.UP:
+      return Connections.DOWN;
+    case Connections.RIGHT:
+      return Connections.LEFT;
+    case Connections.DOWN:
+      return Connections.UP;
+    case Connections.LEFT:
+      return Connections.RIGHT;
+  }
 }

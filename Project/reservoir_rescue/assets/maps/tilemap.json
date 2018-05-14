@@ -30,30 +30,6 @@
                 {
                  "gid":14,
                  "height":32,
-                 "id":6,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":32,
-                 "y":256
-                }, 
-                {
-                 "gid":14,
-                 "height":32,
-                 "id":7,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":160,
-                 "y":192
-                }, 
-                {
-                 "gid":14,
-                 "height":32,
                  "id":13,
                  "name":"",
                  "rotation":0,
@@ -66,38 +42,38 @@
                 {
                  "gid":14,
                  "height":32,
-                 "id":15,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":32,
-                 "y":160
-                }, 
-                {
-                 "gid":14,
-                 "height":32,
-                 "id":22,
+                 "id":26,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
                  "x":128,
+                 "y":192
+                }, 
+                {
+                 "gid":14,
+                 "height":32,
+                 "id":27,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":64,
                  "y":256
                 }, 
                 {
                  "gid":14,
                  "height":32,
-                 "id":23,
+                 "id":28,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
                  "x":128,
-                 "y":256
+                 "y":288
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -105,7 +81,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":24,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.5",
