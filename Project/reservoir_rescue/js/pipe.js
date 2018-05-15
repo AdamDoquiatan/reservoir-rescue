@@ -38,8 +38,16 @@ function placePipe() {
     let col = parseInt(x / GRID_SIZE);
     let row = parseInt(y / GRID_SIZE);
   
-    if (grid[row][col] === null && canPlace) {
-      let pipe = new Pipe(pipeSelection[pipeIndex].image, pipeSelection[pipeIndex].connections, col, row);
+    if (canPlaceAt(col, row)) {
+      if (grid[row][col] instanceof Pipe) {
+        pipeSwappedBack = grid[row][col];
+        doNotRandomize = true;
+      }
+      
+      let pipe = new Pipe(pipeSelection[pipeIndex].image, 
+        pipeSelection[pipeIndex].connections, col, row);
+      pipeSwap = true;
+
       pipe.sprite = addSpriteToGrid(pipe.image, col, row);
       pipe.sprite.animations.add('forward',
         [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
@@ -47,8 +55,6 @@ function placePipe() {
         [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
       addObjectToGrid(pipe, col, row);
 
-      pipeSwap = true;
-  
       checkConnections(pipe);
 
       if (pipe.connectedToStart) {
@@ -175,4 +181,9 @@ function startWaterFlow(pipe, connection) {
         }
       }, this);
   } 
+}
+
+function canPlaceAt(col, row) {
+  return canPlace && (grid[row][col] === null
+    || grid[row][col] instanceof Pipe);
 }

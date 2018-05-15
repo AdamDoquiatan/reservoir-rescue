@@ -34,7 +34,7 @@ function pauseMenu(sprite, event) {
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
-        "RACCOON TIP:\n" + this.randomTip(this.tipDisplay, this), textStyle);
+        "RACCOON TIP:\n" + randomTip(this.tipDisplay, this), textStyle);
       this.tipDisplay.anchor.setTo(0.5);
       this.tipDisplay.lineSpacing = -2;
       this.tipDisplay.addColor('#3d87ff', 0);
@@ -213,6 +213,7 @@ function randomTip(sprite, event) {
 
 // Displays win screen
 function winScreen() {
+    console.log(this);
     // Turns off input to everything but win screen
     inputEnabled = false;
     game.input.onDown.removeAll();
@@ -279,18 +280,19 @@ function winScreen() {
     this.restartButton.scale.setTo(2.3);
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
-      restartLightflash();
-      inputEnabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      hpBar.frame = hpBar.animations.frameTotal;
-      health = HP;
-      canPlace = true;
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
-      winHeader.destroy();
-      winScreen.destroy();
-      darkFilter.destroy();
-    })
+        console.log(this);
+        restartLightflash();
+        inputEnabled = true;
+        game.input.onDown.add(delegate, this, 0);
+        hpBar.frame = hpBar.animations.frameTotal;
+        health = HP;
+        canPlace = true;
+        hpCounter.timer.resume();
+        hpBarCounter.timer.resume();
+        this.winHeader.destroy();
+        winScreen.destroy();
+        this.darkFilter.destroy();
+    }, this);
   
     // White Filter
     this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
