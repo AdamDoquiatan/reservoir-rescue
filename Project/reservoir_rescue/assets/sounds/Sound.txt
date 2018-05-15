@@ -24,7 +24,7 @@ SFX -- Implement Game (Pause Button)
 277662__coral-island-studios__button-6.mp3
 
 SFX -- Implement Game (Select Pipe)
-396331__nioczkus__1911-reload.mp3 *****
+396331__nioczkus__1911-reload1.mp3 / 396331__nioczkus__1911-reload_1.ogg *****
 
 SFX -- Implement Game (Place Pipe)
 275160__bird-man__thud.mp3

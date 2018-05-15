@@ -1,3 +1,6 @@
+
+var musicEnabled = true;
+
 function pauseMenu(sprite, event) {
     hpCounter.timer.pause();
     hpBarCounter.timer.pause();
@@ -49,6 +52,7 @@ function pauseMenu(sprite, event) {
       this.contButton.scale.setTo(2.3);
       this.contButton.inputEnabled = true;
       this.contButton.events.onInputDown.add(function () {
+        SFX_gameMusic.volume = 0.3;
         inputEnabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
@@ -64,7 +68,8 @@ function pauseMenu(sprite, event) {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
-        restartLightflash()
+        SFX_gameMusic.volume = 0.3;
+        restartLightflash();
         inputEnabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
@@ -91,6 +96,8 @@ function obsScreen1(sprite, event) {
     inputEnabled = false;
     this.pauseButton.input.enabled = false;
     game.input.onDown.removeAll();
+
+    SFX_obsScreenSwooshIn.play();
 
     // Dark Filter
     this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
@@ -151,6 +158,11 @@ function obsScreen1(sprite, event) {
 
     // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
+
+      SFX_obsScreenSwooshOut.play();
+      if (musicEnabled == true) {
+        SFX_gameMusic.play();
+      }
 
       darkFilterTween = this.game.add.tween(this.darkFilter);
       darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
@@ -392,6 +404,9 @@ function loseScreen() {
       this.whiteFilter.alpha = 1;
       whiteFilterTween = this.game.add.tween(this.whiteFilter);
       whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+      SFX_loseSound.stop();
+      SFX_gameMusic.resume();
   
       loseHeader.destroy();
       loseScreen.destroy();

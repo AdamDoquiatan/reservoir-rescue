@@ -60,6 +60,7 @@ function placePipe() {
       if (pipe.connectedToStart) {
         setWarnings();
       }
+      SFX_placePipe.play();
     }
   }
 
@@ -150,6 +151,7 @@ function invertConnection(connection) {
 
 // Plays water flow animation
 function startWaterFlow(pipe, connection) {
+
   if (pipe !== null) {
     let adjacentObstacles = getAdjacentObjects(pipe, Obstacle);
     for (o of adjacentObstacles) {
@@ -169,10 +171,14 @@ function startWaterFlow(pipe, connection) {
       .onComplete.add(function () {
         console.log(grid);
         if (connectedPipes.length === 0) {
+          SFX_endFlow.fadeOut(300);
+          SFX_victorySound.play();
           winScreen();
           return;
         }
         if (health <= 0) {
+          SFX_endFlow.fadeOut(200);
+          SFX_loseSound.play();
           onLose.dispatch();
           return;
         }
