@@ -61,10 +61,10 @@ let canPlace = false;
 let currentSelection;
 
 // Used when swapping pipeSelection to prevent a randomized pipe
-var doNotRandomize = false;
+let doNotRandomize = false;
 
 // Holds the pipe that is getting swapped back to the selection menu
-var pipeSwappedBack = null;
+let pipeSwappedBack = null;
 
 lose = false;
 let startConnected = false;
