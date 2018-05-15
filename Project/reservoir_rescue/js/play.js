@@ -1,9 +1,17 @@
 const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
-const HP = 100;
-const HP_RATE = 250;
-const FLOW_RATE = 20;
+
+// The initial health
+const HP = 440;
+
+// Rate at which health goes down in milliseconds
+const HP_RATE = 150;
+
+// Rate at which water flows in frames per second
+const FLOW_RATE = 60;
+
+// Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
@@ -11,7 +19,7 @@ let testMode = true;
 
 /* Game Objects */
 
-// Number keys for selecting pipes
+// Number keys for selecting pipeSelection
 let key1, key2, key3, key4, key5, key6;
 
 let map;
@@ -26,7 +34,7 @@ let boxSelector;
 
 /* Groups */
 
-// Tracks which pipes are in which selection spot
+// Tracks which pipeSelection are in which selection spot
 let boxedPipes = [];
 
 // Array to keep track of all obstacles on grid
@@ -46,11 +54,17 @@ let pipeSwap = false;
 // Pause Variable for turning off inputEnabled buttons
 let inputEnabled = true;
 
-// Ensures that player makes a selection before placing pipes
+// Ensures that player makes a selection before placing pipeSelection
 let canPlace = false;
 
 // Tracks currently selected pipe
 let currentSelection;
+
+// Used when swapping pipeSelection to prevent a randomized pipe
+var doNotRandomize = false;
+
+// Holds the pipe that is getting swapped back to the selection menu
+var pipeSwappedBack = null;
 
 lose = false;
 let startConnected = false;
@@ -129,12 +143,21 @@ let playState = {
 // Replaces pipe in current selection box with new random pipe
 function reloadPipe(menuPipes) {
   var randomPipeIndex = Math.floor(Math.random() * 6);
-
-  // Variables for holding current pipes
+  var swapBackPipeIndex = 0;
+      
+  // Variables for holding current pipeSelection
   var index0;
   var index1;
   var index2;
-
+  
+  if (pipeSwappedBack != null) {
+  for (let i = 0; i < pipeSelection.length; i++) {
+      if (pipeSelection[i].image === pipeSwappedBack.image) {
+          swapBackPipeIndex = i;
+      }
+  }
+  }
+    
   // Moves each pipe to a variable.
   // If pipe was used, creates and stores new pipe instead.
   for (let i = 0; i < 3; i++) {
@@ -142,7 +165,17 @@ function reloadPipe(menuPipes) {
       case 0:
         if (i !== currentSelection) {
           index0 = menuPipes.children[i];
-        } else {
+        } else if (doNotRandomize) {
+          index0 = game.add.sprite(
+            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
+            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
+            pipeSelection[swapBackPipeIndex].image, 0);
+          index0.inputEnabled = true;
+          index0.scale.setTo(SCALE, SCALE);
+          index0.events.onInputDown.add(selectPipe,
+          this, 0, swapBackPipeIndex, i);
+        }
+        else {
           index0 = game.add.sprite(
             currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
             MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
@@ -156,11 +189,15 @@ function reloadPipe(menuPipes) {
       case 1:
         if (i !== currentSelection) {
           index1 = menuPipes.children[i];
-        } else {
-          index1 = game.add.sprite(
-            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
-            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
-            pipeSelection[randomPipeIndex].image, 0);
+        } else if (doNotRandomize) {
+          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[swapBackPipeIndex].image, 0);
+          index1.inputEnabled = true;
+          index1.scale.setTo(SCALE, SCALE);
+          index1.events.onInputDown.add(selectPipe,
+            this, 0, swapBackPipeIndex, i);
+        }
+          else {
+          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
           index1.inputEnabled = true;
           index1.scale.setTo(SCALE, SCALE);
           index1.events.onInputDown.add(selectPipe,
@@ -170,11 +207,19 @@ function reloadPipe(menuPipes) {
       case 2:
         if (i !== currentSelection) {
           index2 = menuPipes.children[i];
-        } else {
+        } else if (doNotRandomize) {
           index2 = game.add.sprite(
-            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
-            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
-            pipeSelection[randomPipeIndex].image, 0);
+          currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
+          MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[swapBackPipeIndex].image, 0);
+          index2.inputEnabled = true;
+          index2.scale.setTo(SCALE, SCALE);
+          index2.events.onInputDown.add(selectPipe,
+            this, 0, swapBackPipeIndex, i);  
+        }
+          else {
+          index2 = game.add.sprite(
+          currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
+          MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
           index2.inputEnabled = true;
           index2.scale.setTo(SCALE, SCALE);
           index2.events.onInputDown.add(selectPipe,
@@ -191,14 +236,19 @@ function reloadPipe(menuPipes) {
   menuPipes.add(index0);
   menuPipes.add(index1);
   menuPipes.add(index2);
-
+  
   // Auto changes pipe index to new pipe in selected spot.
   pipeIndex = randomPipeIndex;
+    
+  if (doNotRandomize) {
+      pipeIndex = swapBackPipeIndex;
+  }
 
   //Updates array.
   boxedPipes[currentSelection] = pipeIndex;
   console.log(boxedPipes);
-
+  
+  doNotRandomize = false;
   // Signals pipe swap complete.
   pipeSwap = false;
 }
@@ -222,9 +272,9 @@ function boxCreator(selector) {
   boxSelector = game.add.sprite(
     currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
     MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 'boxSelector', 0);
-  boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
-  boxSelector.x += -60;
-  boxSelector.y += -60;
+    boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
+    boxSelector.x += -60;
+    boxSelector.y += -60;
 }
 
 // Restarts light flash
@@ -314,7 +364,7 @@ function initializeTilemap(mapName) {
   });
 }
 
-// Creates starting selection of random (but unique) pipes
+// Creates starting selection of random (but unique) pipeSelection
 function initializeMenu() {
   pipeGroup = game.add.group();
 
@@ -340,4 +390,9 @@ function initializeMenu() {
 
     console.log(boxedPipes);
   }
+}
+
+// Destroys the sprite
+function destroySprite (sprite) {
+    sprite.destroy();
 }
