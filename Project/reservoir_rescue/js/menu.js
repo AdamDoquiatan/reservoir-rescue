@@ -243,8 +243,9 @@ function winScreen() {
     // Specifies text properties
     var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
   
-    // Water-Saved text
-    this.waterSavedDisplay = game.add.text(50 + 400, 650, "You saved: " + health + " litres!", textStyle);
+    // Water-saved text
+    this.waterSavedDisplay = game.add.text(game.world.centerX + 400, 550, "You saved: " + health + " litres!", textStyle);
+    this.waterSavedDisplay.anchor.setTo(0.5);
     this.waterSavedDisplay.lineSpacing = -2;
     this.waterSavedDisplay.addColor('#3d87ff', 11);
     this.waterSavedDisplay.stroke = '#000000';
@@ -252,11 +253,12 @@ function winScreen() {
     winScreen.add(this.waterSavedDisplay);
   
     // Score text
-    this.scoreDisplay = game.add.text(game.world.centerX + 600, 850, "Score: " + health, textStyle);
+    this.scoreDisplay = game.add.text(game.world.centerX + 600, 800, 
+      "That's " + ((health / HP) * 100).toFixed(1) + "% of the average person's daily water usage!", textStyle);
     this.scoreDisplay.anchor.setTo(0.5);
     this.scoreDisplay.lineSpacing = -2;
     this.scoreDisplay.addColor('#3d87ff', 7);
-    this.scoreDisplay.addColor('white', 10);
+    this.scoreDisplay.addColor('white', 12);
     this.scoreDisplay.stroke = '#000000';
     this.scoreDisplay.strokeThickness = 7;
     winScreen.add(this.scoreDisplay);
