@@ -1,0 +1,46 @@
+
+Music -- Implement Gameplay Music
+Gameplay_Music.mp3
+
+SFX -- Implement Game (Last Pipe Placed for victory)
+149966__nenadsimic__muffled-distant-explosion.mp3
+
+SFX -- Implement Game (When water flows through pipe at end.)
+191718__adriann__drumroll.mp3
+
+Music -- Implement Victory Screen Music
+578783_Victory-Sound.mp3
+
+SFX -- Implement Obs Screen Whoosh (In and Out)
+14609__man__swosh.mp3 *****
+
+SFX -- Implement Main Menu Selection (Tips and Leaderboard)
+25879__acclivity__drip1.mp3
+
+SFX -- Implement Main Menu Selection (Start Game)
+212143__qubodup__splash-by-blaukreuz.mp3
+
+SFX -- Implement Game (Pause Button)
+277662__coral-island-studios__button-6.mp3
+
+SFX -- Implement Game (Select Pipe)
+396331__nioczkus__1911-reload.mp3 *****
+
+SFX -- Implement Game (Place Pipe)
+275160__bird-man__thud.mp3
+
+SFX -- Implement Game (Lose Game)
+150567__khoon__percussive-sounddesign-2-eb2.mp3
+
+
+
+
+
+SFX -- Implement Game (Reset)
+SFX -- Implement Game (Swap Pipe)
+SFX -- Implement Game (Obstical Hit [Sprinkler Sound?])
+SFX -- Implement Game (Error when you try to place pipe on occupied space.
+SFX -- Find Game (Obstical Hit [Obstical 2 Sound?])
+SFX -- Find Game (Obstical Hit [Obstical 3 Sound?])
+SFX -- Implement Game (Obstical Hit [Obstical 2 Sound?])
+SFX -- Implement Game (Obstical Hit [Obstical 3 Sound?])
