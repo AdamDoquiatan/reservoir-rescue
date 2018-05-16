@@ -213,6 +213,9 @@ function randomTip(sprite, event) {
 
 // Displays win screen
 function winScreen() {
+    hpCounter.timer.pause();
+    hpBarCounter.timer.pause();
+
     console.log(this);
     // Turns off input to everything but win screen
     inputEnabled = false;

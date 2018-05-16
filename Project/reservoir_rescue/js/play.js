@@ -37,8 +37,11 @@ let boxSelector;
 // Tracks which pipeSelection are in which selection spot
 let boxedPipes = [];
 
+// Array to keep track of all pipes on grid
+let pipeArray = [];
+
 // Array to keep track of all obstacles on grid
-let obstacles = [];
+let obstacleArray = [];
 
 let pipeGroup;
 let obstacleGroup;
@@ -350,7 +353,7 @@ function initializeTilemap(mapName) {
 
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
-  map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', 82, 'sprinkler', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
@@ -360,7 +363,7 @@ function initializeTilemap(mapName) {
     let obstacle = new Obstacle(o.key, col, row);
     obstacle.sprite = o;
     addObjectToGrid(obstacle, col, row);
-    obstacles.push(obstacle);
+    obstacleArray.push(obstacle);
   });
 }
 
@@ -395,4 +398,12 @@ function initializeMenu() {
 // Destroys the sprite
 function destroySprite (sprite) {
     sprite.destroy();
+}
+
+// Removes object from specifed array
+function removeObjectFromArray(object, array) {
+  let index = array.indexOf(object);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
 }
