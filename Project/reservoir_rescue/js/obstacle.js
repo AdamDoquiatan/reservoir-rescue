@@ -11,7 +11,7 @@ function Obstacle(image, col, row) {
 
 // Warns player if obstacle is connected to active pipes
 function setWarnings() {
-    for (o of obstacles) {
+    for (o of obstacleArray) {
       let adjacentPipes = getAdjacentObjects(o, Pipe);
       for (p of adjacentPipes) {
         if (p.connectedToStart === true) {
