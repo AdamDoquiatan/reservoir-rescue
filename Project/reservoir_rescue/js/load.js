@@ -6,7 +6,7 @@ var loadState = {
     game.load.image('loading_bg', 'assets/images/loading_bg.jpg');
     game.load.image('cursor', 'assets/images/cursor.png');
     game.load.image('boxSelector', 'assets/images/boxSelector.png');
-    game.load.spritesheet('hp_bar', 'assets/images/hp_bar.png', 224, 32);
+    game.load.spritesheet('hp_bar', 'assets/images/hp_bar.png', 160, 32);
     game.load.spritesheet('warning', 'assets/images/warning.png', 32, 32);
 
     // Tilemaps
@@ -39,6 +39,8 @@ var loadState = {
     this.load.image('menuButton', 'assets/images/menu.png');
     this.load.image('winButton', 'assets/images/win.png');
     this.load.image('loseButton', 'assets/images/lose.png');
+    this.load.image('menu_button', 'assets/images/menu_button.png');
+    this.load.image('water_counter', 'assets/images/water_counter.png');
   },
   create() {
 

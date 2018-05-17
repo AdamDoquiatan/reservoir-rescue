@@ -30,7 +30,7 @@ function pauseMenu(sprite, event) {
       pauseScreen.add(this.pauseHeader);
 
       // Specifies text properties
-      var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+      var textStyle = { font: 'bold 40pt Helvetica', fontSize: 70, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
@@ -134,6 +134,7 @@ function obsScreen1(sprite, event) {
     this.contButton.anchor.setTo(0.5);
     this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
+    this.contButton.events.onInputDown.add(goFullScreen, this);
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
     // Screen BG
@@ -323,95 +324,99 @@ function winScreen() {
 
   // Displays lose screen
 function loseScreen() {
-    // Turns off input to everything but lose screen
-    inputEnabled = false;
-    game.input.onDown.removeAll();
-  
-    // Dark Filter
-    this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-    this.darkFilter.anchor.setTo(0.5);
-    this.darkFilter.scale.setTo(4);
-    this.darkFilter.alpha = 1;
-  
-    // Group for screen components
-    var loseScreen = this.game.add.group();
-  
-    // Big lose header
-    this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
-      font: 'bold 140pt Helvetica',
-      fill: 'white',
-      align: 'center',
-      wordWrap: true,
-      wordWrapWidth: 700
-    });
-    this.loseHeader.anchor.setTo(0.5);
-    this.loseHeader.stroke = '#000000';
-    this.loseHeader.strokeThickness = 10;
-    this.loseHeader.alpha = 0;
-  
-    // Specifies text properties
-    var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
-  
-    // Water-Saved text
-    this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
-    this.sadText.lineSpacing = -7;
-    this.sadText.anchor.setTo(0.5);
-    this.sadText.stroke = '#000000';
-    this.sadText.strokeThickness = 7;
-    loseScreen.add(this.sadText);
-  
-    // Menu Button
-    this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
-    this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(2.3);
-    this.menuButton.inputEnabled = true;
-    this.menuButton.events.onInputDown.add(function () {
-      window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-    })
-    /*
-    this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(function () {
-      input_Enabled = true;
-      sprite.input.enabled = tmenu
-      game.input.onDown.add(delegate, this, 0);
-      loseScreen.destroy();
-    });
-    */
-  
-    // Restart button
-    this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
-    this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(2.3);
-    this.restartButton.inputEnabled = true;
-    this.restartButton.events.onInputDown.add(function () {
-      restartLightflash();
-      inputEnabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      hpBar.frame = hpBar.animations.frameTotal;
-      health = HP;
-      lose = false;
-      canPlace = true;
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
-  
-      this.whiteFilter.alpha = 1;
-      whiteFilterTween = this.game.add.tween(this.whiteFilter);
-      whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
-  
-      loseHeader.destroy();
-      loseScreen.destroy();
-      darkFilter.destroy();
-    })
-  
-    // White Filter
-    this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-    this.whiteFilter.anchor.setTo(0.5);
-    this.whiteFilter.scale.setTo(4);
-    
-    // Text and Filter Tweens
+  // Turns off input to everything but lose screen
+  inputEnabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 1;
+
+  // Group for screen components
+  var loseScreen = this.game.add.group();
+
+  // Big lose header
+  this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
+    font: 'bold 140pt Helvetica',
+    fill: 'white',
+    align: 'center',
+    wordWrap: true,
+    wordWrapWidth: 700
+  });
+  this.loseHeader.anchor.setTo(0.5);
+  this.loseHeader.stroke = '#000000';
+  this.loseHeader.strokeThickness = 10;
+  this.loseHeader.alpha = 0;
+
+  // Specifies text properties
+  var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
+
+  // Water-Saved text
+  this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
+  this.sadText.lineSpacing = -7;
+  this.sadText.anchor.setTo(0.5);
+  this.sadText.stroke = '#000000';
+  this.sadText.strokeThickness = 7;
+  loseScreen.add(this.sadText);
+
+  // Menu Button
+  this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
+  this.menuButton.anchor.setTo(0.5);
+  this.menuButton.scale.setTo(2.3);
+  this.menuButton.inputEnabled = true;
+  this.menuButton.events.onInputDown.add(function () {
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+  })
+  /*
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(function () {
+    input_Enabled = true;
+    sprite.input.enabled = tmenu
+    game.input.onDown.add(delegate, this, 0);
+    loseScreen.destroy();
+  });
+  */
+
+  // Restart button
+  this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
+  this.restartButton.anchor.setTo(0.5);
+  this.restartButton.scale.setTo(2.3);
+  this.restartButton.inputEnabled = true;
+  this.restartButton.events.onInputDown.add(function () {
+    restartLightflash();
+    inputEnabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    hpBar.frame = hpBar.animations.frameTotal;
+    health = HP;
+    lose = false;
+    canPlace = true;
+    hpCounter.timer.resume();
+    hpBarCounter.timer.resume();
+
+    this.whiteFilter.alpha = 1;
     whiteFilterTween = this.game.add.tween(this.whiteFilter);
-    whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
+    whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    loseHeader.destroy();
+    loseScreen.destroy();
+    darkFilter.destroy();
+  })
+
+  // White Filter
+  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  this.whiteFilter.anchor.setTo(0.5);
+  this.whiteFilter.scale.setTo(4);
   
-    loseTween = this.game.add.tween(this.loseHeader);
-    loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
-  }
+  // Text and Filter Tweens
+  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
+
+  loseTween = this.game.add.tween(this.loseHeader);
+  loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
+}
+
+function goFullScreen() {
+  // game.scale.startFullScreen();
+}

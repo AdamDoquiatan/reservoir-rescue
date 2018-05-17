@@ -1,23 +1,27 @@
 function Obstacle(image, col, row) {
-    this.image = image;
-    this.col = col;
-    this.row = row;
-    this.connected = false;
-    this.warning = null;
-    this.sap = false;
-    this.damage = 5;
-    this.sprite = null;
+  this.image = image;
+  this.col = col;
+  this.row = row;
+  this.warning = null;
+  this.connectedToPipe = false;
+  this.damage = 20;
+  this.sprite = null;
+  this.direction = null;
 }
 
-// Warns player if obstacle is connected to active pipes
 function setWarnings() {
-    for (o of obstacleArray) {
-      let adjacentPipes = getAdjacentObjects(o, Pipe);
-      for (p of adjacentPipes) {
-        if (p.connectedToStart === true) {
-          o.warning = addSpriteToGrid('warning', o.col, o.row);
-          o.warning.animations.add('flash', [0, 1, 2, 3, 4, 5, 6, 7], 30, true);
-        }
+  for (let o of obstacleArray) {
+    let found = false;
+    let adjacentPipes = getAdjacentObjects(o, Pipe);
+    for (let p of adjacentPipes) {
+      if (!found && p.connectedToStart) {
+        found = true;
+        o.warning = addSpriteToGrid('warning', o.col, o.row);
+        o.warning.animations.add('flash', [0, 1, 2, 3, 4, 5, 6, 7], true);
       }
     }
+    if (o.warning && !found) {
+      o.warning.destroy();
+    }
   }
+}
