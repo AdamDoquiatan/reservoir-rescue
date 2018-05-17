@@ -45,8 +45,10 @@ function addObjectToGrid(object, col, row) {
 function addSpriteToGrid(sprite, col, row) {
   let s = game.add.sprite(GRID_X + GRID_SIZE * col, GRID_Y + GRID_SIZE * row, sprite);
   s.scale.set(SCALE);
-  s.inputEnabled = true;
-  s.events.onInputDown.add(destroySprite, this);
+  if (sprite !== 'warning') {
+    s.inputEnabled = true;
+    s.events.onInputDown.add(destroySprite, this);
+  }
   return s;
 }
 

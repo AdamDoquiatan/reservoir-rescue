@@ -4,7 +4,7 @@ function Obstacle(image, col, row) {
   this.row = row;
   this.warning = null;
   this.connectedToPipe = false;
-  this.damage = 20;
+  this.damage = 25;
   this.sprite = null;
   this.direction = null;
 }
@@ -16,12 +16,14 @@ function setWarnings() {
     for (let p of adjacentPipes) {
       if (!found && p.connectedToStart) {
         found = true;
-        o.warning = addSpriteToGrid('warning', o.col, o.row);
-        o.warning.animations.add('flash', [0, 1, 2, 3, 4, 5, 6, 7], true);
       }
     }
-    if (o.warning && !found) {
+    if (found && o.warning === null) {
+      o.warning = addSpriteToGrid('warning', o.col, o.row);
+      o.warning.animations.add('flash', [0, 1, 2, 3, 4, 5, 6, 7], 30, true);
+    } else if (!found && o.warning) {
       o.warning.destroy();
+      o.warning = null;
     }
   }
 }

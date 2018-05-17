@@ -7,16 +7,16 @@ const SPRINKLER_GID = 10;
 const HP = 440;
 
 // Rate at which health goes down in milliseconds
-const HP_RATE = 150;
+const HP_RATE = 50;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 45;
+const FLOW_RATE = 30;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = false;
+let testMode = false; 
 
 /* Game Objects */
 
@@ -325,7 +325,7 @@ function delegate(pointer) {
   if (pointer.x >= GRID_X
     && pointer.x < GRID_X_BOUND
     && pointer.y >= GRID_Y
-    && pointer.y <= GRID_Y_BOUND) {
+    && pointer.y < GRID_Y_BOUND) {
     placePipe();
   }
 }
@@ -353,9 +353,6 @@ function setHealthBar(health) {
 function levelComplete() {
   hpCounter.timer.pause();
   hpBarCounter.timer.pause();
-  canPlace = false;
-  let startingPipe = grid[startTile.row][startTile.col];
-  startWaterFlow(startingPipe, startTile.direction);
 
   SFX_gameMusic.pause();
   SFX_placePipe.stop();
@@ -363,17 +360,15 @@ function levelComplete() {
   SFX_lastPipe.onStop.add(function (){
   
     var drumrollPlaying = false;
-    if (drumrollPlaying == false) {
+    if (drumrollPlaying === false) {
       SFX_endFlow.play();
       game.add.tween(this.SFX_endFlow).to({volume:3}, 1100).start();
       drumrollPlaying = true;
     }
 
-    hpCounter.timer.pause();
-    hpBarCounter.timer.pause();
     canPlace = false;
     let startingPipe = grid[startTile.row][startTile.col];
-    startWaterFlow(startingPipe, startTile.connection);
+    startWaterFlow(startingPipe, startTile.direction);
   });
 }
 

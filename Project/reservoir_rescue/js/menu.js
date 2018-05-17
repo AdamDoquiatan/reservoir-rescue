@@ -138,7 +138,6 @@ function obsScreen1(sprite, event) {
     this.contButton.anchor.setTo(0.5);
     this.contButton.scale.setTo(2.3);
     this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(goFullScreen, this);
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
     // Screen BG
@@ -441,15 +440,6 @@ function loseScreen() {
     // Text and Filter Tweens
     whiteFilterTween = this.game.add.tween(this.whiteFilter);
     whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
-
-    loseHeader.destroy();
-    loseScreen.destroy();
-    darkFilter.destroy();
-  
-    // White Filter
-    this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-    this.whiteFilter.anchor.setTo(0.5);
-    this.whiteFilter.scale.setTo(4);
   
     loseTween = this.game.add.tween(this.loseHeader);
     loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
