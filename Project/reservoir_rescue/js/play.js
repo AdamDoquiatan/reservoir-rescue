@@ -66,6 +66,8 @@ var doNotRandomize = false;
 // Holds the pipe that is getting swapped back to the selection menu
 var pipeSwappedBack = null;
 
+var musicEnabled = true; // just music. SFX still play.
+
 lose = false;
 let startConnected = false;
 let endConnected = false;
@@ -82,7 +84,7 @@ let playState = {
   create: function () {
     initializeTilemap('map');
     initializeMenu();
-    
+
     // HP bar
     hpBar = game.add.sprite(0, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
@@ -91,9 +93,6 @@ let playState = {
     // Text
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
     healthText = game.add.text(0, 32, health, { fontSize: '32px', fill: '#FFF' });
-
-    // Audio
-    createAudio();
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -109,7 +108,7 @@ let playState = {
     this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(function (){
       SFX_gameMusic.volume = 0.05;
-      SFX_buttonSound.play();
+      SFX_pauseButton.play();
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
 
@@ -344,7 +343,7 @@ function levelComplete() {
   SFX_placePipe.stop();
   SFX_lastPipe.play();
   SFX_lastPipe.onStop.add(function (){
-
+  
     var drumrollPlaying = false;
     if (drumrollPlaying == false) {
       SFX_endFlow.play();

@@ -42,6 +42,7 @@ function placePipe() {
       if (grid[row][col] instanceof Pipe) {
         pipeSwappedBack = grid[row][col];
         doNotRandomize = true;
+        SFX_swapPipe.play();
       }
       
       let pipe = new Pipe(pipeSelection[pipeIndex].image, 
@@ -172,7 +173,12 @@ function startWaterFlow(pipe, connection) {
         console.log(grid);
         if (connectedPipes.length === 0) {
           SFX_endFlow.fadeOut(300);
-          SFX_victorySound.play();
+          SFX_victorySound.play()
+          SFX_victorySound.onStop.add(function () {
+            SFX_gameMusic.volume = 0.05;
+            SFX_gameMusic.resume();
+
+          });
           winScreen();
           return;
         }
