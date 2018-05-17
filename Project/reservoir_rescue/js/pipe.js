@@ -45,9 +45,12 @@ function placePipe() {
         pipeSwappedBack = grid[row][col];
         removeObjectFromArray(pipeSwappedBack, pipeArray);
         doNotRandomize = true;
+        SFX_swapPipe.play();
         if (pipeSwappedBack.connectedToStart) {
           clear = true;
         } 
+      } else {
+        SFX_placePipe.play();
       }
       
       let pipe = new Pipe(pipeSelection[pipeIndex].image, 
@@ -72,6 +75,7 @@ function placePipe() {
       if (pipe.connectedToStart) {
         setWarnings();
       }
+      
     }
   }
 
@@ -167,6 +171,7 @@ function clearConnections(pipe) {
 
 // Plays water flow animation
 function startWaterFlow(pipe, connection) {
+
   if (pipe !== null) {
     let adjacentObstacles = getAdjacentObjects(pipe, Obstacle);
     for (o of adjacentObstacles) {
@@ -186,10 +191,19 @@ function startWaterFlow(pipe, connection) {
       .onComplete.add(function () {
         console.log(grid);
         if (connectedPipes.length === 0) {
+          SFX_endFlow.fadeOut(300);
+          SFX_victorySound.play()
+          SFX_victorySound.onStop.add(function () {
+            SFX_gameMusic.volume = 0.1;
+            SFX_gameMusic.resume();
+
+          });
           winScreen();
           return;
         }
         if (health <= 0) {
+          SFX_endFlow.fadeOut(200);
+          SFX_loseSound.play();
           onLose.dispatch();
           return;
         }

@@ -1,3 +1,4 @@
+
 function pauseMenu(sprite, event) {
     hpCounter.timer.pause();
     hpBarCounter.timer.pause();
@@ -34,11 +35,11 @@ function pauseMenu(sprite, event) {
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
-        "RACCOON TIP:\n" + randomTip(this.tipDisplay, this), textStyle);
+        "WATER SAVING TIP:\n" + randomTip(this.tipDisplay, this), textStyle);
       this.tipDisplay.anchor.setTo(0.5);
       this.tipDisplay.lineSpacing = -2;
       this.tipDisplay.addColor('#3d87ff', 0);
-      this.tipDisplay.addColor('white', 12);
+      this.tipDisplay.addColor('white', 17);
       this.tipDisplay.stroke = '#000000';
       this.tipDisplay.strokeThickness = 7;
       pauseScreen.add(this.tipDisplay);
@@ -49,6 +50,7 @@ function pauseMenu(sprite, event) {
       this.contButton.scale.setTo(2.3);
       this.contButton.inputEnabled = true;
       this.contButton.events.onInputDown.add(function () {
+        SFX_gameMusic.volume = 0.4;
         inputEnabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
@@ -64,7 +66,9 @@ function pauseMenu(sprite, event) {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
-        restartLightflash()
+        SFX_gameMusic.volume = 0.4;
+        restartLightflash();
+        SFX_reset.play();
         inputEnabled = true;
         sprite.input.enabled = true;
         game.input.onDown.add(delegate, this, 0);
@@ -151,6 +155,17 @@ function obsScreen1(sprite, event) {
 
     // Exits screen. Plays when continue button is pressed
     function endObsScreen(sprite, event) {
+
+      // Audio
+      createAudio();
+      game.sound.context.resume();
+      SFX_obsScreenSwooshOut.play();
+      SFX_obsScreenButton.play();
+      SFX_obsScreenSwooshOut.onStop.add(function () {
+        if (musicEnabled == true) {
+          SFX_gameMusic.play();
+        }
+      });
 
       darkFilterTween = this.game.add.tween(this.darkFilter);
       darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
@@ -287,6 +302,7 @@ function winScreen() {
     this.restartButton.events.onInputDown.add(function () {
         console.log(this);
         restartLightflash();
+        SFX_reset.play();
         inputEnabled = true;
         game.input.onDown.add(delegate, this, 0);
         hpBar.frame = hpBar.animations.frameTotal;
@@ -294,6 +310,7 @@ function winScreen() {
         canPlace = true;
         hpCounter.timer.resume();
         hpBarCounter.timer.resume();
+        SFX_gameMusic.volume = 0.4;
         this.winHeader.destroy();
         winScreen.destroy();
         this.darkFilter.destroy();
@@ -385,6 +402,7 @@ function loseScreen() {
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
       restartLightflash();
+      SFX_reset.play();
       inputEnabled = true;
       game.input.onDown.add(delegate, this, 0);
       hpBar.frame = hpBar.animations.frameTotal;
@@ -397,6 +415,9 @@ function loseScreen() {
       this.whiteFilter.alpha = 1;
       whiteFilterTween = this.game.add.tween(this.whiteFilter);
       whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+      SFX_loseSound.stop();
+      SFX_gameMusic.resume();
   
       loseHeader.destroy();
       loseScreen.destroy();
