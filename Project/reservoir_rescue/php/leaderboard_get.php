@@ -22,7 +22,7 @@
             // set the PDO error mode to exception
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = "SELECT * FROM leaderboard";
+            $sql = "SELECT * FROM leaderboard ORDER BY score DESC LIMIT 10";
 
             $statement1 = $conn->prepare($sql);
             $statement1->execute();
