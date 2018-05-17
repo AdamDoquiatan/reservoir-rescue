@@ -1,21 +1,22 @@
 const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
+const SPRINKLER_GID = 10;
 
 // The initial health
 const HP = 440;
 
 // Rate at which health goes down in milliseconds
-const HP_RATE = 150;
+const HP_RATE = 50;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 60;
+const FLOW_RATE = 30;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = true;
+let testMode = false; 
 
 /* Game Objects */
 
@@ -73,8 +74,8 @@ let pipeSwappedBack = null;
 var musicEnabled = true; 
 
 lose = false;
-let startConnected = false;
-let endConnected = false;
+let startPipe = null;
+let endPipe = null;
 let health = HP;
 let score = HP;
 let hpBarRate;
@@ -90,25 +91,22 @@ let playState = {
     initializeMenu();
 
     // HP bar
-    hpBar = game.add.sprite(0, GRID_SIZE * 1, 'hp_bar', 0);
+    hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
     hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
-
-    // Text
-    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
-    healthText = game.add.text(0, 32, health, { fontSize: '32px', fill: '#FFF' });
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
 
-    // Buttons
+    // Menu Button
+    this.menuButton = game.add.sprite(0, 0, 'menu_button');
+    this.menuButton.scale.setTo(SCALE);
 
     // Pause Button
-    this.pauseButton = game.add.sprite(game.width, 0, 'pause');
-    this.pauseButton.scale.setTo(2.3);
-    this.pauseButton.anchor.setTo(1, 0);
+    this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
+    this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(function (){
       SFX_gameMusic.volume = 0.1;
@@ -123,9 +121,21 @@ let playState = {
     this.muteButton.inputEnabled = inputEnabled;
     this.muteButton.events.onInputDown.add(muteSounds, this);
 
+    // Water Counter
+    this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
+    this.waterCounter.scale.setTo(SCALE);
+
+    // Text
+    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
+    let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    healthText = game.add.text(121 * SCALE, 28, health, textStyle);
+    healthText.stroke = '#444444';
+    healthText.strokeThickness = 7;
+
+    obsScreen1.call(this);
+
     // Testing features
     if (testMode) {
-
       // For testing: Win Button
       this.winButton = game.add.sprite(game.width - 450, 0, 'winButton');
       this.winButton.scale.setTo(2.6);
@@ -141,7 +151,6 @@ let playState = {
       this.loseButton.events.onInputDown.add(gameOver, this);
 
       initializeTestControls();
-      obsScreen1.call(this);
     }
   },
   update: function () {
@@ -154,9 +163,11 @@ let playState = {
       onLose.dispatch();
     }
 
-    testText.text = '('
+    if (testMode) {
+      testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
+    }
   }
 };
 
@@ -266,7 +277,6 @@ function reloadPipe(menuPipes) {
 
   //Updates array.
   boxedPipes[currentSelection] = pipeIndex;
-  console.log(boxedPipes);
   
   doNotRandomize = false;
   // Signals pipe swap complete.
@@ -315,9 +325,8 @@ function delegate(pointer) {
   if (pointer.x >= GRID_X
     && pointer.x < GRID_X_BOUND
     && pointer.y >= GRID_Y
-    && pointer.y <= GRID_Y_BOUND) {
+    && pointer.y < GRID_Y_BOUND) {
     placePipe();
-    console.log(grid);
   }
 }
 
@@ -342,6 +351,8 @@ function setHealthBar(health) {
 
 // Stops gameplay and begins water flow animation
 function levelComplete() {
+  hpCounter.timer.pause();
+  hpBarCounter.timer.pause();
 
   SFX_gameMusic.pause();
   SFX_placePipe.stop();
@@ -349,17 +360,15 @@ function levelComplete() {
   SFX_lastPipe.onStop.add(function (){
   
     var drumrollPlaying = false;
-    if (drumrollPlaying == false) {
+    if (drumrollPlaying === false) {
       SFX_endFlow.play();
       game.add.tween(this.SFX_endFlow).to({volume:3}, 1100).start();
       drumrollPlaying = true;
     }
 
-    hpCounter.timer.pause();
-    hpBarCounter.timer.pause();
     canPlace = false;
     let startingPipe = grid[startTile.row][startTile.col];
-    startWaterFlow(startingPipe, startTile.connection);
+    startWaterFlow(startingPipe, startTile.direction);
   });
 }
 
@@ -387,7 +396,7 @@ function initializeTilemap(mapName) {
 
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
-  map.createFromObjects('Object Layer 1', 82, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SPRINKLER_GID, 'sprinkler', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
@@ -424,8 +433,6 @@ function initializeMenu() {
         .children[i].events.onInputDown.add(selectPipe,
         this, 0, randomPipeIndex, i);
     }
-
-    console.log(boxedPipes);
   }
 }
 
