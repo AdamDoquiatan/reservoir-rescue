@@ -233,6 +233,8 @@ function winScreen() {
 
     console.log(this);
     // Turns off input to everything but win screen
+    hpCounter.timer.pause();
+    hpBarCounter.timer.pause();
     inputEnabled = false;
     game.input.onDown.removeAll();
   
@@ -286,7 +288,13 @@ function winScreen() {
     this.contButton.anchor.setTo(0.5);
     this.contButton.scale.setTo(2.3);
   
-    // this.contButton.inputEnabled = true;
+    this.contButton.inputEnabled = true;
+    
+    this.contButton.events.onInputDown.add(function (){
+        winScreen.destroy();    
+        this.winHeader.destroy();
+        submitScreen();
+    });
     // this.contButton.events.onInputDown.add(function () {
     //   inputEnabled = true;
     //   sprite.input.enabled = true;
@@ -436,3 +444,94 @@ function loseScreen() {
     loseTween = this.game.add.tween(this.loseHeader);
     loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
   }
+
+//Submit score screen
+function submitScreen() {
+    
+    var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    var submitGroup = this.game.add.group();
+  
+    this.scoreDisplay = game.add.text(game.world.centerX, 550, "Your total score is: " + health + " litres!", textStyle);
+    this.scoreDisplay.anchor.setTo(0.5);
+    this.scoreDisplay.lineSpacing = -2;
+    this.scoreDisplay.addColor('#3d87ff', 20);
+    this.scoreDisplay.stroke = '#000000';
+    this.scoreDisplay.strokeThickness = 7;
+    submitGroup.add(this.scoreDisplay);
+    
+    this.nameDisplay = game.add.text(game.world.centerX, 700, "Enter your name:", textStyle);
+    this.nameDisplay.anchor.setTo(0.5);
+    this.nameDisplay.lineSpacing = -2;
+    this.nameDisplay.strokeThickness = 7;
+    submitGroup.add(this.nameDisplay)
+    
+    var textBox = document.createElement("input");
+    var textBoxHeight = game.scale.height/2 + "px";
+    console.log(textBoxHeight);
+    textBox.setAttribute("type", "text");
+    textBox.setAttribute("id", "textBox")
+    textBox.style.borderRadius = "15px";
+    textBox.style.padding = "10px";
+    textBox.style.marginLeft = "45%";
+    textBox.style.marginTop = textBoxHeight;
+    textBox.style.position = "absolute";
+    textBox.style.textAlign = "center";
+    document.getElementById("gameDiv").appendChild(textBox);
+    
+    
+    //Temporary submit button.
+    this.submitButton = submitGroup.create(this.game.world.centerX, this.game.world.centerY + 225, 'continueButton');
+    this.submitButton.anchor.setTo(0.5);
+    this.submitButton.scale.setTo(2.3);
+    
+    this.submitButton.inputEnabled = true;
+    
+    this.submitButton.events.onInputDown.add(function (){
+        var inputScore = health;
+        var inputName = document.getElementById("textBox").value;
+        console.log(inputScore);
+        console.log(inputName);
+        $.ajax({  
+                type: "POST",  
+                url: "php/Leaderboard_input.php", 
+                data: "player_name="+ inputName + "&score=" + inputScore,
+                success: function(response) {
+                    console.log("Sent new entry" + testPlayer + testScore);
+                }
+            });
+        document.getElementById("textBox").style.visibility = "hidden";
+        submitGroup.destroy();
+        sentScreen();
+    });
+}
+
+//Shows once score is sent
+function sentScreen () {
+    
+    var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    var sentGroup = this.game.add.group();
+    
+    this.sentDisplay = game.add.text(game.world.centerX, 550, "Score sent!", textStyle);
+    this.sentDisplay.anchor.setTo(0.5);
+    this.sentDisplay.lineSpacing = -2;
+    
+    //returns to main menu
+    this.menuButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY , 'menuButton');
+    this.menuButton.anchor.setTo(0.5);
+    this.menuButton.scale.setTo(2.3);
+    this.menuButton.inputEnabled = true;
+    
+    this.menuButton.events.onInputDown.add(function (){
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
+    });
+    
+    // goes to leaderboard
+    this.leadButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY + 150, 'continueButton');
+    this.leadButton.anchor.setTo(0.5);
+    this.leadButton.scale.setTo(2.3);
+    this.leadButton.inputEnabled = true;
+    
+    this.leadButton.events.onInputDown.add(function (){
+        window.location.replace('/reservoir-rescue/Project/reservoir_rescue/leaderboard.html');
+    });
+}
