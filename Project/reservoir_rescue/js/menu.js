@@ -31,7 +31,7 @@ function pauseMenu(sprite, event) {
       pauseScreen.add(this.pauseHeader);
 
       // Specifies text properties
-      var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+      var textStyle = { font: 'bold 40pt Helvetica', fontSize: 70, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,
@@ -430,7 +430,7 @@ function loseScreen() {
       loseHeader.destroy();
       loseScreen.destroy();
       darkFilter.destroy();
-    })
+    });
   
     // White Filter
     this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
@@ -439,11 +439,11 @@ function loseScreen() {
     
     // Text and Filter Tweens
     whiteFilterTween = this.game.add.tween(this.whiteFilter);
-    whiteFilterTween.to({ alpha: 0 }, 4500, Phaser.Easing.Cubic.Out, true);
+    whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
   
     loseTween = this.game.add.tween(this.loseHeader);
     loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
-  }
+}
 
 //Submit score screen
 function submitScreen() {

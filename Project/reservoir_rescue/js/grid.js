@@ -6,6 +6,13 @@ const GRID_Y = GRID_SIZE * 3;
 const GRID_X_BOUND = GRID_SIZE * TILES_X + GRID_X;
 const GRID_Y_BOUND = GRID_SIZE * TILES_Y + GRID_Y;
 
+const Directions = {
+  UP: 1,
+  RIGHT: 2,
+  DOWN: 3,
+  LEFT: 4
+};
+
 // Grid as 2D array
 let grid = new Array(TILES_Y);
 for (let i = 0; i < TILES_Y; i++) {
@@ -18,13 +25,13 @@ for (let i = 0; i < TILES_Y; i++) {
 }
 
 let startTile = {
-  connection: Connections.UP,
+  direction: Directions.UP,
   col: 3,
   row: 0
 };
 
 let endTile = {
-  connection: Connections.DOWN,
+  direction: Directions.DOWN,
   col: 3,
   row: 5
 };
@@ -38,8 +45,10 @@ function addObjectToGrid(object, col, row) {
 function addSpriteToGrid(sprite, col, row) {
   let s = game.add.sprite(GRID_X + GRID_SIZE * col, GRID_Y + GRID_SIZE * row, sprite);
   s.scale.set(SCALE);
-  s.inputEnabled = true;
-  s.events.onInputDown.add(destroySprite, this);
+  if (sprite !== 'warning') {
+    s.inputEnabled = true;
+    s.events.onInputDown.add(destroySprite, this);
+  }
   return s;
 }
 
@@ -55,18 +64,30 @@ function getAdjacentObjects(object, type) {
 
   temp = checkUp(object);
   if (temp !== null && temp instanceof type) {
+    if (object instanceof Pipe) {
+      temp.direction = Directions.UP;
+    }
     objects.push(temp);
   }
   temp = checkRight(object);
   if (temp !== null && temp instanceof type) {
+    if (object instanceof Pipe) {
+      temp.direction = Directions.RIGHT;
+    }
     objects.push(temp);
   }
   temp = checkDown(object);
   if (temp !== null && temp instanceof type) {
+    if (object instanceof Pipe) {
+      temp.direction = Directions.DOWN;
+    }
     objects.push(temp);
   }
   temp = checkLeft(object);
   if (temp !== null && temp instanceof type) {
+    if (object instanceof Pipe) {
+      temp.direction = Directions.LEFT;
+    }
     objects.push(temp);
   }
 
