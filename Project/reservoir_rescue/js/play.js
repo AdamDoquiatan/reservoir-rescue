@@ -70,6 +70,9 @@ let doNotRandomize = false;
 // Holds the pipe that is getting swapped back to the selection menu
 let pipeSwappedBack = null;
 
+// Turn music on or off.
+var musicEnabled = true; 
+
 lose = false;
 let startPipe = null;
 let endPipe = null;
@@ -86,7 +89,7 @@ let playState = {
   create: function () {
     initializeTilemap('map');
     initializeMenu();
-    
+
     // HP bar
     hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
@@ -105,7 +108,18 @@ let playState = {
     this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
     this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
+    this.pauseButton.events.onInputDown.add(function (){
+      SFX_gameMusic.volume = 0.1;
+      SFX_pauseButton.play();
+    }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
+
+    // Mute Button
+    this.muteButton = game.add.sprite(game.width, 130, 'muteButton');
+    this.muteButton.scale.setTo(1.5);
+    this.muteButton.anchor.setTo(1, 0);
+    this.muteButton.inputEnabled = inputEnabled;
+    this.muteButton.events.onInputDown.add(muteSounds, this);
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
@@ -276,6 +290,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
     pipeIndex = index;
     boxCreator(pointer);
     canPlace = true;
+    SFX_selectPipe.play();
   }
 }
 
@@ -341,6 +356,25 @@ function levelComplete() {
   canPlace = false;
   let startingPipe = grid[startTile.row][startTile.col];
   startWaterFlow(startingPipe, startTile.direction);
+
+  SFX_gameMusic.pause();
+  SFX_placePipe.stop();
+  SFX_lastPipe.play();
+  SFX_lastPipe.onStop.add(function (){
+  
+    var drumrollPlaying = false;
+    if (drumrollPlaying == false) {
+      SFX_endFlow.play();
+      game.add.tween(this.SFX_endFlow).to({volume:3}, 1100).start();
+      drumrollPlaying = true;
+    }
+
+    hpCounter.timer.pause();
+    hpBarCounter.timer.pause();
+    canPlace = false;
+    let startingPipe = grid[startTile.row][startTile.col];
+    startWaterFlow(startingPipe, startTile.connection);
+  });
 }
 
 // Stops gameplay and displays lose screen
@@ -349,6 +383,8 @@ function gameOver() {
   hpBarCounter.timer.pause();
   hpBar.frame = hpBar.animations.frameTotal - 1;
   canPlace = false;
+  SFX_loseSound.play();
+  SFX_gameMusic.pause();
   loseScreen();
 }
 

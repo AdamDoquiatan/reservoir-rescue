@@ -2,8 +2,9 @@
 <html>
     <head>
         <title>Reservoir Rescue</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1
+        minimum-scale=1, height=device-height" data-lang="html">
+        
         <style>
             body {
                 background: #18c4e2;
@@ -11,6 +12,7 @@
                 margin: 0px auto;
             }
         </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <!-- Menu Components -->
         <script type="text/javascript" src="js/menu.js"></script> 
 
@@ -25,12 +27,13 @@
         <script type="text/javascript" src="js/grid.js"></script> 
         <script type="text/javascript" src="js/pipe.js"></script>
         <script type="text/javascript" src="js/obstacle.js"></script>  
+        <script type="text/javascript" src="js/audio.js"></script>
 
         <!-- Testing Components -->
         <script type="text/javascript" src="js/test.js"></script>
     </head>
     <body>
         <!-- Game is rendered in this div -->
-        <div></div>
+        <div id="gameDiv"></div>
     </body>
 </html>

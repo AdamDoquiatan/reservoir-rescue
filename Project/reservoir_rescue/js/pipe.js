@@ -26,11 +26,59 @@ let pipeSelection = [
 
 // Places pipe on grid
 function placePipe() {
+<<<<<<< HEAD
   let col = calculateCol();
   let row = calculateRow();
 
   if (canPlaceAt(col, row)) {
     let temp = grid[row][col];
+=======
+    let x = game.input.x - GRID_X;
+    let y = game.input.y - GRID_Y;
+    let col = parseInt(x / GRID_SIZE);
+    let row = parseInt(y / GRID_SIZE);
+
+    let clear = false;
+
+    if (canPlaceAt(col, row)) {
+      if (grid[row][col] instanceof Pipe) {
+        pipeSwappedBack = grid[row][col];
+        removeObjectFromArray(pipeSwappedBack, pipeArray);
+        doNotRandomize = true;
+        SFX_swapPipe.play();
+        if (pipeSwappedBack.connectedToStart) {
+          clear = true;
+        } 
+      } else {
+        SFX_placePipe.play();
+      }
+      
+      let pipe = new Pipe(pipeSelection[pipeIndex].image, 
+        pipeSelection[pipeIndex].connections, col, row);
+      pipeSwap = true;
+
+      pipe.sprite = addSpriteToGrid(pipe.image, col, row);
+      pipe.sprite.animations.add('forward',
+        [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
+      pipe.sprite.animations.add('backward',
+        [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
+
+      addObjectToGrid(pipe, col, row);
+      pipeArray.push(pipe);
+      console.log(pipeArray);
+
+      if (clear) {
+        clearConnections(pipe);
+      }
+      checkConnections(pipe);
+
+      if (pipe.connectedToStart) {
+        setWarnings();
+      }
+      
+    }
+  }
+>>>>>>> be8e9c7d4583890b87225593492d10cb19a071c6
 
     if (temp instanceof Pipe) {
       swapPipe(temp);
@@ -89,7 +137,12 @@ function resetConnections() {
 }
 
 // Plays water flow animation
+<<<<<<< HEAD
 function startWaterFlow(pipe, previousDirection) {
+=======
+function startWaterFlow(pipe, connection) {
+
+>>>>>>> be8e9c7d4583890b87225593492d10cb19a071c6
   if (pipe !== null) {
     let adjacentObstacles = getAdjacentObjects(pipe, Obstacle); 
     for (let o of adjacentObstacles) {
@@ -101,6 +154,7 @@ function startWaterFlow(pipe, previousDirection) {
         o.connectedToPipe = true;
       }
     }
+<<<<<<< HEAD
   }
 
   let index = pipe.connections.indexOf(previousDirection);
@@ -127,6 +181,37 @@ function startWaterFlow(pipe, previousDirection) {
       }
     }
   }, this);
+=======
+    let index = pipe.connections.indexOf(connection);
+    pipe.animation = (index === 0) ? 'forward' : 'backward';
+    let connectedPipes = getConnectedPipes(pipe, connection);
+    pipe.sprite.animations.play(pipe.animation);
+    pipe.sprite.animations.getAnimation(pipe.animation)
+      .onComplete.add(function () {
+        console.log(grid);
+        if (connectedPipes.length === 0) {
+          SFX_endFlow.fadeOut(300);
+          SFX_victorySound.play()
+          SFX_victorySound.onStop.add(function () {
+            SFX_gameMusic.volume = 0.1;
+            SFX_gameMusic.resume();
+
+          });
+          winScreen();
+          return;
+        }
+        if (health <= 0) {
+          SFX_endFlow.fadeOut(200);
+          SFX_loseSound.play();
+          onLose.dispatch();
+          return;
+        }
+        for (let p of connectedPipes) {
+          startWaterFlow(p, p.connection);
+        }
+      }, this);
+  } 
+>>>>>>> be8e9c7d4583890b87225593492d10cb19a071c6
 }
 
 /* Helper Functions */
