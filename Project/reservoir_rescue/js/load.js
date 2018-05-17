@@ -42,6 +42,7 @@ var loadState = {
     this.load.image('menu_button', 'assets/images/menu_button.png');
     this.load.image('water_counter', 'assets/images/water_counter.png');
     this.load.image('muteButton', 'assets/images/mute.png');
+    this.load.image('temp', 'assets/images/temp.png');
 
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);
