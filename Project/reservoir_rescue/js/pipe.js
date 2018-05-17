@@ -37,12 +37,20 @@ function placePipe() {
     let y = game.input.y - GRID_Y;
     let col = parseInt(x / GRID_SIZE);
     let row = parseInt(y / GRID_SIZE);
-  
+
+    let clear = false;
+
     if (canPlaceAt(col, row)) {
       if (grid[row][col] instanceof Pipe) {
         pipeSwappedBack = grid[row][col];
+        removeObjectFromArray(pipeSwappedBack, pipeArray);
         doNotRandomize = true;
         SFX_swapPipe.play();
+        if (pipeSwappedBack.connectedToStart) {
+          clear = true;
+        } 
+      } else {
+        SFX_placePipe.play();
       }
       
       let pipe = new Pipe(pipeSelection[pipeIndex].image, 
@@ -54,14 +62,20 @@ function placePipe() {
         [1, 2, 3, 4, 5, 6, 7, 8], FLOW_RATE, false);
       pipe.sprite.animations.add('backward',
         [9, 10, 11, 12, 13, 14, 15, 16], FLOW_RATE, false);
-      addObjectToGrid(pipe, col, row);
 
+      addObjectToGrid(pipe, col, row);
+      pipeArray.push(pipe);
+      console.log(pipeArray);
+
+      if (clear) {
+        clearConnections(pipe);
+      }
       checkConnections(pipe);
 
       if (pipe.connectedToStart) {
         setWarnings();
       }
-      SFX_placePipe.play();
+      
     }
   }
 
@@ -119,6 +133,8 @@ function checkConnections(pipe, connection) {
     for (let p of connectedPipes) {
       if (!pipe.connectedToStart && p.connectedToStart) {
         pipe.connectedToStart = true;
+      } else if (!pipe.connectedToStart) {
+        checkConnections(p, p.connection);
       }
     }
   }
@@ -128,6 +144,7 @@ function checkConnections(pipe, connection) {
       onWin.dispatch();
       return;
     }
+    connectedPipes = getConnectedPipes(pipe);
     for (let p of connectedPipes) {
       if (!p.connectedToStart) {
         checkConnections(p);
@@ -136,17 +153,19 @@ function checkConnections(pipe, connection) {
   }   
 }
 
-// Returns inverse of specified connection
-function invertConnection(connection) {
-  switch (connection) {
-    case Connections.UP:
-      return Connections.DOWN;
-    case Connections.RIGHT:
-      return Connections.LEFT;
-    case Connections.DOWN:
-      return Connections.UP;
-    case Connections.LEFT:
-      return Connections.RIGHT;
+// Clears all connections between pipes on grid
+function clearConnections(pipe) {
+  if (startConnected && checkCollision(pipe, startTile)) {
+    startConnected = false;
+  }
+  if (endConnected && checkCollision(pipe, endTile)) {
+    endConnected = false;
+  }
+  for (p of pipeArray) {
+    if (checkCollision(p, startTile)) {
+      continue;
+    }
+    p.connectedToStart = false;
   }
 }
 
@@ -175,7 +194,7 @@ function startWaterFlow(pipe, connection) {
           SFX_endFlow.fadeOut(300);
           SFX_victorySound.play()
           SFX_victorySound.onStop.add(function () {
-            SFX_gameMusic.volume = 0.05;
+            SFX_gameMusic.volume = 0.1;
             SFX_gameMusic.resume();
 
           });
@@ -198,4 +217,18 @@ function startWaterFlow(pipe, connection) {
 function canPlaceAt(col, row) {
   return canPlace && (grid[row][col] === null
     || grid[row][col] instanceof Pipe);
+}
+
+// Returns inverse of specified connection
+function invertConnection(connection) {
+  switch (connection) {
+    case Connections.UP:
+      return Connections.DOWN;
+    case Connections.RIGHT:
+      return Connections.LEFT;
+    case Connections.DOWN:
+      return Connections.UP;
+    case Connections.LEFT:
+      return Connections.RIGHT;
+  }
 }

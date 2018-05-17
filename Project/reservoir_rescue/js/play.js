@@ -37,8 +37,11 @@ let boxSelector;
 // Tracks which pipeSelection are in which selection spot
 let boxedPipes = [];
 
+// Array to keep track of all pipes on grid
+let pipeArray = [];
+
 // Array to keep track of all obstacles on grid
-let obstacles = [];
+let obstacleArray = [];
 
 let pipeGroup;
 let obstacleGroup;
@@ -61,12 +64,13 @@ let canPlace = false;
 let currentSelection;
 
 // Used when swapping pipeSelection to prevent a randomized pipe
-var doNotRandomize = false;
+let doNotRandomize = false;
 
 // Holds the pipe that is getting swapped back to the selection menu
-var pipeSwappedBack = null;
+let pipeSwappedBack = null;
 
-var musicEnabled = true; // just music. SFX still play.
+// Turn music on or off.
+var musicEnabled = true; 
 
 lose = false;
 let startConnected = false;
@@ -107,7 +111,7 @@ let playState = {
     this.pauseButton.anchor.setTo(1, 0);
     this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(function (){
-      SFX_gameMusic.volume = 0.05;
+      SFX_gameMusic.volume = 0.1;
       SFX_pauseButton.play();
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
@@ -383,7 +387,7 @@ function initializeTilemap(mapName) {
 
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
-  map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', 82, 'sprinkler', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
@@ -393,7 +397,7 @@ function initializeTilemap(mapName) {
     let obstacle = new Obstacle(o.key, col, row);
     obstacle.sprite = o;
     addObjectToGrid(obstacle, col, row);
-    obstacles.push(obstacle);
+    obstacleArray.push(obstacle);
   });
 }
 
@@ -428,4 +432,12 @@ function initializeMenu() {
 // Destroys the sprite
 function destroySprite (sprite) {
     sprite.destroy();
+}
+
+// Removes object from specifed array
+function removeObjectFromArray(object, array) {
+  let index = array.indexOf(object);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
 }
