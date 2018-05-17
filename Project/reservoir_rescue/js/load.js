@@ -70,7 +70,9 @@ var loadState = {
   },
 
   update() {
+    if (this.cache.isSoundDecoded('victorySound')) {
         // Begins play state
         game.state.start('play');
+    }
   }
 };
