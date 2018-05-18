@@ -125,6 +125,10 @@ let playState = {
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
     this.waterCounter.scale.setTo(SCALE);
 
+    // Temperatue Counter
+    this.tempCounter = game.add.sprite(128 * SCALE, 288 * SCALE, 'temp');
+    this.tempCounter.scale.setTo(SCALE);
+
     // Text
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
     let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
