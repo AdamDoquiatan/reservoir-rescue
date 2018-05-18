@@ -1,21 +1,21 @@
 const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
+const SPRINKLER_GID = 10;
+const HP_RATE = 150;
+const HP_RATE_MIN = 50;
 
 // The initial health
 const HP = 440;
 
-// Rate at which health goes down in milliseconds
-const HP_RATE = 150;
-
 // Rate at which water flows in frames per second
-const FLOW_RATE = 60;
+const FLOW_RATE = 30;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = true;
+let testMode = false; 
 
 /* Game Objects */
 
@@ -27,6 +27,7 @@ let layer1;
 let layer2;
 let testText;
 let healthText;
+let temperatureText;
 let hpBar;
 let hpBarCounter;
 let hpCounter;
@@ -37,13 +38,19 @@ let boxSelector;
 // Tracks which pipeSelection are in which selection spot
 let boxedPipes = [];
 
+// Array to keep track of all pipes on grid
+let pipeArray = [];
+
 // Array to keep track of all obstacles on grid
-let obstacles = [];
+let obstacleArray = [];
 
 let pipeGroup;
 let obstacleGroup;
 
 /* Global Variables */
+
+// Rate water level goes down in milliseconds
+let hpRate;
 
 // Index of currently selected pipe
 let pipeIndex = 0;
@@ -66,9 +73,12 @@ let doNotRandomize = false;
 // Holds the pipe that is getting swapped back to the selection menu
 let pipeSwappedBack = null;
 
+// Turn music on or off.
+var musicEnabled = true; 
+
 lose = false;
-let startConnected = false;
-let endConnected = false;
+let startPipe = null;
+let endPipe = null;
 let health = HP;
 let score = HP;
 let hpBarRate;
@@ -82,30 +92,65 @@ let playState = {
   create: function () {
     initializeTilemap('map');
     initializeMenu();
-    
-    // HP bar
-    hpBar = game.add.sprite(0, GRID_SIZE * 1, 'hp_bar', 0);
-    hpBar.scale.setTo(SCALE);
-    hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
 
-    // Text
-    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
-    healthText = game.add.text(0, 32, health, { fontSize: '32px', fill: '#FFF' });
+    // HP bar
+    hpRate = HP_RATE - weather * 4;
+    if (hpRate < HP_RATE_MIN) {
+      hpRate = hpRate;
+    }
+    console.log(hpRate);
+    hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
+    hpBar.scale.setTo(SCALE);
+    hpBarRate = hpRate * HP / hpBar.animations.frameTotal;
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
 
+    // Menu Button
+    this.menuButton = game.add.sprite(0, 0, 'menu_button');
+    this.menuButton.scale.setTo(SCALE);
+
+    // Pause Button
+    this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
+    this.pauseButton.scale.setTo(SCALE);
+    this.pauseButton.inputEnabled = inputEnabled;
+    this.pauseButton.events.onInputDown.add(function (){
+      SFX_gameMusic.volume = 0.1;
+      SFX_pauseButton.play();
+    }, this);
+    this.pauseButton.events.onInputDown.add(pauseMenu, this);
+
+    // Mute Button
+    this.muteButton = game.add.sprite(game.width, 130, 'muteButton');
+    this.muteButton.scale.setTo(1.5);
+    this.muteButton.anchor.setTo(1, 0);
+    this.muteButton.inputEnabled = inputEnabled;
+    this.muteButton.events.onInputDown.add(muteSounds, this);
+
+    // Water Counter
+    this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
+    this.waterCounter.scale.setTo(SCALE);
+
+    // Temperatue Counter
+    this.tempCounter = game.add.sprite(128 * SCALE, 288 * SCALE, 'temp');
+    this.tempCounter.scale.setTo(SCALE);
+
+    // Text
+    testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
+    let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    healthText = game.add.text(121 * SCALE, 28, health, textStyle);
+    healthText.stroke = '#444444';
+    healthText.strokeThickness = 7;
+    temperatureText = game.add.text(182 * SCALE, 297 * SCALE, weather, textStyle);
+    temperatureText.stroke = '#4444444';
+    temperatureText.strokeThickness = 7;
+
+    obsScreen1.call(this);
+
     // Testing features
     if (testMode) {
-      // Pause Button
-      this.pauseButton = game.add.sprite(game.width, 0, 'pause');
-      this.pauseButton.scale.setTo(2.3);
-      this.pauseButton.anchor.setTo(1, 0);
-      this.pauseButton.inputEnabled = inputEnabled;
-      this.pauseButton.events.onInputDown.add(pauseMenu, this);
-
       // For testing: Win Button
       this.winButton = game.add.sprite(game.width - 450, 0, 'winButton');
       this.winButton.scale.setTo(2.6);
@@ -121,7 +166,6 @@ let playState = {
       this.loseButton.events.onInputDown.add(gameOver, this);
 
       initializeTestControls();
-      obsScreen1.call(this);
     }
   },
   update: function () {
@@ -134,9 +178,11 @@ let playState = {
       onLose.dispatch();
     }
 
-    testText.text = '('
+    if (testMode) {
+      testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
+    }
   }
 };
 
@@ -246,7 +292,6 @@ function reloadPipe(menuPipes) {
 
   //Updates array.
   boxedPipes[currentSelection] = pipeIndex;
-  console.log(boxedPipes);
   
   doNotRandomize = false;
   // Signals pipe swap complete.
@@ -260,6 +305,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
     pipeIndex = index;
     boxCreator(pointer);
     canPlace = true;
+    SFX_selectPipe.play();
   }
 }
 
@@ -294,15 +340,14 @@ function delegate(pointer) {
   if (pointer.x >= GRID_X
     && pointer.x < GRID_X_BOUND
     && pointer.y >= GRID_Y
-    && pointer.y <= GRID_Y_BOUND) {
+    && pointer.y < GRID_Y_BOUND) {
     placePipe();
-    console.log(grid);
   }
 }
 
 // Starts water level hpCounter
 function startCounter() {
-  hpCounter = game.time.events.loop(HP_RATE, function() {
+  hpCounter = game.time.events.loop(hpRate, function() {
     healthText.text = --health;
   }, this);
   hpBarCounter = game.time.events.loop(hpBarRate, function() {
@@ -323,9 +368,23 @@ function setHealthBar(health) {
 function levelComplete() {
   hpCounter.timer.pause();
   hpBarCounter.timer.pause();
-  canPlace = false;
-  let startingPipe = grid[startTile.row][startTile.col];
-  startWaterFlow(startingPipe, startTile.connection);
+
+  SFX_gameMusic.pause();
+  SFX_placePipe.stop();
+  SFX_lastPipe.play();
+  SFX_lastPipe.onStop.add(function (){
+  
+    var drumrollPlaying = false;
+    if (drumrollPlaying === false) {
+      SFX_endFlow.play();
+      game.add.tween(this.SFX_endFlow).to({volume:3}, 1100).start();
+      drumrollPlaying = true;
+    }
+
+    canPlace = false;
+    let startingPipe = grid[startTile.row][startTile.col];
+    startWaterFlow(startingPipe, startTile.direction);
+  });
 }
 
 // Stops gameplay and displays lose screen
@@ -334,6 +393,8 @@ function gameOver() {
   hpBarCounter.timer.pause();
   hpBar.frame = hpBar.animations.frameTotal - 1;
   canPlace = false;
+  SFX_loseSound.play();
+  SFX_gameMusic.pause();
   loseScreen();
 }
 
@@ -350,7 +411,7 @@ function initializeTilemap(mapName) {
 
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
-  map.createFromObjects('Object Layer 1', 14, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SPRINKLER_GID, 'sprinkler', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
@@ -360,7 +421,7 @@ function initializeTilemap(mapName) {
     let obstacle = new Obstacle(o.key, col, row);
     obstacle.sprite = o;
     addObjectToGrid(obstacle, col, row);
-    obstacles.push(obstacle);
+    obstacleArray.push(obstacle);
   });
 }
 
@@ -387,12 +448,18 @@ function initializeMenu() {
         .children[i].events.onInputDown.add(selectPipe,
         this, 0, randomPipeIndex, i);
     }
-
-    console.log(boxedPipes);
   }
 }
 
 // Destroys the sprite
 function destroySprite (sprite) {
     sprite.destroy();
+}
+
+// Removes object from specifed array
+function removeObjectFromArray(object, array) {
+  let index = array.indexOf(object);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
 }

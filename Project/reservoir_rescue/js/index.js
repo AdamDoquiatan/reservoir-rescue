@@ -2,7 +2,7 @@ window.onload = startup;
 
 function startup() {
     var play =  document.getElementById("play");
-    var leaderboard =  document.getElementById("leaderboard");
+    var leaderboard = document.getElementById("leaderboard");
     var tips =  document.getElementById("tips");
     play.addEventListener("touchstart", pressButton, false);
     play.addEventListener("touchend", releaseButton, false);
@@ -19,3 +19,7 @@ function pressButton(event) {
 function releaseButton(event) {
     event.target.setAttribute("class", "");
 }
+
+
+
+
