@@ -7,7 +7,7 @@ const SPRINKLER_GID = 10;
 const HP = 440;
 
 // Rate at which health goes down in milliseconds
-const HP_RATE = 50;
+const HP_RATE = 200;
 
 // Rate at which water flows in frames per second
 const FLOW_RATE = 30;
@@ -16,7 +16,7 @@ const FLOW_RATE = 30;
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = false; 
+let testMode = true; 
 
 /* Game Objects */
 
@@ -28,6 +28,7 @@ let layer1;
 let layer2;
 let testText;
 let healthText;
+let temperatureText;
 let hpBar;
 let hpBarCounter;
 let hpCounter;
@@ -79,6 +80,9 @@ let endPipe = null;
 let health = HP;
 let score = HP;
 let hpBarRate;
+
+// Temperature to get from API
+let temperature = 100;
 
 /* Signals */
 
@@ -135,6 +139,9 @@ let playState = {
     healthText = game.add.text(121 * SCALE, 28, health, textStyle);
     healthText.stroke = '#444444';
     healthText.strokeThickness = 7;
+    temperatureText = game.add.text(182 * SCALE, 297 * SCALE, temperature, textStyle);
+    temperatureText.stroke = '#4444444';
+    temperatureText.strokeThickness = 7;
 
     obsScreen1.call(this);
 

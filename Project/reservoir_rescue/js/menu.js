@@ -66,6 +66,7 @@ function pauseMenu(sprite, event) {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
+        clearPipes();
         SFX_gameMusic.volume = 0.4;
         restartLightflash();
         SFX_reset.play();

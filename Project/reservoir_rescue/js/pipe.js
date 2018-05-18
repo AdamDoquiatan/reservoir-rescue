@@ -53,9 +53,9 @@ function placePipe() {
       checkConnections(startPipe);
     }
 
-    console.log(pipe);  
-
     setWarnings();
+    console.log(grid); 
+    console.log(startPipe);
   }
 }
 
@@ -222,4 +222,13 @@ function canConnect(pipeA, pipeB, pipeBDirection) {
     return true;
   }
   return false;
+}
+
+// Clears all pipes from grid
+function clearPipes() {
+  for (let p of pipeArray) {
+    p.sprite.destroy();
+    grid[p.row][p.col] = null;
+    pipeArray = [];
+  }
 }
