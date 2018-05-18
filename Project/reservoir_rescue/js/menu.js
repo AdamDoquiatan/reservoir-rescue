@@ -66,6 +66,7 @@ function pauseMenu(sprite, event) {
       this.restartButton.scale.setTo(2.3);
       this.restartButton.inputEnabled = true;
       this.restartButton.events.onInputDown.add(function () {
+        clearPipes();
         SFX_gameMusic.volume = 0.4;
         restartLightflash();
         SFX_reset.play();
@@ -467,12 +468,19 @@ function submitScreen() {
     
     var textBox = document.createElement("input");
     var textBoxHeight = game.scale.height/2 + "px";
+    var windowSize = window.matchMedia("(max-width: 700px)");
     console.log(textBoxHeight);
     textBox.setAttribute("type", "text");
     textBox.setAttribute("id", "textBox")
     textBox.style.borderRadius = "15px";
+    if (windowSize.matches) {
+        textBox.style.marginLeft = "25%";
+        console.log("small screen");
+    } else {
+        textBox.style.marginLeft = "45%";
+        console.log("big screen");
+    }
     textBox.style.padding = "10px";
-    textBox.style.marginLeft = "45%";
     textBox.style.marginTop = textBoxHeight;
     textBox.style.position = "absolute";
     textBox.style.textAlign = "center";

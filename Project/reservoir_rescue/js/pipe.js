@@ -42,7 +42,7 @@ function placePipe() {
 
     if (startPipe === null) {
       let startObject = grid[startTile.row][startTile.col];
-      if (startObject !== null && startObject instanceof Pipe) {
+      if (startObject instanceof Pipe) {
         if (startObject.connections.includes(startTile.direction)) {
           setStartPipe(startObject);
         }
@@ -53,9 +53,9 @@ function placePipe() {
       checkConnections(startPipe);
     }
 
-    console.log(pipe);  
-
     setWarnings();
+    console.log(grid); 
+    console.log(startPipe);
   }
 }
 
@@ -68,7 +68,7 @@ function checkConnections(pipe) {
         if (p.connectedToStart) {
           continue;
         }
-        if (canConnect(pipe, p, p.direction)) {
+        if (canConnect(pipe, p)) {
           setStartPipe(p);
           checkConnections(p);
         }
@@ -194,8 +194,8 @@ function setStartPipe(pipe) {
     startPipe = pipe;
     pipe.connectedToStart = true;
 
-    if (checkCollision(pipe, endTile)) {
-      if (pipe.connections.includes(endTile.direction)) {
+    if (checkCollision(startPipe, endTile)) {
+      if (startPipe.connections.includes(endTile.direction)) {
         onWin.dispatch();
       } 
     }
@@ -216,11 +216,17 @@ function invertDirection(direction) {
   }
 }
 
-// Returns true if both pipes can be connected
-function canConnect(pipeA, pipeB, pipeBDirection) {
-  if (pipeB.connections.includes(invertDirection(pipeBDirection)) 
-  && pipeA.connections.includes(pipeBDirection)) {
-    return true;
+// Returns true a pipe can be connected to an adjacent pipe
+function canConnect(pipe, adjacentPipe) {
+  return pipe.connections.includes(adjacentPipe.direction)
+    && adjacentPipe.connections.includes(invertDirection(adjacentPipe.direction));
+}
+
+// Clears all pipes from grid
+function clearPipes() {
+  for (let p of pipeArray) {
+    p.sprite.destroy();
+    grid[p.row][p.col] = null;
+    pipeArray = [];
   }
-  return false;
 }

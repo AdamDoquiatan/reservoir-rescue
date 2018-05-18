@@ -2,12 +2,11 @@ const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
 const SPRINKLER_GID = 10;
+const HP_RATE = 150;
+const HP_RATE_MIN = 50;
 
 // The initial health
 const HP = 440;
-
-// Rate at which health goes down in milliseconds
-const HP_RATE = 50;
 
 // Rate at which water flows in frames per second
 const FLOW_RATE = 30;
@@ -16,7 +15,7 @@ const FLOW_RATE = 30;
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = false; 
+let testMode = true; 
 
 /* Game Objects */
 
@@ -28,6 +27,7 @@ let layer1;
 let layer2;
 let testText;
 let healthText;
+let temperatureText;
 let hpBar;
 let hpBarCounter;
 let hpCounter;
@@ -48,6 +48,9 @@ let pipeGroup;
 let obstacleGroup;
 
 /* Global Variables */
+
+// Rate water level goes down in milliseconds
+let hpRate;
 
 // Index of currently selected pipe
 let pipeIndex = 0;
@@ -91,9 +94,14 @@ let playState = {
     initializeMenu();
 
     // HP bar
+    hpRate = HP_RATE - weather * 4;
+    if (hpRate < HP_RATE_MIN) {
+      hpRate = hpRate;
+    }
+    console.log(hpRate);
     hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
-    hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
+    hpBarRate = hpRate * HP / hpBar.animations.frameTotal;
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -125,12 +133,19 @@ let playState = {
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
     this.waterCounter.scale.setTo(SCALE);
 
+    // Temperatue Counter
+    this.tempCounter = game.add.sprite(128 * SCALE, 288 * SCALE, 'temp');
+    this.tempCounter.scale.setTo(SCALE);
+
     // Text
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });
     let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
     healthText = game.add.text(121 * SCALE, 28, health, textStyle);
     healthText.stroke = '#444444';
     healthText.strokeThickness = 7;
+    temperatureText = game.add.text(182 * SCALE, 297 * SCALE, weather, textStyle);
+    temperatureText.stroke = '#4444444';
+    temperatureText.strokeThickness = 7;
 
     obsScreen1.call(this);
 
@@ -332,7 +347,7 @@ function delegate(pointer) {
 
 // Starts water level hpCounter
 function startCounter() {
-  hpCounter = game.time.events.loop(HP_RATE, function() {
+  hpCounter = game.time.events.loop(hpRate, function() {
     healthText.text = --health;
   }, this);
   hpBarCounter = game.time.events.loop(hpBarRate, function() {
