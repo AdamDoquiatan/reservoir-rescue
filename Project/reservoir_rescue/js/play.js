@@ -15,7 +15,7 @@ const FLOW_RATE = 30;
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = false; 
+let testMode = true; 
 
 /* Game Objects */
 
