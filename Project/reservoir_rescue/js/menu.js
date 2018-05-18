@@ -31,7 +31,7 @@ function pauseMenu(sprite, event) {
       pauseScreen.add(this.pauseHeader);
 
       // Specifies text properties
-      var textStyle = { font: 'bold 40pt Helvetica', fontSize: 70, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+      var textStyle = { font: 'bold 40pt Helvetica', fontSize: 52, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
       // Tip text
       this.tipDisplay = game.add.text(this.game.world.centerX, 650,

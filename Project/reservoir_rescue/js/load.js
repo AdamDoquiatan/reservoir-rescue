@@ -95,9 +95,9 @@ var loadState = {
   },
 
   update() {
-    // Begins play state
-    if (weatherInitialized) {
-      game.state.start('play');
+    if (weatherInitialized && this.cache.isSoundDecoded('victorySound')) {
+        // Begins play state
+        game.state.start('play');
     }
   }
 };
