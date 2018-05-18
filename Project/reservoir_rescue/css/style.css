@@ -117,7 +117,7 @@ footer {
     margin-top: 60px;
     margin-bottom: 125px;
     color: #beebfc;
-    text-shadow: 1px 1px black;
+    text-shadow: 1px 1px rgb(78, 78, 78);
 }
 
 table {
