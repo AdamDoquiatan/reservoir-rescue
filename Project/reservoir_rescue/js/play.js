@@ -2,12 +2,11 @@ const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
 const SPRINKLER_GID = 10;
+const HP_RATE = 150;
+const HP_RATE_MIN = 50;
 
 // The initial health
 const HP = 440;
-
-// Rate at which health goes down in milliseconds
-const HP_RATE = 200;
 
 // Rate at which water flows in frames per second
 const FLOW_RATE = 30;
@@ -16,7 +15,7 @@ const FLOW_RATE = 30;
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = true; 
+let testMode = false; 
 
 /* Game Objects */
 
@@ -50,6 +49,9 @@ let obstacleGroup;
 
 /* Global Variables */
 
+// Rate water level goes down in milliseconds
+let hpRate;
+
 // Index of currently selected pipe
 let pipeIndex = 0;
 
@@ -81,9 +83,6 @@ let health = HP;
 let score = HP;
 let hpBarRate;
 
-// Temperature to get from API
-let temperature = 100;
-
 /* Signals */
 
 let onWin = new Phaser.Signal();
@@ -95,9 +94,14 @@ let playState = {
     initializeMenu();
 
     // HP bar
+    hpRate = HP_RATE - weather * 4;
+    if (hpRate < HP_RATE_MIN) {
+      hpRate = hpRate;
+    }
+    console.log(hpRate);
     hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
-    hpBarRate = HP_RATE * HP / hpBar.animations.frameTotal;
+    hpBarRate = hpRate * HP / hpBar.animations.frameTotal;
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
@@ -139,7 +143,7 @@ let playState = {
     healthText = game.add.text(121 * SCALE, 28, health, textStyle);
     healthText.stroke = '#444444';
     healthText.strokeThickness = 7;
-    temperatureText = game.add.text(182 * SCALE, 297 * SCALE, temperature, textStyle);
+    temperatureText = game.add.text(182 * SCALE, 297 * SCALE, weather, textStyle);
     temperatureText.stroke = '#4444444';
     temperatureText.strokeThickness = 7;
 
@@ -343,7 +347,7 @@ function delegate(pointer) {
 
 // Starts water level hpCounter
 function startCounter() {
-  hpCounter = game.time.events.loop(HP_RATE, function() {
+  hpCounter = game.time.events.loop(hpRate, function() {
     healthText.text = --health;
   }, this);
   hpBarCounter = game.time.events.loop(hpBarRate, function() {

@@ -4,7 +4,7 @@ function Obstacle(image, col, row) {
   this.row = row;
   this.warning = null;
   this.connectedToPipe = false;
-  this.damage = 25;
+  this.damage = 30;
   this.sprite = null;
   this.direction = null;
 }
