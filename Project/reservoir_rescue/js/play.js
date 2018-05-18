@@ -377,7 +377,7 @@ function levelComplete() {
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
-      game.add.tween(this.SFX_endFlow).to({volume:3}, 1100).start();
+      game.add.tween(this.SFX_endFlow).to({volume:2.6}, 1100).start();
       drumrollPlaying = true;
     }
 
