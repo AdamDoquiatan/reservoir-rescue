@@ -74,6 +74,11 @@ button {
     background-image: url("../assets/images/tips.png");
 }
 
+#credits {
+    background-image: url("../assets/images/credits.png");
+    width: 150px;
+}
+
 .on {
     transform: scale(1.1);
     filter: contrast(130%);
@@ -168,32 +173,29 @@ td {
 }
 
 #content #createdBy {
-    font-size: 24px;
-
+    font-size: 28px;
 }
 
 #content .music {
-    font-size: 15px;
+    font-size: 16px;
     padding: 5px 0px 0px 0px;
 }
 
 #content .soundEffects {
-    font-size: 10px;
+    font-size: 12px;
     padding: 5px 0px 0px 0px;
 }
 
 #content .musicSrc {
-    font-size: 9px;
+    font-size: 10px;
     padding: 0px;
 }
 
 #content .sfxSrc {
-    font-size: 6px;
+    font-size: 9px;
     padding: 0px;
 }
 
-
 #content #disclaimer {
-    font-size: 20px;
-
+    font-size: 15px;
 }

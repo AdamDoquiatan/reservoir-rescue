@@ -11,7 +11,7 @@ X SFX -- Implement Game (When water flows through pipe at end.)
 Music -- Implement Victory Screen Music
 578783_Victory-Sound.mp3
 
-SFX -- Implement Obs Screen Whoosh (In and Out)
+X SFX -- Implement Obs Screen Whoosh (In and Out)
 14609__man__swosh.mp3 *****
 
 X SFX -- Implement Game (Select Pipe)
@@ -23,16 +23,16 @@ SFX -- Implement Game (Place Pipe)
 X SFX -- Implement Game (Lose Game)
 150567__khoon__percussive-sounddesign-2-eb2.mp3
 
-SFX -- Implement Game (Pause Button)
+X SFX -- Implement Game (Pause Button)
 70107__justinbw__power-on.mp3
 
-SFX -- Implement Game (Obs Button)
+X SFX -- Implement Game (Obs Button)
 254713__greekirish__projector-button-push.mp3
 
-SFX -- Implement Game (Reset)
+X SFX -- Implement Game (Reset)
 85999__nextmaking__jump-from-the-sand-ground-2.mp3
 
-SFX -- Implement Game (Swap Pipe)
+X SFX -- Implement Game (Swap Pipe)
 216675__hitrison__stick-swoosh-whoosh_1.mp3
 
 SFX -- Implement Game (Obstical Hit [Sprinkler Sound?])
