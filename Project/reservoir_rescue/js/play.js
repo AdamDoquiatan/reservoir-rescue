@@ -2,7 +2,7 @@ const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
 const SPRINKLER_GID = 10;
-const HP_RATE = 150;
+const HP_RATE = 500;
 const HP_RATE_MIN = 50;
 
 // The initial health
