@@ -218,7 +218,7 @@ function invertDirection(direction) {
 // Returns true a pipe can be connected to an adjacent pipe
 function canConnect(pipe, adjacentPipe) {
   return pipe.connections.includes(adjacentPipe.direction)
-    && adjacentPipe.connections.includes(invertDirection(adjacentPipe.direction));
+    && adjacentPipe.connections.includes(invertDirection(adjacentPipe.direction)); 
 }
 
 // Clears all pipes from grid
