@@ -309,6 +309,7 @@ function winScreen() {
     this.restartButton.scale.setTo(2.3);
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
+        clearPipes();
         console.log(this);
         restartLightflash();
         SFX_reset.play();
@@ -410,6 +411,7 @@ function loseScreen() {
     this.restartButton.scale.setTo(2.3);
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
+      clearPipes();
       restartLightflash();
       SFX_reset.play();
       inputEnabled = true;
