@@ -2,7 +2,7 @@ const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
 const SPRINKLER_GID = 10;
-const HP_RATE = 150;
+const HP_RATE = 150; //150
 const HP_RATE_MIN = 50;
 
 // The initial health
@@ -128,6 +128,13 @@ let playState = {
     this.muteButton.anchor.setTo(1, 0);
     this.muteButton.inputEnabled = inputEnabled;
     this.muteButton.events.onInputDown.add(muteSounds, this);
+
+    // Help Button
+    this.helpButton = game.add.sprite(0, 115, 'helpButton');
+    this.helpButton.scale.setTo(2);
+    this.helpButton.anchor.setTo(0, 0);
+    this.helpButton.inputEnabled = inputEnabled;
+    this.helpButton.events.onInputDown.add(helpScreen1, this);    
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');

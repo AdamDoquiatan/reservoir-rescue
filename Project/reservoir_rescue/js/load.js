@@ -57,6 +57,12 @@ var loadState = {
     // Obstacles
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
 
+    // Menu spritesheets
+    game.load.spritesheet('helpPipeSelect', 'assets/images/helpPipeSelect.png', 441, 96);
+    game.load.spritesheet('helpPipesToGrid', 'assets/images/helpPipesToGrid.png', 128, 128);
+    game.load.spritesheet('helpHealthBar', 'assets/images/helpHealthBar.png', 274, 53);
+    game.load.spritesheet('helpObsticle', 'assets/images/helpObsticle.png', 131, 135);
+
     // In-Game Menu Stuff
     this.load.image('borderWindow', 'assets/images/borderWindow.png');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
@@ -69,9 +75,14 @@ var loadState = {
     this.load.image('winButton', 'assets/images/win.png');
     this.load.image('loseButton', 'assets/images/lose.png');
     this.load.image('menu_button', 'assets/images/menu_button.png');
+    this.load.image('helpButton', 'assets/images/help.png');
+    this.load.image('backButton', 'assets/images/back.png');
+    this.load.image('moreButton', 'assets/images/more.png');
+    this.load.image('howToPlayButton', 'assets/images/howToPlay.png');
     this.load.image('water_counter', 'assets/images/water_counter.png');
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
+    
 
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);

@@ -141,10 +141,17 @@ function obsScreen1(sprite, event) {
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(endObsScreen, this);
 
+    // How To Play button
+    this.howToPlayButton = obsScreen.create(game.world.width - 40, 255, 'howToPlayButton');
+    this.howToPlayButton.anchor.setTo(1, 0);
+    this.howToPlayButton.scale.setTo(1.7);
+    //this.howToPlayButton.inputEnabled = true;
+    //this.howToPlayButton.events.onInputDown.add(endObsScreen, this);
+
     // Screen BG
     this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300, 'borderWindow');
     this.obsBorder.anchor.setTo(0.5);
-    this.obsBorder.scale.setTo(1.9, 2);
+    this.obsBorder.scale.setTo(2.4, 2.05);
     obsScreen.add(this.obsBorder);
 
     // Opening screen animation. Auto-plays when game starts
@@ -186,6 +193,160 @@ function obsScreen1(sprite, event) {
 
       game.time.events.add(DELAY, startCounter, this);
     }
+}
+
+function helpScreen1(sprite, event) {
+  // Prevents input to anything but obs screen
+  inputEnabled = false;
+  this.pauseButton.input.enabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.darkFilter.anchor.setTo(0.5);
+  this.darkFilter.scale.setTo(4);
+  this.darkFilter.alpha = 0;
+
+  // Tween Dark Filter in
+  darkFilterTween = this.game.add.tween(this.darkFilter);
+  darkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
+
+  // Group for screen componenets
+  var helpScreen = this.game.add.group();
+
+  var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 620 };
+
+  // "How To Play" header
+  this.htpHeader = game.add.text(this.game.world.centerX, -825, "How To Play", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.htpHeader.anchor.setTo(0.5);
+  this.htpHeader.stroke = '#000000';
+  this.htpHeader.strokeThickness = 5;
+  helpScreen.add(this.htpHeader);
+
+  // Pipe Selection img
+  this.helpPipeSelect = this.game.add.sprite(675, -640, 'helpPipeSelect');
+  this.helpPipeSelect.anchor.setTo(0.5);
+  this.helpPipeSelect.scale.setTo(1);
+  this.helpPipeSelect.animations.add('play', [0,1,2,3,4,5,6,7,8,9,10]);
+  this.helpPipeSelect.animations.play('play', 3, true);
+  helpScreen.add(this.helpPipeSelect);
+
+  // Help Text 1
+  this.helpText1 = game.add.text(225, -640, "Select a pipe. ⇨", textStyle);
+  this.helpText1.anchor.setTo(0.5);
+  this.helpText1.stroke = '#000000';
+  this.helpText1.strokeThickness = 5;
+  helpScreen.add(this.helpText1);
+
+  // Pipe on grid img
+  this.helpPipesToGrid = helpScreen.create(35, -510, 'helpPipesToGrid');
+  this.helpPipesToGrid.scale.setTo(1.5);
+  this.helpPipesToGrid.animations.add('play');
+  this.helpPipesToGrid.animations.play('play', 3, true);
+  helpScreen.add(this.helpPipesToGrid);
+
+  // Help Text 2
+  this.helpText2 = game.add.text(this.game.width - 50, -510, "⇦ Place it anywhere on   the grid. Connect pipes from start to end...", textStyle);
+  this.helpText2.anchor.setTo(1,0);
+  this.helpText2.stroke = '#000000';
+  this.helpText2.strokeThickness = 5;
+  this.helpText2.align = 'right';
+  helpScreen.add(this.helpText2);
+
+  // Health bar img
+  this.helpHealthBar = helpScreen.create(this.game.width - 70, -170, 'helpHealthBar');
+  this.helpHealthBar.anchor.setTo(1, 0);
+  this.helpHealthBar.scale.setTo(1.7, 1.5);
+  this.helpHealthBar.animations.add('play');
+  this.helpHealthBar.animations.play('play', 3, true);
+  helpScreen.add(this.helpHealthBar);
+
+  // Help Text 3
+  this.helpText3 = game.add.text(50, -240, "...before your reservoir runs dry. ⇨", textStyle);
+  this.helpText3.stroke = '#000000';
+  this.helpText3.strokeThickness = 5;
+  this.helpText3.align = 'left';
+  this.helpText3.wordWrapWidth = 600;
+  helpScreen.add(this.helpText3);
+
+  // Sprinkler img
+  this.helpObsticle = helpScreen.create(35, -20, 'helpObsticle');
+  this.helpObsticle.scale.setTo(1.6);
+  this.helpObsticle.animations.add('play');
+  this.helpObsticle.animations.play('play', 3, true);
+  helpScreen.add(this.helpObsticle);
+
+  // Help Text 4
+  this.helpText4 = game.add.text(this.game.width - 50, -20, "⇦ Avoid obsticles -- they'll sap your water!", textStyle);
+  this.helpText4.anchor.setTo(1, 0);
+  this.helpText4.stroke = '#000000';
+  this.helpText4.strokeThickness = 5;
+  this.helpText4.align = 'left';
+  helpScreen.add(this.helpText4);
+
+  // MORE IF THERE'S ROOM
+
+  // Back button
+  this.backButton = helpScreen.create(40, 255, 'backButton');
+  this.backButton.scale.setTo(1.7);
+  this.backButton.inputEnabled = true;
+  this.backButton.events.onInputDown.add(endHelpScreen, this);
+  helpScreen.add(this.backButton);
+
+  // More button
+  this.moreButton = helpScreen.create(game.world.width - 40, 255, 'moreButton');
+  this.moreButton.scale.setTo(1.7);
+  this.moreButton.anchor.setTo(1,0);
+  this.moreButton.inputEnabled = true;
+  //this.moreButton.events.onInputDown.add(endHelpScreen, this);
+  //helpScreen.add(this.moreButton);
+
+  // Screen Border
+  this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300, 'borderWindow');
+  this.obsBorder.anchor.setTo(0.5);
+  this.obsBorder.scale.setTo(2.4, 2.05);
+  helpScreen.add(this.obsBorder);
+
+  // Opening screen animation. Auto-plays when game starts
+  helpScreen.forEach(function (element) {
+    var elementTween = this.game.add.tween(element);
+    elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+    elementTween.start();
+  });
+
+  // Exits screen. Plays when continue button is pressed
+  function endHelpScreen(sprite, event) {
+
+    // Audio
+    createAudio();
+    game.sound.context.resume();
+    SFX_obsScreenSwooshOut.play();
+    SFX_obsScreenButton.play();
+    SFX_obsScreenSwooshOut.onStop.add(function () {
+      if (musicEnabled == true) {
+        SFX_gameMusic.play();
+      }
+    });
+
+    // Text and Button Tweens
+    darkFilterTween = this.game.add.tween(this.darkFilter);
+    darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
+
+    helpScreen.forEach(function (element) {
+      var elementTween = this.game.add.tween(element);
+      elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
+      elementTween.start();
+      elementTween.onComplete.add(function () {
+        helpScreen.destroy();
+      });
+
+    });
+    inputEnabled = true;
+    this.pauseButton.input.enabled = true;
+    game.input.onDown.add(delegate, this, 0);
+
+    game.time.events.add(DELAY, startCounter, this);
+  }
 }
 
 function randomTip(sprite, event) {
