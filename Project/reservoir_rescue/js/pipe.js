@@ -12,7 +12,7 @@ function Pipe(image, connections, col, row) {
     this.connectedToStart = false;
     this.connections = connections;
     this.sprite = null;
-    this.direction = null;
+    this.waterFlow = false;
 }
 
 // Selection of pipes to choose from
@@ -25,55 +25,66 @@ pipeSelection = [
   new Pipe(PIPE_UP_LEFT, [Directions.UP, Directions.LEFT])
 ];
 
+// Previous pipe checked in pipe connection algorithm
+let previousPipe = null;
+
 // Places pipe on grid
 function placePipe() {
-  let col = calculateCol();
-  let row = calculateRow();
+  if (canPlace) {
+    let col = calculateCol(); 
+    let row = calculateRow();
 
-  if (canPlaceAt(col, row)) {
-    let temp = grid[row][col];
+    if (canPlaceAt(col, row)) {
+      let temp = grid[row][col];
 
-    if (temp instanceof Pipe) {
-      swapPipe(temp);
-    }
+      if (temp instanceof Pipe) {
+        swapPipe(temp);
+        resetConnections();
+      }
 
-    let pipe = intializePipe(col, row);
-    SFX_placePipe.play();
+      let pipe = intializePipe(col, row);
+      SFX_placePipe.play();
 
-    if (startPipe === null) {
-      let startObject = grid[startTile.row][startTile.col];
-      if (startObject instanceof Pipe) {
-        if (startObject.connections.includes(startTile.direction)) {
-          setStartPipe(startObject);
+      if (startPipe === null) {
+        temp = grid[startTile.row][startTile.col];
+        if (temp instanceof Pipe 
+          && checkCollision(temp, startTile) 
+          && temp.connections.includes(startTile.connection)) {
+          startPipe = temp;
+          startPipe.connectedToStart = true;
+        } 
+      }
+
+      if (startPipe !== null) {
+        previousPipe = startPipe;
+        startPipe = connect(getNextPipe(startPipe));
+      }
+
+      if (startPipe !== null) {
+        if (checkCollision(startPipe, endTile)) {
+          if (startPipe.connections.includes(endTile.connection)) {
+            canPlace = false;
+            togglePipeInput(false);
+            onWin.dispatch();
+          } 
         }
       }
-    }
 
-    if (startPipe !== null) {
-      checkConnections(startPipe);
-    }
-
-    setWarnings();
-    console.log(grid); 
-    console.log(startPipe);
+      setWarnings();
+      console.log(grid); 
+      console.log(startPipe);
+    } 
   }
 }
 
 // Connects or disconnects pipe from other pipes
-function checkConnections(pipe) {
-  if (pipe !== null) {
-    if (pipe.connectedToStart) {
-      let adjacentPipes = getAdjacentObjects(pipe, Pipe);
-      for (let p of adjacentPipes) {
-        if (p.connectedToStart) {
-          continue;
-        }
-        if (canConnect(pipe, p)) {
-          setStartPipe(p);
-          checkConnections(p);
-        }
-      }
-    }
+function connect(pipe) {
+  if (pipe === null) {
+    return previousPipe;
+  } else {
+    pipe.connectedToStart = true;
+    previousPipe = pipe;
+    return connect(getNextPipe(pipe));
   }
 }
 
@@ -87,52 +98,42 @@ function resetConnections() {
 }
 
 // Plays water flow animation
-function startWaterFlow(pipe, previousDirection) {
+function startWaterFlow(pipe) {
+  resetConnections();
   if (pipe !== null) {
-    let adjacentObstacles = getAdjacentObjects(pipe, Obstacle); 
-    for (let o of adjacentObstacles) {
-      if (!o.connectedToPipe && o.warning) {
-        health -= o.damage;
-        healthText.text = health;
-        o.warning.animations.play('flash');
-        setHealthBar(health);
-        o.connectedToPipe = true;
-      }
+    checkObstacles(pipe);
+    let nextPipe = getNextPipe(pipe);
+
+    let index;
+    if (nextPipe !== null) {
+      console.log(getDirection(pipe, nextPipe));
+      index = pipe.connections.indexOf(getDirection(pipe, nextPipe));
+    } else {
+      index = pipe.connections.indexOf(endTile.connection);
     }
+
+    let animation = (index === 1) ? 'forward' : 'backward';
+
+    pipe.sprite.animations.play(animation);
+    pipe.waterFlow = true;
+    pipe.sprite.animations.getAnimation(animation).onComplete.add(function() {
+      if (health <= 0) {
+        SFX_endFlow.fadeOut(200);
+        onLose.dispatch();
+        return;
+      }
+      startWaterFlow(nextPipe);
+    }, this);
+  } else {
+    SFX_endFlow.fadeOut(300);
+    SFX_victorySound.play();
+    SFX_victorySound.onStop.add(function () {
+      SFX_gameMusic.volume = 0.01;
+      SFX_gameMusic.resume();
+      game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
+    });
+    winScreen();
   }
-
-  let index = pipe.connections.indexOf(previousDirection);
-  let animation = (index === 0) ? 'forward' : 'backward';
-
-  let adjacentPipes = getAdjacentObjects(pipe, Pipe);
-    
-  pipe.sprite.animations.play(animation);
-  pipe.sprite.animations.getAnimation(animation).onComplete.add(function() {
-    if (checkCollision(pipe, endTile)) {
-      SFX_endFlow.fadeOut(300);
-      SFX_victorySound.play();
-      SFX_victorySound.onStop.add(function () {
-        SFX_gameMusic.volume = 0.01;
-        SFX_gameMusic.resume();
-        game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
-      });
-      winScreen();
-      return;
-    }
-    if (health <= 0) {
-      SFX_endFlow.fadeOut(200);
-      onLose.dispatch();
-      return;
-    }
-    for (let p of adjacentPipes) {
-      if (p.direction === previousDirection) {
-        continue;
-      }
-      if (p.connectedToStart && canConnect(pipe, p, p.direction)) {
-        startWaterFlow(p, invertDirection(p.direction));
-      }
-    }
-  }, this);
 }
 
 /* Helper Functions */
@@ -188,20 +189,6 @@ function swapPipe(pipe) {
   pipeSwappedBack.connectedToStart = false;
 }
 
-// Sets the starting pipe to search for other pipes
-function setStartPipe(pipe) {
-  if (pipe !== null) {
-    startPipe = pipe;
-    pipe.connectedToStart = true;
-
-    if (checkCollision(startPipe, endTile)) {
-      if (startPipe.connections.includes(endTile.direction)) {
-        onWin.dispatch();
-      } 
-    }
-  }
-}
-
 // Returns inverse of specified direction
 function invertDirection(direction) {
   switch (direction) {
@@ -218,8 +205,16 @@ function invertDirection(direction) {
 
 // Returns true a pipe can be connected to an adjacent pipe
 function canConnect(pipe, adjacentPipe) {
-  return pipe.connections.includes(adjacentPipe.direction)
-    && adjacentPipe.connections.includes(invertDirection(adjacentPipe.direction));
+  let adjacentPipeDirection = getDirection(pipe, adjacentPipe);
+  return pipe.connections.includes(adjacentPipeDirection)
+    && adjacentPipe.connections.includes(invertDirection(adjacentPipeDirection)); 
+}
+
+// Toggles 
+function togglePipeInput(enabled) {
+  for (let p of pipeArray) {
+    p.sprite.input.enabled = enabled;
+  }
 }
 
 // Clears all pipes from grid
@@ -228,5 +223,32 @@ function clearPipes() {
     p.sprite.destroy();
     grid[p.row][p.col] = null;
     pipeArray = [];
+  }
+}
+
+// Returns the next pipe in the sequence of connected pipes
+function getNextPipe(pipe) {
+  let adjacentPipes = getAdjacentObjects(pipe, Pipe);
+  for (p of adjacentPipes) {
+    if (p.connectedToStart || p.waterFlow) {
+      continue;
+    }
+    if (canConnect(pipe, p)) {
+      return p;
+    }
+  }
+  return null;
+}
+
+function checkObstacles(pipe) {
+  let adjacentObstacles = getAdjacentObjects(pipe, Obstacle); 
+  for (let o of adjacentObstacles) {
+    if (!o.connectedToPipe && o.warning) {
+      health -= o.damage;
+      healthText.text = health;
+      o.warning.animations.play('flash');
+      setHealthBar(health);
+      o.connectedToPipe = true;
+    }
   }
 }

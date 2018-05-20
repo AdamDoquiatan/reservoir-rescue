@@ -5,6 +5,7 @@ if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
 } else {
   weather = 20;
+  weatherInitialized = true;
 };
 
 // function to get lat/long and plot on a google map
@@ -26,6 +27,7 @@ function getWeather(lat,lng) {
     });
   } else {
     weather = 20;
+    weatherInitialized = true;
   }
 }
 
@@ -41,10 +43,6 @@ var loadState = {
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
     game.load.tilemap('map', 'assets/maps/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
-    // game.load.tilemap('map', 'assets/maps/tilemap_Background.csv');
-    // game.load.tilemap('objectsMap', 'assets/maps/tilemap_Objects.csv');
-    // game.load.tilemap('otherMap', 'assets/maps/tilemap_Other.csv');
-    // game.load.tilemap('map', 'assets/maps/tilemap.csv');
 
     // Pipes
     game.load.spritesheet('pipev', 'assets/images/pipev.png', 32, 32);
