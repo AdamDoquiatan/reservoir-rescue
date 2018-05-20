@@ -129,6 +129,13 @@ let playState = {
     this.muteButton.inputEnabled = inputEnabled;
     this.muteButton.events.onInputDown.add(muteSounds, this);
 
+    // Help Button
+    this.helpButton = game.add.sprite(0, 115, 'helpButton');
+    this.helpButton.scale.setTo(2);
+    this.helpButton.anchor.setTo(0, 0);
+    this.helpButton.inputEnabled = inputEnabled;
+    this.helpButton.events.onInputDown.add(helpScreen1, this);    
+
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
     this.waterCounter.scale.setTo(SCALE);
