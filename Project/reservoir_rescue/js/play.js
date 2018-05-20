@@ -383,7 +383,7 @@ function levelComplete() {
 
     canPlace = false;
     let startingPipe = grid[startTile.row][startTile.col];
-    startWaterFlow(startingPipe, startTile.direction);
+    startWaterFlow(startingPipe);
   });
 }
 
