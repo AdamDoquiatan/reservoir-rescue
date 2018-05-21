@@ -55,7 +55,7 @@ var loadState = {
     // Obstacles
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
 
-    // Menu spritesheets
+    // Help Menu spritesheets
     game.load.spritesheet('helpPipeSelect', 'assets/images/helpPipeSelect.png', 441, 96);
     game.load.spritesheet('helpPipesToGrid', 'assets/images/helpPipesToGrid.png', 128, 128);
     game.load.spritesheet('helpHealthBar', 'assets/images/helpHealthBar.png', 274, 53);
@@ -98,7 +98,9 @@ var loadState = {
     this.load.audio('obsScreenButton', ['assets/sounds/254713__greekirish__projector-button-push.mp3', 'assets/sounds/254713__greekirish__projector-button-push.ogg']);
     this.load.audio('reset', ['assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.mp3', 'assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.ogg']);
     this.load.audio('swapPipe', ['assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.mp3', 'assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.ogg']);
+    this.load.audio('regularButton', ['assets/sounds/254713__greekirish__projector-button-push_short.mp3', 'assets/sounds/254713__greekirish__projector-button-push_short.ogg']);
     //this.load.audio('', ['assets/sounds/', 'assets/sounds/']);
+    
   },
   create() {
     // Loads a loading screen (but right now loads too fast to show)
