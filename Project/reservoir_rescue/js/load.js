@@ -87,6 +87,7 @@ var loadState = {
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
     this.load.image('helpTemp', 'assets/images/helpTemp.png');
+    this.load.image('selection_menu', 'assets/images/selection_menu.png');
     
 
     // Sounds

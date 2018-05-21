@@ -36,6 +36,7 @@ let hpBar;
 let hpBarCounter;
 let hpCounter;
 let boxSelector;
+let selectionMenu;
 
 /* Groups */
 
@@ -466,6 +467,8 @@ function initializeTilemap(mapName) {
 
 // Creates starting selection of random (but unique) pipeSelection
 function initializeMenu() {
+  selectionMenu = 
+
   pipeGroup = game.add.group();
 
   for (let i = 0; pipeGroup.length < 3;) {
