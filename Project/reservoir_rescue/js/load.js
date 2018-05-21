@@ -34,7 +34,7 @@ function getWeather(lat,lng) {
 var loadState = {
   preload: function () {
     // Gameplay stuff
-    game.load.image('loading_bg', 'assets/images/loading_bg.jpg');
+    game.load.image('loading_bg', 'assets/images/loading_bg.png');
     game.load.image('cursor', 'assets/images/cursor.png');
     game.load.image('boxSelector', 'assets/images/boxSelector.png');
     game.load.spritesheet('hp_bar', 'assets/images/hp_bar.png', 160, 32);
@@ -104,7 +104,8 @@ var loadState = {
   },
   create() {
     // Loads a loading screen (but right now loads too fast to show)
-    game.add.sprite(0, 0, 'loading_bg');
+  var loadingScreen = game.add.sprite(game.world.centerX, game.world.centerY, 'loading_bg');
+  loadingScreen.anchor.setTo(0.5);
   },
 
   update() {
