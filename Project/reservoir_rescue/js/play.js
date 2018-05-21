@@ -194,6 +194,7 @@ let playState = {
     }
 
     this.pauseButton.inputEnabled = inputEnabled;
+    this.helpButton.inputEnabled = inputEnabled;
   }
 };
 

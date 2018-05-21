@@ -1,6 +1,7 @@
 var yMod = 0;
 var obsScreenActive = true;
 var doneOnce = false;
+var audioCreated = false;
 
 function pauseMenu(sprite, event) {
   hpCounter.timer.pause();
@@ -97,12 +98,10 @@ function pauseMenu(sprite, event) {
 
 function obsScreen1(sprite, event) {
 
-  if (doneOnce === false) {
+
   // Prevents input to anything but obs screen
   inputEnabled = false;
-
   game.input.onDown.removeAll();
-  
 
   // Dark Filter
   darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
@@ -110,7 +109,6 @@ function obsScreen1(sprite, event) {
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 1;
   doneOnce = true;
-  }
 
   // Group for screen componenets
   var obsScreen = this.game.add.group();
@@ -150,14 +148,21 @@ function obsScreen1(sprite, event) {
   this.contButton.inputEnabled = true;
   this.contButton.events.onInputDown.add(endObsScreen, this);
 
-/* Has weird problems with the darkFilter. Fix if there's time. 
+  //Has weird problems with the darkFilter. Fix if there's time. 
   // How To Play button
   this.howToPlayButton = obsScreen.create(game.world.centerX, 315 + yMod, 'howToPlayButton');
   this.howToPlayButton.anchor.setTo(0.5);
   this.howToPlayButton.scale.setTo(1.7);
   this.howToPlayButton.inputEnabled = true;
+  this.howToPlayButton.events.onInputDown.add(function () {
+    if (!audioCreated) {
+      createAudio();
+      audioCreated = false;
+    }
+    SFX_regularButton.play();
+  });
   this.howToPlayButton.events.onInputDown.add(transitionToHelpScreen, this);
-*/
+
 
   // Screen BG
   this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
@@ -166,23 +171,22 @@ function obsScreen1(sprite, event) {
   obsScreen.add(this.obsBorder);
 
   if (yMod === 0) {
-  // Opening screen animation. Auto-plays when game starts
-  obsScreen.forEach(function (element) {
-    var elementTween = this.game.add.tween(element);
-    elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
-    elementTween.start();
-  });
-}
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = this.game.add.tween(element);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    });
+  }
 
   function transitionToHelpScreen() {
-    darkFilter.destroy();
     obsScreen.destroy();
-    // Screen BG
     obsBorder = this.game.add.sprite(this.game.world.centerX, 700, 'borderWindow');
     obsBorder.anchor.setTo(0.5);
     obsBorder.scale.setTo(2, 2.1);
     game.add.tween(obsBorder.scale).to({ x: 2.4, y: 2.05 }, 500, Phaser.Easing.Cubic.Out, true).onComplete.add(function () {
       obsBorder.destroy();
+      darkFilter.destroy();
       helpScreen();
     })
   }
@@ -191,18 +195,22 @@ function obsScreen1(sprite, event) {
   function endObsScreen(sprite, event) {
 
     // Audio
-    createAudio();
+    if (!audioCreated) {
+      createAudio();
+      audioCreated = true;
+    }
+
     game.sound.context.resume();
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
-    SFX_obsScreenSwooshOut.onStop.add(function () {
+    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
       if (musicEnabled == true) {
         SFX_gameMusic.play();
       }
     });
 
     darkFilterTween = this.game.add.tween(darkFilter);
-    darkFilterTween.to({ alpha: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
+    darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
     obsScreen.forEach(function (element) {
       var elementTween = this.game.add.tween(element);
@@ -223,18 +231,17 @@ function obsScreen1(sprite, event) {
 
 function helpScreen(sprite, event) {
 
-    // Dark Filter
-    this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-    this.darkFilter.anchor.setTo(0.5);
-    this.darkFilter.scale.setTo(4);
-    this.darkFilter.alpha = 1;
+  // Dark Filter
+  this.helpDarkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  this.helpDarkFilter.anchor.setTo(0.5);
+  this.helpDarkFilter.scale.setTo(4);
+  this.helpDarkFilter.alpha = 1;
 
-    // Tween Dark Filter in
-    darkFilterTween = this.game.add.tween(this.darkFilter);
-    darkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
+  // Tween Dark Filter in
+  helpDarkFilterTween = this.game.add.tween(this.helpDarkFilter);
+  helpDarkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
 
   if (inputEnabled === true) {
-    // Prevents input to anything but obs screen
     inputEnabled = false;
     game.input.onDown.removeAll();
   }
@@ -253,6 +260,7 @@ function helpScreen(sprite, event) {
     hpBarCounter.timer.pause();
     game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
     createHelp1();
+    SFX_obsScreenSwooshIn.play();
 
     // Opening screen animation. Auto-plays when game starts
     helpScreen.forEach(function (element) {
@@ -343,6 +351,11 @@ function helpScreen(sprite, event) {
     this.backButton = helpScreen.create(40, 255 + yMod, 'backButton');
     this.backButton.scale.setTo(1.7);
     this.backButton.inputEnabled = true;
+    if (obsScreenActive) {
+      this.backButton.events.onInputDown.add(function () {
+        SFX_regularButton.play();
+      });
+    }
     this.backButton.events.onInputDown.add(endHelpScreen, this);
     helpScreen.add(this.backButton);
 
@@ -351,6 +364,9 @@ function helpScreen(sprite, event) {
     this.moreButton.scale.setTo(1.7);
     this.moreButton.anchor.setTo(1, 0);
     this.moreButton.inputEnabled = true;
+    this.moreButton.events.onInputDown.add(function () {
+      SFX_regularButton.play();
+    });
     this.moreButton.events.onInputDown.add(showHelp2, this);
     helpScreen.add(this.moreButton);
   }
@@ -396,6 +412,7 @@ function helpScreen(sprite, event) {
   }
 
   function showHelp1() {
+    SFX_regularButton.play();
     destroyHelp2();
     createHelp1();
   }
@@ -425,36 +442,35 @@ function helpScreen(sprite, event) {
     helpText6.destroy();
   }
 
-
-
   // Exits screen. Plays when back button is pressed
   function endHelpScreen(sprite, event) {
 
     if (obsScreenActive) {
-        helpScreen.destroy();
-        darkFilter.destroy();
+      helpScreen.destroy();
 
-        // Screen BG
-        obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
-        obsBorder.anchor.setTo(0.5);
-        obsBorder.scale.setTo(2.4, 2.05);
-        game.add.tween(obsBorder.scale).to({ x: 2, y: 2.1 }, 500, Phaser.Easing.Cubic.Out, true).onComplete.add(function () {
-          obsBorder.destroy();
-          obsScreen1();
-        })
+      // Screen BG
+      obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
+      obsBorder.anchor.setTo(0.5);
+      obsBorder.scale.setTo(2.4, 2.05);
+      game.add.tween(obsBorder.scale).to({ x: 2, y: 2.1 }, 500, Phaser.Easing.Cubic.Out, true).onComplete.add(function () {
+        obsBorder.destroy();
+        helpDarkFilter.destroy();
+        obsScreen1();
+      })
 
     } else {
 
       // Audio
       SFX_obsScreenButton.play();
+      SFX_obsScreenSwooshOut.play();
       if (musicEnabled == true) {
         game.add.tween(SFX_gameMusic).to({ volume: 0.4 }, 500, Phaser.Easing.Cubic.Out, true).start();
       };
 
       // Text and Button Tweens
-      darkFilterTween.to({ alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true);
-      darkFilterTween.onComplete.add(function (darkFilter) {
-        darkFilter.destroy();
+      helpDarkFilterTween.to({ alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true);
+      helpDarkFilterTween.onComplete.add(function (helpDarkFilter) {
+        helpDarkFilter.destroy();
       })
 
       helpScreen.forEach(function (element) {
@@ -600,7 +616,10 @@ function winScreen() {
     clearPipes();
     console.log(this);
     restartLightflash();
+    SFX_victorySound.pause();
     SFX_reset.play();
+    SFX_gameMusic.volume = 0.4;
+    SFX_gameMusic.resume();
     inputEnabled = true;
     game.input.onDown.add(delegate, this, 0);
     hpBar.frame = hpBar.animations.frameTotal;
@@ -608,7 +627,6 @@ function winScreen() {
     canPlace = true;
     hpCounter.timer.resume();
     hpBarCounter.timer.resume();
-    SFX_gameMusic.volume = 0.4;
     this.winHeader.destroy();
     winScreen.destroy();
     this.darkFilter.destroy();
