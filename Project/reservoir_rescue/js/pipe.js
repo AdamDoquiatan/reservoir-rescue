@@ -126,11 +126,12 @@ function startWaterFlow(pipe) {
     }, this);
   } else {
     SFX_endFlow.fadeOut(300);
+    SFX_splash.play();
     SFX_victorySound.play();
     SFX_victorySound.onStop.add(function () {
       SFX_gameMusic.volume = 0.01;
       SFX_gameMusic.resume();
-      game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
+      game.add.tween(this.SFX_gameMusic).to({volume:-0.5}, 500).start();
     });
     winScreen();
   }
@@ -246,7 +247,8 @@ function checkObstacles(pipe) {
     if (!o.connectedToPipe && o.warning) {
       health -= o.damage;
       healthText.text = health;
-      o.warning.animations.play('flash');
+      o.sprite.animations.play('active');
+      o.warning.destroy();
       setHealthBar(health);
       o.connectedToPipe = true;
     }
