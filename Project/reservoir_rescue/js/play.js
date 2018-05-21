@@ -117,8 +117,10 @@ let playState = {
     this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(function (){
+      if (yMod  === 0) {
       SFX_gameMusic.volume = 0.1;
       SFX_pauseButton.play();
+      }
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
 
@@ -134,7 +136,7 @@ let playState = {
     this.helpButton.scale.setTo(2);
     this.helpButton.anchor.setTo(0, 0);
     this.helpButton.inputEnabled = inputEnabled;
-    this.helpButton.events.onInputDown.add(helpScreen1, this);    
+    this.helpButton.events.onInputDown.add(helpScreen, this);    
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
@@ -190,6 +192,8 @@ let playState = {
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
     }
+
+    this.pauseButton.inputEnabled = inputEnabled;
   }
 };
 

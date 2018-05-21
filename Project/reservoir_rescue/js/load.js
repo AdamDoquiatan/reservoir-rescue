@@ -60,6 +60,7 @@ var loadState = {
     game.load.spritesheet('helpPipesToGrid', 'assets/images/helpPipesToGrid.png', 128, 128);
     game.load.spritesheet('helpHealthBar', 'assets/images/helpHealthBar.png', 274, 53);
     game.load.spritesheet('helpObsticle', 'assets/images/helpObsticle.png', 131, 135);
+    game.load.spritesheet('helpPipeSwap', 'assets/images/helpPipeSwap.png', 176, 278);
 
     // In-Game Menu Stuff
     this.load.image('borderWindow', 'assets/images/borderWindow.png');
@@ -80,6 +81,7 @@ var loadState = {
     this.load.image('water_counter', 'assets/images/water_counter.png');
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
+    this.load.image('helpTemp', 'assets/images/helpTemp.png');
     
 
     // Sounds
