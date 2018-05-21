@@ -2,6 +2,10 @@ const SCALE = 4;
 const MENU_X = 0;
 const MENU_Y = 11;
 const SPRINKLER_GID = 10;
+const SINK_GID = 31;
+const TOILET_GID = 32;
+const SHOWER_GID = 33;
+const WASHING_GID = 34;
 const HP_RATE = 500;
 const HP_RATE_MIN = 50;
 
@@ -9,7 +13,7 @@ const HP_RATE_MIN = 50;
 const HP = 440;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 30;
+const FLOW_RATE = 20;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
@@ -388,7 +392,7 @@ function levelComplete() {
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
-      game.add.tween(this.SFX_endFlow).to({volume:2.6}, 1100).start();
+      game.add.tween(this.SFX_endFlow).to({volume:0.7}, 5000).start();
       drumrollPlaying = true;
     }
 
@@ -423,14 +427,37 @@ function initializeTilemap(mapName) {
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
   map.createFromObjects('Object Layer 1', SPRINKLER_GID, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SINK_GID, 'sink', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', TOILET_GID, 'toilet', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SHOWER_GID, 'shower', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', WASHING_GID, 'washing_machine', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
     o.y *= SCALE;
     let col = parseInt((o.x - GRID_X) / GRID_SIZE);
     let row = parseInt((o.y - GRID_Y) / GRID_SIZE);
-    let obstacle = new Obstacle(o.key, col, row);
+    let obstacle;
+    switch (o.key) {
+      case 'sprinkler':
+        obstacle = new Obstacle(o.key, col, row, 20, [0,1,2,3,4,5,6,7], 5);
+        break;
+      case 'washing_machine':
+        obstacle = new Obstacle(o.key, col, row, 30, 
+          [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36], 20);
+        break;
+      case 'sink':
+        obstacle = new Obstacle(o.key, col, row, 40, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        break;
+      case 'shower':
+        obstacle = new Obstacle(o.key, col, row, 50, [1,2,3,4,5,6,7], 10);
+        break;
+      case 'toilet':
+        obstacle = new Obstacle(o.key, col, row, 50, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        break;
+    }
     obstacle.sprite = o;
+    obstacle.sprite.animations.add('active', obstacle.animationFrames, obstacle.animationSpeed, true);
     addObjectToGrid(obstacle, col, row);
     obstacleArray.push(obstacle);
   });
@@ -447,7 +474,7 @@ function initializeMenu() {
         i * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
         MENU_Y * GRID_SIZE - (GRID_SIZE / 2),
         pipeSelection[randomPipeIndex].image, 0);
-      pipe.scale.setTo(SCALE, SCALE)
+      pipe.scale.setTo(SCALE, SCALE);
       pipeGroup.add(pipe);
       boxedPipes.push(randomPipeIndex);
       i++;

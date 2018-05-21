@@ -1,10 +1,12 @@
-function Obstacle(image, col, row) {
+function Obstacle(image, col, row, damage, animationFrames, animationSpeed) {
   this.image = image;
   this.col = col;
   this.row = row;
   this.warning = null;
   this.connectedToPipe = false;
-  this.damage = 30;
+  this.damage = damage;
+  this.animationFrames = animationFrames;
+  this.animationSpeed = animationSpeed;
   this.sprite = null;
   this.direction = null;
 }
