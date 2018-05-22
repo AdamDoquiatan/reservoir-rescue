@@ -1,5 +1,6 @@
-var weather;
+var weather = 20;
 let weatherInitialized = false;
+let disableWeatherAPI = true;
 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
@@ -51,9 +52,19 @@ var loadState = {
     game.load.spritesheet('pipe2', 'assets/images/pipe2.png', 32, 32);
     game.load.spritesheet('pipe3', 'assets/images/pipe3.png', 32, 32);
     game.load.spritesheet('pipe4', 'assets/images/pipe4.png', 32, 32);
+    game.load.spritesheet('pipevselect', 'assets/images/pipevselect.png', 48, 48);
+    game.load.spritesheet('pipehselect', 'assets/images/pipehselect.png', 48, 48);
+    game.load.spritesheet('pipe1select', 'assets/images/pipe1select.png', 48, 48);
+    game.load.spritesheet('pipe2select', 'assets/images/pipe2select.png', 48, 48);
+    game.load.spritesheet('pipe3select', 'assets/images/pipe3select.png', 48, 48);
+    game.load.spritesheet('pipe4select', 'assets/images/pipe4select.png', 48, 48);
 
     // Obstacles
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
+    game.load.spritesheet('sink', 'assets/images/sink.png', 32, 32);
+    game.load.spritesheet('toilet', 'assets/images/toilet.png', 32, 32);
+    game.load.spritesheet('washing_machine', 'assets/images/washing_machine.png', 32, 32);
+    game.load.spritesheet('shower', 'assets/images/shower.png', 32, 32);
 
     // Help Menu spritesheets
     game.load.spritesheet('helpPipeSelect', 'assets/images/helpPipeSelect.png', 441, 96);
@@ -65,7 +76,7 @@ var loadState = {
     // In-Game Menu Stuff
     this.load.image('borderWindow', 'assets/images/borderWindow.png');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
-    this.load.image('continueButton', 'assets/images/continueButton.jpg');
+    this.load.image('continueButton', 'assets/images/continueButton.png');
     this.load.image('darkFilter', 'assets/images/darkFilter.png');
     this.load.image('whiteFilter', 'assets/images/whiteFilter.png');
     this.load.image('pause', 'assets/images/pause.png');
@@ -82,12 +93,12 @@ var loadState = {
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
     this.load.image('helpTemp', 'assets/images/helpTemp.png');
-    
-
+    this.load.spritesheet('selection_menu', 'assets/images/selection_menu.png', 224, 64);
+  
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);
     this.load.audio('lastPipe', ['assets/sounds/149966__nenadsimic__muffled-distant-explosion.mp3', 'assets/sounds/149966__nenadsimic__muffled-distant-explosion.ogg']);
-    this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
+    // this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
     this.load.audio('victorySound', ['assets/sounds/578783_Victory-Sound.mp3', 'assets/sounds/578783_Victory-Sound.ogg']);
     this.load.audio('obsScreenSwooshIn', ['assets/sounds/14609__man__swosh1.mp3', 'assets/sounds/14609__man__swosh1.ogg']);
     this.load.audio('obsScreenSwooshOut', ['assets/sounds/14609__man__swosh2.mp3', 'assets/sounds/14609__man__swosh2.ogg']);
@@ -99,6 +110,8 @@ var loadState = {
     this.load.audio('reset', ['assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.mp3', 'assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.ogg']);
     this.load.audio('swapPipe', ['assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.mp3', 'assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.ogg']);
     this.load.audio('regularButton', ['assets/sounds/254713__greekirish__projector-button-push_short.mp3', 'assets/sounds/254713__greekirish__projector-button-push_short.ogg']);
+    this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
+    this.load.audio('splash', ['assets/sounds/splash.mp3', 'assets/sounds/splash.ogg']);
     //this.load.audio('', ['assets/sounds/', 'assets/sounds/']);
     
   },
@@ -109,7 +122,7 @@ var loadState = {
   },
 
   update() {
-    if (weatherInitialized && this.cache.isSoundDecoded('victorySound')) {
+    if ((disableWeatherAPI || weatherInitialized) && this.cache.isSoundDecoded('victorySound')) {
         // Begins play state
         game.state.start('play');
     }

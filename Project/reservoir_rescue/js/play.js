@@ -1,21 +1,25 @@
 const SCALE = 4;
-const MENU_X = 0;
-const MENU_Y = 11;
+const MENU_X = 32 * SCALE;
+const MENU_Y = 328 * SCALE;
 const SPRINKLER_GID = 10;
-const HP_RATE = 500; //500
+const SINK_GID = 31;
+const TOILET_GID = 32;
+const SHOWER_GID = 33;
+const WASHING_GID = 34;
+const HP_RATE = 250;
 const HP_RATE_MIN = 50;
 
 // The initial health
 const HP = 440;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 30;
+const FLOW_RATE = 20;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = true; 
+let testMode = false; 
 
 /* Game Objects */
 
@@ -32,6 +36,8 @@ let hpBar;
 let hpBarCounter;
 let hpCounter;
 let boxSelector;
+let selectionMenu;
+let countdown;
 
 /* Groups */
 
@@ -41,10 +47,12 @@ let boxedPipes = [];
 // Array to keep track of all pipes on grid
 let pipeArray = [];
 
+let menuPipeArray = [];
+
 // Array to keep track of all obstacles on grid
 let obstacleArray = [];
 
-let pipeGroup;
+let menuPipeGroup;
 let obstacleGroup;
 
 /* Global Variables */
@@ -98,7 +106,6 @@ let playState = {
     if (hpRate < HP_RATE_MIN) {
       hpRate = hpRate;
     }
-    console.log(hpRate);
     hpBar = game.add.sprite(128, GRID_SIZE * 1, 'hp_bar', 0);
     hpBar.scale.setTo(SCALE);
     hpBarRate = hpRate * HP / hpBar.animations.frameTotal;
@@ -107,10 +114,11 @@ let playState = {
     game.input.onDown.add(delegate, this, 0);
     onWin.add(levelComplete, this);
     onLose.add(gameOver, this);
+    // countdown = game.time.events.add(5000, releaseWater, this);
 
     // Menu Button
-    this.menuButton = game.add.sprite(0, 0, 'menu_button');
-    this.menuButton.scale.setTo(SCALE);
+    // this.menuButton = game.add.sprite(0, 0, 'menu_button');
+    // this.menuButton.scale.setTo(SCALE);
 
     // Pause Button
     this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
@@ -125,15 +133,14 @@ let playState = {
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
 
     // Mute Button
-    this.muteButton = game.add.sprite(game.width, 130, 'muteButton');
-    this.muteButton.scale.setTo(1.5);
-    this.muteButton.anchor.setTo(1, 0);
+    this.muteButton = game.add.sprite(32 * SCALE, 16, 'muteButton');
+    this.muteButton.scale.setTo(3);
     this.muteButton.inputEnabled = inputEnabled;
     this.muteButton.events.onInputDown.add(muteSounds, this);
 
     // Help Button
-    this.helpButton = game.add.sprite(0, 115, 'helpButton');
-    this.helpButton.scale.setTo(2);
+    this.helpButton = game.add.sprite(16, 16, 'helpButton');
+    this.helpButton.scale.setTo(3);
     this.helpButton.anchor.setTo(0, 0);
     this.helpButton.inputEnabled = inputEnabled;
     this.helpButton.events.onInputDown.add(helpScreen, this);    
@@ -179,7 +186,7 @@ let playState = {
   },
   update: function () {
     if (pipeSwap === true) {
-      reloadPipe(pipeGroup);
+      reloadPipe();
     }
 
     if (health === 0 && !lose) {
@@ -199,141 +206,74 @@ let playState = {
 };
 
 // Replaces pipe in current selection box with new random pipe
-function reloadPipe(menuPipes) {
-  var randomPipeIndex = Math.floor(Math.random() * 6);
-  var swapBackPipeIndex = 0;
-      
-  // Variables for holding current pipeSelection
-  var index0;
-  var index1;
-  var index2;
-  
+function reloadPipe() {
+  pipeSwap = false;
+
+  let newPipeIndex
   if (pipeSwappedBack != null) {
-  for (let i = 0; i < pipeSelection.length; i++) {
-      if (pipeSelection[i].image === pipeSwappedBack.image) {
-          swapBackPipeIndex = i;
-      }
-  }
-  }
-    
-  // Moves each pipe to a variable.
-  // If pipe was used, creates and stores new pipe instead.
-  for (let i = 0; i < 3; i++) {
-    switch (i) {
-      case 0:
-        if (i !== currentSelection) {
-          index0 = menuPipes.children[i];
-        } else if (doNotRandomize) {
-          index0 = game.add.sprite(
-            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
-            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
-            pipeSelection[swapBackPipeIndex].image, 0);
-          index0.inputEnabled = true;
-          index0.scale.setTo(SCALE, SCALE);
-          index0.events.onInputDown.add(selectPipe,
-          this, 0, swapBackPipeIndex, i);
+    for (let i = 0; i < pipeSelection.length; i++) {
+        if (pipeSwappedBack && pipeSwappedBack.selectImage === pipeSelection[i].selectImage) {
+          newPipeIndex = i;
+          pipeSwappedBack = null;
         }
-        else {
-          index0 = game.add.sprite(
-            currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
-            MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 
-            pipeSelection[randomPipeIndex].image, 0);
-          index0.inputEnabled = true;
-          index0.scale.setTo(SCALE, SCALE);
-          index0.events.onInputDown.add(selectPipe,
-            this, 0, randomPipeIndex, i);
-        }
-        break;
-      case 1:
-        if (i !== currentSelection) {
-          index1 = menuPipes.children[i];
-        } else if (doNotRandomize) {
-          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[swapBackPipeIndex].image, 0);
-          index1.inputEnabled = true;
-          index1.scale.setTo(SCALE, SCALE);
-          index1.events.onInputDown.add(selectPipe,
-            this, 0, swapBackPipeIndex, i);
-        }
-          else {
-          index1 = game.add.sprite(currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
-          index1.inputEnabled = true;
-          index1.scale.setTo(SCALE, SCALE);
-          index1.events.onInputDown.add(selectPipe,
-            this, 0, randomPipeIndex, i);
-        }
-        break;
-      case 2:
-        if (i !== currentSelection) {
-          index2 = menuPipes.children[i];
-        } else if (doNotRandomize) {
-          index2 = game.add.sprite(
-          currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
-          MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[swapBackPipeIndex].image, 0);
-          index2.inputEnabled = true;
-          index2.scale.setTo(SCALE, SCALE);
-          index2.events.onInputDown.add(selectPipe,
-            this, 0, swapBackPipeIndex, i);  
-        }
-          else {
-          index2 = game.add.sprite(
-          currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
-          MENU_Y * GRID_SIZE - (GRID_SIZE / 2), pipeSelection[randomPipeIndex].image, 0);
-          index2.inputEnabled = true;
-          index2.scale.setTo(SCALE, SCALE);
-          index2.events.onInputDown.add(selectPipe,
-            this, 0, randomPipeIndex, i);
-        }
-        break;
-      default:
-        console.log("default");
+    }
+  } else {
+    newPipeIndex = Math.floor(Math.random() * 6);
+    while (boxedPipes.includes(newPipeIndex)) {
+      newPipeIndex = Math.floor(Math.random() * 6);
     }
   }
 
-  // Clears and repopulates menu group.
-  menuPipes.removeAll();
-  menuPipes.add(index0);
-  menuPipes.add(index1);
-  menuPipes.add(index2);
-  
-  // Auto changes pipe index to new pipe in selected spot.
-  pipeIndex = randomPipeIndex;
-    
-  if (doNotRandomize) {
-      pipeIndex = swapBackPipeIndex;
-  }
+  let oldPipe = menuPipeArray[currentSelection];
+  menuPipeArray[currentSelection] = game.add.sprite(oldPipe.x, oldPipe.y, pipeSelection[newPipeIndex].selectImage);
+  addPipeToMenu(menuPipeArray[currentSelection], currentSelection);
+  menuPipeArray[currentSelection].events.onInputDown.add(selectPipe,
+    this, 0, newPipeIndex, currentSelection);
+  oldPipe.destroy();
 
+  menuPipeArray[currentSelection].animations.play('active', 15);
+    
   //Updates array.
-  boxedPipes[currentSelection] = pipeIndex;
+  boxedPipes[currentSelection] = newPipeIndex;
+  pipeIndex = newPipeIndex;
   
   doNotRandomize = false;
-  // Signals pipe swap complete.
-  pipeSwap = false;
 }
 
 // Selects a pipe from the menu
 function selectPipe(pipe, pointer, index, currentIndex) {
   if (inputEnabled === true) {
-    currentSelection = currentIndex;
-    pipeIndex = index;
-    boxCreator(pointer);
-    canPlace = true;
-    SFX_selectPipe.play();
+    if (!pipe.active) {
+      pipeIndex = index;
+      currentSelection = currentIndex;
+      canPlace = true;
+    
+      SFX_selectPipe.play();
+      selectionMenu.frame = currentSelection;
+
+      for (let m of menuPipeArray) {
+        m.frame = 0;
+        m.active = false;
+      }
+      pipe.animations.play('active', 15);
+      pipe.active = true;
+    }    
   }
 }
 
 // Creates a box around player's selected pipe
-function boxCreator(selector) {
-  if (boxSelector != null) {
-    boxSelector.destroy();
-  }
+// function boxCreator(selector) {
+//   if (boxSelector != null) {
+//     boxSelector.destroy();
+//   }
 
-  boxSelector = game.add.sprite(
-    currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
-    MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 'boxSelector', 0);
-    boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
-    boxSelector.x += -60;
-    boxSelector.y += -60;
-}
+//   boxSelector = game.add.sprite(
+//     currentSelection * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X, 
+//     MENU_Y * GRID_SIZE - (GRID_SIZE / 2), 'boxSelector', 0);
+//     boxSelector.scale.setTo(SCALE + 1.8, SCALE + 1.8);
+//     boxSelector.x += -60;
+//     boxSelector.y += -60;
+// }
 
 // Restarts light flash
 function restartLightflash() {
@@ -389,7 +329,7 @@ function levelComplete() {
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
-      game.add.tween(this.SFX_endFlow).to({volume:2.6}, 1100).start();
+      game.add.tween(this.SFX_endFlow).to({volume:0.7}, 5000).start();
       drumrollPlaying = true;
     }
 
@@ -424,14 +364,37 @@ function initializeTilemap(mapName) {
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
   map.createFromObjects('Object Layer 1', SPRINKLER_GID, 'sprinkler', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SINK_GID, 'sink', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', TOILET_GID, 'toilet', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', SHOWER_GID, 'shower', 0, true, false, obstacleGroup);
+  map.createFromObjects('Object Layer 1', WASHING_GID, 'washing_machine', 0, true, false, obstacleGroup);
   obstacleGroup.forEach(function (o) {
     o.scale.set(SCALE);
     o.x *= SCALE;
     o.y *= SCALE;
     let col = parseInt((o.x - GRID_X) / GRID_SIZE);
     let row = parseInt((o.y - GRID_Y) / GRID_SIZE);
-    let obstacle = new Obstacle(o.key, col, row);
+    let obstacle;
+    switch (o.key) {
+      case 'sprinkler':
+        obstacle = new Obstacle(o.key, col, row, 20, [0,1,2,3,4,5,6,7], 5);
+        break;
+      case 'washing_machine':
+        obstacle = new Obstacle(o.key, col, row, 30, 
+          [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36], 20);
+        break;
+      case 'sink':
+        obstacle = new Obstacle(o.key, col, row, 40, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        break;
+      case 'shower':
+        obstacle = new Obstacle(o.key, col, row, 50, [1,2,3,4,5,6,7], 10);
+        break;
+      case 'toilet':
+        obstacle = new Obstacle(o.key, col, row, 50, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        break;
+    }
     obstacle.sprite = o;
+    obstacle.sprite.animations.add('active', obstacle.animationFrames, obstacle.animationSpeed, true);
     addObjectToGrid(obstacle, col, row);
     obstacleArray.push(obstacle);
   });
@@ -439,28 +402,35 @@ function initializeTilemap(mapName) {
 
 // Creates starting selection of random (but unique) pipeSelection
 function initializeMenu() {
-  pipeGroup = game.add.group();
+  selectionMenu = game.add.sprite(0, 10 * GRID_SIZE, 'selection_menu', 1);
+  selectionMenu.scale.setTo(SCALE);
 
-  for (let i = 0; pipeGroup.length < 3;) {
-    var randomPipeIndex = Math.floor(Math.random() * 6);
+  let randomPipeIndex;
+
+  let i = 0;
+  while (menuPipeArray.length < 3) {
+    randomPipeIndex = Math.floor(Math.random() * 6);
+
     if (!boxedPipes.includes(randomPipeIndex)) {
       let pipe = game.add.sprite(
-        i * 2 * GRID_SIZE + (GRID_SIZE) + MENU_X,
-        MENU_Y * GRID_SIZE - (GRID_SIZE / 2),
-        pipeSelection[randomPipeIndex].image, 0);
-      pipe.scale.setTo(SCALE, SCALE)
-      pipeGroup.add(pipe);
+        MENU_X + i * 56 * SCALE,
+        MENU_Y,
+        pipeSelection[randomPipeIndex].selectImage, 0);
+      addPipeToMenu(pipe, i);
       boxedPipes.push(randomPipeIndex);
       i++;
     }
-
-    for (let i = 0; i < pipeGroup.children.length; i++) {
-      pipeGroup.children[i].inputEnabled = true;
-      pipeGroup
-        .children[i].events.onInputDown.add(selectPipe,
-        this, 0, randomPipeIndex, i);
-    }
   }
+
+  for (let i = 0; i < menuPipeArray.length; i++) {
+    menuPipeArray[i].events.onInputDown.add(selectPipe,
+      this, 0, boxedPipes[i], i);
+  } 
+
+  pipeIndex = boxedPipes[1];
+  currentSelection = 1;
+  menuPipeArray[1].animations.play('active');
+  canPlace = true;
 }
 
 // Destroys the sprite
@@ -474,4 +444,24 @@ function removeObjectFromArray(object, array) {
   if (index !== -1) {
     array.splice(index, 1);
   }
+}
+
+function addPipeToMenu(pipe, index) {
+  pipe.active = false;
+  pipe.scale.setTo(SCALE);
+  pipe.inputEnabled = true;
+  pipe.animations.add('active', [0,1,2,3,4,5,6], 20);
+
+  menuPipeArray[index] = pipe;
+}
+
+function releaseWater() {
+  let start = grid[startTile.row][startTile.col];
+  if (start instanceof Pipe) {
+    if (start.connectedToStart) {
+      startWaterFlow(start);
+      return;
+    }
+  }
+  onLose.dispatch();
 }

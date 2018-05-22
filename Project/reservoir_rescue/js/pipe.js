@@ -1,11 +1,4 @@
-const PIPE_VERTICAL = 'pipev';
-const PIPE_HORIZONTAL = 'pipeh';
-const PIPE_UP_RIGHT = 'pipe1';
-const PIPE_DOWN_RIGHT = 'pipe2';
-const PIPE_LEFT_DOWN = 'pipe3';
-const PIPE_UP_LEFT = 'pipe4';
-
-function Pipe(image, connections, col, row) {
+function Pipe(image, selectImage, connections, col, row) {
     this.image = image;
     this.col = col;
     this.row = row;
@@ -13,16 +6,17 @@ function Pipe(image, connections, col, row) {
     this.connections = connections;
     this.sprite = null;
     this.waterFlow = false;
+    this.selectImage = selectImage;
 }
 
 // Selection of pipes to choose from
 pipeSelection = [
-  new Pipe(PIPE_VERTICAL, [Directions.UP, Directions.DOWN]),
-  new Pipe(PIPE_HORIZONTAL, [Directions.LEFT, Directions.RIGHT]),
-  new Pipe(PIPE_UP_RIGHT, [Directions.UP, Directions.RIGHT]),
-  new Pipe(PIPE_DOWN_RIGHT, [Directions.DOWN, Directions.RIGHT]),
-  new Pipe(PIPE_LEFT_DOWN, [Directions.LEFT, Directions.DOWN]),
-  new Pipe(PIPE_UP_LEFT, [Directions.UP, Directions.LEFT])
+  new Pipe('pipev', 'pipevselect', [Directions.UP, Directions.DOWN]),
+  new Pipe('pipeh', 'pipehselect', [Directions.LEFT, Directions.RIGHT]),
+  new Pipe('pipe1', 'pipe1select', [Directions.UP, Directions.RIGHT]),
+  new Pipe('pipe2', 'pipe2select', [Directions.DOWN, Directions.RIGHT]),
+  new Pipe('pipe3', 'pipe3select', [Directions.LEFT, Directions.DOWN]),
+  new Pipe('pipe4', 'pipe4select', [Directions.UP, Directions.LEFT])
 ];
 
 // Previous pipe checked in pipe connection algorithm
@@ -126,11 +120,12 @@ function startWaterFlow(pipe) {
     }, this);
   } else {
     SFX_endFlow.fadeOut(300);
+    SFX_splash.play();
     SFX_victorySound.play();
     SFX_victorySound.onStop.add(function () {
       SFX_gameMusic.volume = 0.01;
       SFX_gameMusic.resume();
-      game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
+      game.add.tween(this.SFX_gameMusic).to({volume:-0.5}, 500).start();
     });
     winScreen();
   }
@@ -159,7 +154,8 @@ function calculateRow() {
 
 // Adds sprite and animations to pipe object and places it on grid
 function intializePipe(col, row) {
-  let pipe = new Pipe(pipeSelection[pipeIndex].image, 
+  let pipe = new Pipe(pipeSelection[pipeIndex].image,
+    pipeSelection[pipeIndex].selectImage, 
     pipeSelection[pipeIndex].connections, col, row);
     
   pipeSwap = true;
@@ -246,7 +242,8 @@ function checkObstacles(pipe) {
     if (!o.connectedToPipe && o.warning) {
       health -= o.damage;
       healthText.text = health;
-      o.warning.animations.play('flash');
+      o.sprite.animations.play('active');
+      o.warning.destroy();
       setHealthBar(health);
       o.connectedToPipe = true;
     }
