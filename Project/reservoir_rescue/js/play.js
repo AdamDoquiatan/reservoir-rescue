@@ -6,7 +6,7 @@ const SINK_GID = 31;
 const TOILET_GID = 32;
 const SHOWER_GID = 33;
 const WASHING_GID = 34;
-const HP_RATE = 150;
+const HP_RATE = 125;
 
 const HP_RATE_MIN = 50;
 
