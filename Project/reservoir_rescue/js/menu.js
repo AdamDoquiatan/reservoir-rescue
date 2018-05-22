@@ -1,7 +1,8 @@
+
+const dailyAverage = 440;
 const BUTTON_SCALE = 1.2;
 const BUTTON_SCALE_LARGE = 1.5;
 const BUTTON_SCALE_SMALL = 1.0;
-
 var yMod = 0;
 var obsScreenActive = true;
 var doneOnce = false;
@@ -557,7 +558,7 @@ function winScreen() {
   var winScreen = this.game.add.group();
 
   // Big win header
-  this.winHeader = game.add.text(this.game.world.centerX, 400, "VICTORY", {
+  this.winHeader = game.add.text(this.game.world.centerX, 300, "VICTORY", {
     font: 'bold 140pt Helvetica',
     fill: 'white',
     align: 'center',
@@ -570,30 +571,52 @@ function winScreen() {
   this.winHeader.alpha = 0;
 
   // Specifies text properties
-  var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+  var textStyle = { font: 'bold 58pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
   // Water-saved text
-  this.waterSavedDisplay = game.add.text(game.world.centerX + 400, 550, "You saved: " + health + " litres!", textStyle);
+  this.waterSavedDisplay = game.add.text(game.world.centerX + 400, 450, "You saved: " + health + " litres!", textStyle);
   this.waterSavedDisplay.anchor.setTo(0.5);
   this.waterSavedDisplay.lineSpacing = -2;
   this.waterSavedDisplay.addColor('#3d87ff', 11);
   this.waterSavedDisplay.stroke = '#000000';
   this.waterSavedDisplay.strokeThickness = 7;
   winScreen.add(this.waterSavedDisplay);
+    
+    // Water-Wasted text
+  this.waterWastedDisplay = game.add.text(game.world.centerX + 600, 575, "You wasted: " + (HP - health) + " litres", textStyle);
+  this.waterWastedDisplay.anchor.setTo(0.5);
+  this.waterWastedDisplay.lineSpacing = -2;
+  this.waterWastedDisplay.addColor('#3d87ff', 11);
+  this.waterWastedDisplay.stroke = '#000000';
+  this.waterWastedDisplay.strokeThickness = 7;
+  winScreen.add(this.waterWastedDisplay);
 
   // Score text
-  this.scoreDisplay = game.add.text(game.world.centerX + 600, 800,
-    "That's " + ((health / HP) * 100).toFixed(1) + "% of the average person's daily water usage!", textStyle);
+  if ((HP - health) < dailyAverage) {
+    this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+    "That's " + (100 - ((HP - health) * 100) / dailyAverage).toFixed(1) + "% less than the average person's daily water usage!", textStyle);
+    this.scoreDisplay.addColor('white', 12);
+  } else if ((HP - health) > dailyAverage) {
+    this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+    "That's " + ((((HP - health) * 100) / dailyAverage) - 100).toFixed(1)+ "% more than the average person's daily water usage!", textStyle); 
+      if ((HP - health) >= 2 * dailyAverage) {
+          this.scoreDisplay.addColor('white', 13);
+      } else {
+          this.scoreDisplay.addColor('white', 12);
+      }
+  } else if ((HP - health) === dailyAverage) {
+      this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+    "That's the same as the average person's daily water usage!", textStyle);
+  }
   this.scoreDisplay.anchor.setTo(0.5);
   this.scoreDisplay.lineSpacing = -2;
   this.scoreDisplay.addColor('#3d87ff', 7);
-  this.scoreDisplay.addColor('white', 12);
   this.scoreDisplay.stroke = '#000000';
   this.scoreDisplay.strokeThickness = 7;
   winScreen.add(this.scoreDisplay);
 
   // Continue (to next level) button -- doesn't do anything yet
-  this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
+  this.contButton = winScreen.create(this.game.world.centerX + 1000, 1150, 'continueButton');
   this.contButton.anchor.setTo(0.5);
   this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
 
@@ -612,7 +635,7 @@ function winScreen() {
   // });
 
   // Restart button (If we have multiple levels, maybe remove this?)
-  this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
+  this.restartButton = winScreen.create(this.game.world.centerX + 1200, 1300, 'restart');
   this.restartButton.anchor.setTo(0.5);
   this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.restartButton.inputEnabled = true;
@@ -783,7 +806,8 @@ function submitScreen() {
   var windowSize = window.matchMedia("(max-width: 700px)");
   console.log(textBoxHeight);
   textBox.setAttribute("type", "text");
-  textBox.setAttribute("id", "textBox")
+  textBox.setAttribute("id", "textBox");
+  textBox.setAttribute("maxlength", "20");
   textBox.style.borderRadius = "15px";
   if (windowSize.matches) {
     textBox.style.marginLeft = "25%";
@@ -800,7 +824,7 @@ function submitScreen() {
 
 
   //Temporary submit button.
-  this.submitButton = submitGroup.create(this.game.world.centerX, this.game.world.centerY + 225, 'continueButton');
+  this.submitButton = submitGroup.create(this.game.world.centerX, this.game.world.centerY + 350, 'continueButton');
   this.submitButton.anchor.setTo(0.5);
   this.submitButton.scale.setTo(BUTTON_SCALE_LARGE);
 
@@ -809,6 +833,14 @@ function submitScreen() {
   this.submitButton.events.onInputDown.add(function () {
     var inputScore = health;
     var inputName = document.getElementById("textBox").value;
+    if (inputName.trim().length < 1) {
+        this.emptyDisplay = game.add.text(game.world.centerX, 950, "Please enter a name", textStyle);
+        this.emptyDisplay.anchor.setTo(0.5);
+        this.emptyDisplay.addColor('red', 0);
+        this.emptyDisplay.lineSpacing = -2;
+        this.emptyDisplay.strokeThickness = 7;
+        submitGroup.add(this.emptyDisplay)
+    } else {
     console.log(inputScore);
     console.log(inputName);
     $.ajax({
@@ -822,6 +854,7 @@ function submitScreen() {
     document.getElementById("textBox").style.visibility = "hidden";
     submitGroup.destroy();
     sentScreen();
+    }
   });
 }
 
