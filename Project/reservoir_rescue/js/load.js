@@ -1,6 +1,6 @@
 var weather = 20;
 let weatherInitialized = false;
-let disableWeatherAPI = false;
+let disableWeatherAPI = true;
 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
@@ -52,6 +52,12 @@ var loadState = {
     game.load.spritesheet('pipe2', 'assets/images/pipe2.png', 32, 32);
     game.load.spritesheet('pipe3', 'assets/images/pipe3.png', 32, 32);
     game.load.spritesheet('pipe4', 'assets/images/pipe4.png', 32, 32);
+    game.load.spritesheet('pipevselect', 'assets/images/pipevselect.png', 48, 48);
+    game.load.spritesheet('pipehselect', 'assets/images/pipehselect.png', 48, 48);
+    game.load.spritesheet('pipe1select', 'assets/images/pipe1select.png', 48, 48);
+    game.load.spritesheet('pipe2select', 'assets/images/pipe2select.png', 48, 48);
+    game.load.spritesheet('pipe3select', 'assets/images/pipe3select.png', 48, 48);
+    game.load.spritesheet('pipe4select', 'assets/images/pipe4select.png', 48, 48);
 
     // Obstacles
     game.load.spritesheet('sprinkler', 'assets/images/sprinkler.png', 32, 32);
@@ -70,7 +76,7 @@ var loadState = {
     // In-Game Menu Stuff
     this.load.image('borderWindow', 'assets/images/borderWindow.png');
     this.load.image('obs_screen_sprink', 'assets/images/Obs1_Sprink.png');
-    this.load.image('continueButton', 'assets/images/continueButton.jpg');
+    this.load.image('continueButton', 'assets/images/continueButton.png');
     this.load.image('darkFilter', 'assets/images/darkFilter.png');
     this.load.image('whiteFilter', 'assets/images/whiteFilter.png');
     this.load.image('pause', 'assets/images/pause.png');
@@ -87,8 +93,8 @@ var loadState = {
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
     this.load.image('helpTemp', 'assets/images/helpTemp.png');
-    
-
+    this.load.spritesheet('selection_menu', 'assets/images/selection_menu.png', 224, 64);
+  
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);
     this.load.audio('lastPipe', ['assets/sounds/149966__nenadsimic__muffled-distant-explosion.mp3', 'assets/sounds/149966__nenadsimic__muffled-distant-explosion.ogg']);

@@ -1,4 +1,8 @@
+
 const dailyAverage = 440;
+const BUTTON_SCALE = 1.2;
+const BUTTON_SCALE_LARGE = 1.5;
+const BUTTON_SCALE_SMALL = 1.0;
 var yMod = 0;
 var obsScreenActive = true;
 var doneOnce = false;
@@ -52,7 +56,7 @@ function pauseMenu(sprite, event) {
     // Continue button
     this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
     this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(2.3);
+    this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
     this.contButton.inputEnabled = true;
     this.contButton.events.onInputDown.add(function () {
       SFX_gameMusic.volume = 0.4;
@@ -68,7 +72,7 @@ function pauseMenu(sprite, event) {
     // Restart button
     this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
     this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(2.3);
+    this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
     this.restartButton.inputEnabled = true;
     this.restartButton.events.onInputDown.add(function () {
       clearPipes();
@@ -89,7 +93,7 @@ function pauseMenu(sprite, event) {
     // Menu button
     this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
     this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(2.3);
+    this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
     this.menuButton.inputEnabled = true;
     this.menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue')
@@ -145,7 +149,7 @@ function obsScreen1(sprite, event) {
   // Continue button
   this.contButton = obsScreen.create(this.game.world.centerX, 207 + yMod, 'continueButton');
   this.contButton.anchor.setTo(0.5);
-  this.contButton.scale.setTo(2.3);
+  this.contButton.scale.setTo(BUTTON_SCALE);
   this.contButton.inputEnabled = true;
   this.contButton.events.onInputDown.add(endObsScreen, this);
 
@@ -153,7 +157,7 @@ function obsScreen1(sprite, event) {
   // How To Play button
   this.howToPlayButton = obsScreen.create(game.world.centerX, 315 + yMod, 'howToPlayButton');
   this.howToPlayButton.anchor.setTo(0.5);
-  this.howToPlayButton.scale.setTo(1.7);
+  this.howToPlayButton.scale.setTo(BUTTON_SCALE);
   this.howToPlayButton.inputEnabled = true;
   this.howToPlayButton.events.onInputDown.add(function () {
     if (!audioCreated) {
@@ -350,7 +354,7 @@ function helpScreen(sprite, event) {
 
     // Back button
     this.backButton = helpScreen.create(40, 255 + yMod, 'backButton');
-    this.backButton.scale.setTo(1.7);
+    this.backButton.scale.setTo(BUTTON_SCALE_SMALL);
     this.backButton.inputEnabled = true;
     if (obsScreenActive) {
       this.backButton.events.onInputDown.add(function () {
@@ -362,7 +366,7 @@ function helpScreen(sprite, event) {
 
     // More button
     this.moreButton = helpScreen.create(game.world.width - 40, 255 + yMod, 'moreButton');
-    this.moreButton.scale.setTo(1.7);
+    this.moreButton.scale.setTo(BUTTON_SCALE_SMALL);
     this.moreButton.anchor.setTo(1, 0);
     this.moreButton.inputEnabled = true;
     this.moreButton.events.onInputDown.add(function () {
@@ -406,7 +410,7 @@ function helpScreen(sprite, event) {
 
     // Back button
     this.backButton = helpScreen.create(40, 255 + yMod, 'backButton');
-    this.backButton.scale.setTo(1.7);
+    this.backButton.scale.setTo(BUTTON_SCALE_SMALL);
     this.backButton.inputEnabled = true;
     this.backButton.events.onInputDown.add(showHelp1, this);
     helpScreen.add(this.backButton);
@@ -614,7 +618,7 @@ function winScreen() {
   // Continue (to next level) button -- doesn't do anything yet
   this.contButton = winScreen.create(this.game.world.centerX + 1000, 1150, 'continueButton');
   this.contButton.anchor.setTo(0.5);
-  this.contButton.scale.setTo(2.3);
+  this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
 
   this.contButton.inputEnabled = true;
 
@@ -633,7 +637,7 @@ function winScreen() {
   // Restart button (If we have multiple levels, maybe remove this?)
   this.restartButton = winScreen.create(this.game.world.centerX + 1200, 1300, 'restart');
   this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(2.3);
+  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
     clearPipes();
@@ -719,7 +723,7 @@ function loseScreen() {
   // Menu Button
   this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
   this.menuButton.anchor.setTo(0.5);
-  this.menuButton.scale.setTo(2.3);
+  this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.menuButton.inputEnabled = true;
   this.menuButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
@@ -737,7 +741,7 @@ function loseScreen() {
   // Restart button
   this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
   this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(2.3);
+  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.restartButton.inputEnabled = true;
   this.restartButton.events.onInputDown.add(function () {
     clearPipes();
@@ -822,7 +826,7 @@ function submitScreen() {
   //Temporary submit button.
   this.submitButton = submitGroup.create(this.game.world.centerX, this.game.world.centerY + 350, 'continueButton');
   this.submitButton.anchor.setTo(0.5);
-  this.submitButton.scale.setTo(2.3);
+  this.submitButton.scale.setTo(BUTTON_SCALE_LARGE);
 
   this.submitButton.inputEnabled = true;
 
@@ -867,7 +871,7 @@ function sentScreen() {
   //returns to main menu
   this.menuButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY, 'menuButton');
   this.menuButton.anchor.setTo(0.5);
-  this.menuButton.scale.setTo(2.3);
+  this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.menuButton.inputEnabled = true;
 
   this.menuButton.events.onInputDown.add(function () {
@@ -877,7 +881,7 @@ function sentScreen() {
   // goes to leaderboard
   this.leadButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY + 150, 'continueButton');
   this.leadButton.anchor.setTo(0.5);
-  this.leadButton.scale.setTo(2.3);
+  this.leadButton.scale.setTo(BUTTON_SCALE_LARGE);
   this.leadButton.inputEnabled = true;
 
   this.leadButton.events.onInputDown.add(function () {
