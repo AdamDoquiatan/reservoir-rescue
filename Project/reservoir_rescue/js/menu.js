@@ -5,6 +5,7 @@ const BUTTON_SCALE_LARGE = 1.5;
 const BUTTON_SCALE_SMALL = 1.0;
 var yMod = 0;
 var obsScreenActive = true;
+var doneOnce = false;
 var audioCreated = false;
 
 function pauseMenu(sprite, event) {
@@ -112,24 +113,35 @@ function obsScreen1(sprite, event) {
   darkFilter.anchor.setTo(0.5);
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 1;
+  doneOnce = true;
 
   // Group for screen componenets
   var obsScreen = this.game.add.group();
 
+  /*
   // Picture of a sprinkler
   this.obsSprink = obsScreen.create(this.game.world.centerX, -600 + yMod, 'obs_screen_sprink');
   this.obsSprink.anchor.setTo(0.5);
   this.obsSprink.scale.setTo(0.284, 0.28);
+  */
+
+  // Picture of a sprinkler
+  this.obsSprink = this.game.add.sprite(this.game.world.centerX, -650 + yMod, 'sprinkler');
+  this.obsSprink.anchor.setTo(0.5);
+  this.obsSprink.scale.setTo(7);
+  this.obsSprink.animations.add('play');
+  this.obsSprink.animations.play('play', 3, true);
+  obsScreen.add(this.obsSprink);
 
   // "Look out!" header
-  this.lookOutHeader = game.add.text(this.game.world.centerX, -260 + yMod, "LOOK OUT!", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.lookOutHeader = game.add.text(this.game.world.centerX, -450 + yMod, "LOOK OUT!", { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
   this.lookOutHeader.anchor.setTo(0.5);
   this.lookOutHeader.stroke = '#000000';
   this.lookOutHeader.strokeThickness = 5;
   obsScreen.add(this.lookOutHeader);
 
   // Obstacle text
-  this.obsTextSprink = game.add.text(this.game.world.centerX, -110 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprink = game.add.text(this.game.world.centerX, -300 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
   this.obsTextSprink.addColor('#3d87ff', 17);
   this.obsTextSprink.addColor('white', 26);
   this.obsTextSprink.anchor.setTo(0.5);
@@ -138,22 +150,21 @@ function obsScreen1(sprite, event) {
   obsScreen.add(this.obsTextSprink);
 
   // Obstacle text bottom line
-  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, 62 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -152 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
   this.obsTextSprinkBLine.anchor.setTo(0.5);
   this.obsTextSprinkBLine.stroke = '#000000';
   this.obsTextSprinkBLine.strokeThickness = 5;
   obsScreen.add(this.obsTextSprinkBLine);
 
   // Continue button
-  this.contButton = obsScreen.create(this.game.world.centerX, 207 + yMod, 'continueButton');
+  this.contButton = obsScreen.create(this.game.world.centerX, 57 + yMod, 'continueButton');
   this.contButton.anchor.setTo(0.5);
   this.contButton.scale.setTo(BUTTON_SCALE);
   this.contButton.inputEnabled = true;
   this.contButton.events.onInputDown.add(endObsScreen, this);
 
-  //Has weird problems with the darkFilter. Fix if there's time. 
   // How To Play button
-  this.howToPlayButton = obsScreen.create(game.world.centerX, 315 + yMod, 'howToPlayButton');
+  this.howToPlayButton = obsScreen.create(game.world.centerX, 180 + yMod, 'howToPlayButton');
   this.howToPlayButton.anchor.setTo(0.5);
   this.howToPlayButton.scale.setTo(BUTTON_SCALE);
   this.howToPlayButton.inputEnabled = true;
@@ -379,13 +390,13 @@ function helpScreen(sprite, event) {
     // Pipe Swap img
     this.helpPipeSwap = this.game.add.sprite(this.game.width - 70, 340, 'helpPipeSwap');
     this.helpPipeSwap.anchor.setTo(1, 0);
-    this.helpPipeSwap.scale.setTo(1.3);
+    this.helpPipeSwap.scale.setTo(1.5);
     this.helpPipeSwap.animations.add('play');
     this.helpPipeSwap.animations.play('play', 3, true);
     helpScreen.add(this.helpPipeSwap);
 
     // Help Text 5
-    this.helpText5 = game.add.text(70, 370, "Swap a pipe on the grid by clicking on it. ⇨", textStyle);
+    this.helpText5 = game.add.text(70, 370, "Swap a pipe on the field by clicking on it. ⇨", textStyle);
     this.helpText5.stroke = '#000000';
     this.helpText5.strokeThickness = 5;
     this.helpText5.align = 'left';
@@ -393,13 +404,13 @@ function helpScreen(sprite, event) {
     helpScreen.add(this.helpText5);
 
     // Temp img
-    this.helpTemp = helpScreen.create(game.world.centerX, 1125, 'helpTemp');
+    this.helpTemp = helpScreen.create(game.world.centerX, 1145, 'helpTemp');
     this.helpTemp.anchor.setTo(0.5);
     this.helpTemp.scale.setTo(2);
     helpScreen.add(this.helpTemp);
 
     // Help Text 6
-    this.helpText6 = game.add.text(game.world.centerX, 930, "The temperature where you live influences how fast your water evaporates. BEWARE THE HEAT.               ⇩             ", textStyle);
+    this.helpText6 = game.add.text(game.world.centerX, 950, "The temperature where you live influences how fast your water evaporates. BEWARE THE HEAT.               ⇩             ", textStyle);
     this.helpText6.anchor.setTo(0.5);
     this.helpText6.stroke = '#000000';
     this.helpText6.strokeThickness = 5;
@@ -506,8 +517,8 @@ function randomTip(sprite, event) {
         "good stuff for the rest of us!";
     case 1:
       return "What\u0027s that dripping? Why it\u0027s the sound of 19 litres of water being " +
-        "wasted every day because somebody didn\u0027t fix a leaky faucet (not pointing any fingers, here). " +
-        "Fix it yourself or hire a plumber.";
+        "wasted every day because somebody didn\u0027t fix a leaky faucet (not pointing any fingers). " +
+        "Seriously, people! Fix it yourself or hire a plumber. A racoon plumber!";
     case 2:
       return "You know what plants crave? Exactly! That water you just cooked your pasta in; save it, " +
         "let it cool, and water your plants with it. Just, uh, make sure it\u0027s cooled off first. " +
