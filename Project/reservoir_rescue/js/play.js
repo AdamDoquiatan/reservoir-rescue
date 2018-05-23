@@ -6,21 +6,21 @@ const SINK_GID = 31;
 const TOILET_GID = 32;
 const SHOWER_GID = 33;
 const WASHING_GID = 34;
-const HP_RATE = 125;
+const HP_RATE = 150;
 
-const HP_RATE_MIN = 50;
+const HP_RATE_MIN = 40;
 
 // The initial health
 const HP = 1000;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 20;
+const FLOW_RATE = 40;
 
 // Delay before water level starts decreasing
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = false; 
+let testMode = true; 
 
 /* Game Objects */
 
@@ -42,17 +42,21 @@ let countdown;
 
 /* Groups */
 
+// Game levels
+let levels = ['level1', 'level2', 'level3', 'level4', 'level5'];
+
+let currentLevelIndex = 0;
+
 // Tracks which pipeSelection are in which selection spot
 let boxedPipes = [];
 
 // Array to keep track of all pipes on grid
 let pipeArray = [];
 
-let menuPipeArray = [];
-
 // Array to keep track of all obstacles on grid
 let obstacleArray = [];
 
+let menuPipeArray = [];
 let menuPipeGroup;
 let obstacleGroup;
 
@@ -91,6 +95,7 @@ let endPipe = null;
 let health = HP;
 let score = HP;
 let hpBarRate;
+let endFlow = false;
 
 /* Signals */
 
@@ -99,11 +104,11 @@ let onLose = new Phaser.Signal();
 
 let playState = {
   create: function () {
-    initializeTilemap('map');
+    initializeTilemap(levels[currentLevelIndex]);
     initializeMenu();
 
     // HP bar
-    hpRate = HP_RATE - weather * 4;
+    hpRate = HP_RATE - weather * 5;
     if (hpRate < HP_RATE_MIN) {
       hpRate = hpRate;
     }
@@ -113,7 +118,7 @@ let playState = {
 
     // Event handlers and signals
     game.input.onDown.add(delegate, this, 0);
-    onWin.add(levelComplete, this);
+    onWin.add(winScreen, this);
     onLose.add(gameOver, this);
     // countdown = game.time.events.add(5000, releaseWater, this);
 
@@ -168,20 +173,6 @@ let playState = {
 
     // Testing features
     if (testMode) {
-      // For testing: Win Button
-      this.winButton = game.add.sprite(game.width - 450, 0, 'winButton');
-      this.winButton.scale.setTo(2.6);
-      this.winButton.anchor.setTo(1, 0);
-      this.winButton.inputEnabled = inputEnabled;
-      this.winButton.events.onInputDown.add(winScreen, this);
-      
-      // For testing: Lose Button
-      this.loseButton = game.add.sprite(game.width - 190, 0, 'loseButton');
-      this.loseButton.scale.setTo(2.3);
-      this.loseButton.anchor.setTo(1, 0);
-      this.loseButton.inputEnabled = inputEnabled;
-      this.loseButton.events.onInputDown.add(gameOver, this);
-
       initializeTestControls();
     }
   },
@@ -199,6 +190,11 @@ let playState = {
       testText.text = '('
       + parseInt(game.input.activePointer.x) + ','
       + parseInt(game.input.activePointer.y) + ')';
+    }
+
+    if (endFlow) {
+      endFlow = false;
+      onWin.dispatch();
     }
 
     this.pauseButton.inputEnabled = inputEnabled;
@@ -311,7 +307,7 @@ function startCounter() {
 // Syncs health bar with health variable
 function setHealthBar(health) {
   let percentGone = (HP - health) / HP;
-  let nextFrame = parseInt(hpBar.animations.frameTotal * percentGone) - 1;
+  let nextFrame = parseInt(hpBar.animations.frameTotal * percentGone);
   if (nextFrame >= 0 && nextFrame < hpBar.animations.frameTotal) {
     hpBar.frame = nextFrame;
   }
@@ -321,20 +317,20 @@ function setHealthBar(health) {
 function levelComplete() {
   hpCounter.timer.pause();
   hpBarCounter.timer.pause();
+  canPlace = false;
 
   SFX_gameMusic.pause();
   SFX_placePipe.stop();
   SFX_lastPipe.play();
-  SFX_lastPipe.onStop.add(function (){
+  SFX_lastPipe.onStop.addOnce(function (){
   
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
-      game.add.tween(this.SFX_endFlow).to({volume:0.7}, 5000).start();
+      // game.add.tween(this.SFX_endFlow).to({volume:0.7}, 5000).start();
       drumrollPlaying = true;
     }
 
-    canPlace = false;
     let startingPipe = grid[startTile.row][startTile.col];
     startWaterFlow(startingPipe);
   });
@@ -359,8 +355,10 @@ function initializeTilemap(mapName) {
   map.addTilesetImage('tileset', 'tileset');
   layer1 = map.createLayer('Tile Layer 1');
   layer1.scale.set(SCALE);
-  layer2 = map.createLayer('Tile Layer 2');
-  layer2.scale.set(SCALE);
+  if (layer2 === undefined) {
+    layer2 = map.createLayer('Tile Layer 2');
+    layer2.scale.set(SCALE);
+  }
 
   // Create obstacles from object layer of tilemap
   obstacleGroup = game.add.group();
@@ -465,5 +463,27 @@ function releaseWater() {
     }
   }
   onLose.dispatch();
+}
+
+
+// Switches to the next level
+function nextLevel() {
+  ++currentLevelIndex;
+  clearGrid();
+  layer1.destroy(); 
+  initializeTilemap(levels[currentLevelIndex]);  
+  pipeIndex = boxedPipes[1];
+  currentSelection = 1;
+  menuPipeArray[1].animations.play('active');
+  selectionMenu.frame = 1;
+  canPlace = true;
+  health = HP;
+  setHealthBar(health);
+}
+
+// Clears grid of pipes and obstacles
+function clearGrid() {
+  clearPipes();
+  clearObstacles();
 }
 

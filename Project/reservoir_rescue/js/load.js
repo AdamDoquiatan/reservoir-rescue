@@ -43,8 +43,12 @@ var loadState = {
 
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
-    game.load.tilemap('map', 'assets/maps/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
-
+    game.load.tilemap('level1', 'assets/maps/level1.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level2', 'assets/maps/level2.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level3', 'assets/maps/level3.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level4', 'assets/maps/level4.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('level5', 'assets/maps/level5.json', null, Phaser.Tilemap.TILED_JSON);
+    
     // Pipes
     game.load.spritesheet('pipev', 'assets/images/pipev.png', 32, 32);
     game.load.spritesheet('pipeh', 'assets/images/pipeh.png', 32, 32);
