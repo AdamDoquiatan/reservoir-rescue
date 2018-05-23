@@ -2,7 +2,7 @@
  "infinite":false,
  "layers":[
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 3, 8, 3, 4, 3, 4, 3, 4, 7, 4, 3, 4, 3, 4, 3, 6, 3, 4, 3, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 3, 8, 3, 4, 3, 4, 3, 4, 7, 4, 3, 4, 3, 4, 3, 6, 3, 4, 3, 14, 13, 14, 13, 14, 13, 14, 35, 36, 35, 36, 35, 36, 35, 36, 35, 36, 35, 36, 35, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":12,
          "name":"Tile Layer 1",
          "opacity":1,
@@ -28,33 +28,57 @@
          "name":"Object Layer 1",
          "objects":[
                 {
-                 "gid":32,
+                 "gid":10,
                  "height":32,
-                 "id":62,
+                 "id":65,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":64,
-                 "y":192
-                }, 
-                {
-                 "gid":31,
-                 "height":32,
-                 "id":64,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":128,
-                 "y":192
+                 "x":32,
+                 "y":160
                 }, 
                 {
                  "gid":10,
                  "height":32,
-                 "id":65,
+                 "id":68,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":160,
+                 "y":128
+                }, 
+                {
+                 "gid":10,
+                 "height":32,
+                 "id":69,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":0,
+                 "y":160
+                }, 
+                {
+                 "gid":31,
+                 "height":32,
+                 "id":70,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":96,
+                 "y":224
+                }, 
+                {
+                 "gid":31,
+                 "height":32,
+                 "id":71,
                  "name":"",
                  "rotation":0,
                  "type":"",
@@ -64,16 +88,28 @@
                  "y":256
                 }, 
                 {
-                 "gid":33,
+                 "gid":32,
                  "height":32,
-                 "id":67,
+                 "id":72,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":96,
-                 "y":256
+                 "x":160,
+                 "y":288
+                }, 
+                {
+                 "gid":32,
+                 "height":32,
+                 "id":73,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":32,
+                 "y":288
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -81,7 +117,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":68,
+ "nextobjectid":74,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.5",
