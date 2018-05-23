@@ -8,6 +8,27 @@ var obsScreenActive = true;
 var doneOnce = false;
 var audioCreated = false;
 
+let whiteFilter;
+let whiteFilterTween;
+let darkFilter;
+let darkFilterTween;
+let victoryTween;
+let winScreenGroup;
+let winHeader;
+let loseScreenGroup;
+let pauseScreenGroup;
+let pauseHeader;
+let textStyle;
+let tipDisplay;
+let contButton;
+let restartButton;
+let menuButton;
+let scoreDisplay;
+let waterSavedDisplay;
+let obsSprink;
+let obsTextSprink;
+let obsTextSprinkBLine;
+
 function pauseMenu(sprite, event) {
   hpCounter.timer.pause();
   hpBarCounter.timer.pause();
@@ -19,62 +40,62 @@ function pauseMenu(sprite, event) {
     game.input.onDown.removeAll();
 
     // Dark filter
-    var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+    darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
     darkFilter.anchor.setTo(0.5);
     darkFilter.scale.setTo(4);
 
     // Group for screen componenets
-    var pauseScreen = this.game.add.group();
+    pauseScreenGroup = game.add.group();
 
     // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+    pauseHeader = game.add.text(game.world.centerX, 200, "PAUSED", {
       font: 'bold 100pt Helvetica',
       fill: 'white',
       align: 'center',
       wordWrap: true,
       wordWrapWidth: 700
     });
-    this.pauseHeader.anchor.setTo(0.5);
-    this.pauseHeader.stroke = '#000000';
-    this.pauseHeader.strokeThickness = 7;
-    pauseScreen.add(this.pauseHeader);
+    pauseHeader.anchor.setTo(0.5);
+    pauseHeader.stroke = '#000000';
+    pauseHeader.strokeThickness = 7;
+    pauseScreenGroup.add(pauseHeader);
 
     // Specifies text properties
-    var textStyle = { font: 'bold 40pt Helvetica', fontSize: 52, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    textStyle = { font: 'bold 40pt Helvetica', fontSize: 52, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
     // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 650,
-      "WATER SAVING TIP:\n" + randomTip(this.tipDisplay, this), textStyle);
-    this.tipDisplay.anchor.setTo(0.5);
-    this.tipDisplay.lineSpacing = -2;
-    this.tipDisplay.addColor('#3d87ff', 0);
-    this.tipDisplay.addColor('white', 17);
-    this.tipDisplay.stroke = '#000000';
-    this.tipDisplay.strokeThickness = 7;
-    pauseScreen.add(this.tipDisplay);
+    tipDisplay = game.add.text(game.world.centerX, 650,
+      "WATER SAVING TIP:\n" + randomTip(tipDisplay, this), textStyle);
+    tipDisplay.anchor.setTo(0.5);
+    tipDisplay.lineSpacing = -2;
+    tipDisplay.addColor('#3d87ff', 0);
+    tipDisplay.addColor('white', 17);
+    tipDisplay.stroke = '#000000';
+    tipDisplay.strokeThickness = 7;
+    pauseScreenGroup.add(tipDisplay);
 
     // Continue button
-    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
-    this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(function () {
+    contButton = pauseScreenGroup.create(game.world.centerX, 1050, 'continueButton');
+    contButton.anchor.setTo(0.5);
+    contButton.scale.setTo(BUTTON_SCALE_LARGE);
+    contButton.inputEnabled = true;
+    contButton.events.onInputDown.add(function () {
       SFX_gameMusic.volume = 0.4;
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       hpCounter.timer.resume();
       hpBarCounter.timer.resume();
-      pauseScreen.destroy();
+      pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
 
     // Restart button
-    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
-    this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.restartButton.inputEnabled = true;
-    this.restartButton.events.onInputDown.add(function () {
+    restartButton = pauseScreenGroup.create(game.world.centerX, 1200, 'restart');
+    restartButton.anchor.setTo(0.5);
+    restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+    restartButton.inputEnabled = true;
+    restartButton.events.onInputDown.add(function () {
       clearPipes();
       SFX_gameMusic.volume = 0.4;
       restartLightflash();
@@ -86,16 +107,16 @@ function pauseMenu(sprite, event) {
       health = HP;
       hpCounter.timer.resume();
       hpBarCounter.timer.resume();
-      pauseScreen.destroy();
+      pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
 
     // Menu button
-    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
-    this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.menuButton.inputEnabled = true;
-    this.menuButton.events.onInputDown.add(function () {
+    menuButton = pauseScreenGroup.create(game.world.centerX, 1350, 'menuButton');
+    menuButton.anchor.setTo(0.5);
+    menuButton.scale.setTo(BUTTON_SCALE_LARGE);
+    menuButton.inputEnabled = true;
+    menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue')
     });
   }
@@ -109,76 +130,76 @@ function obsScreen1(sprite, event) {
   game.input.onDown.removeAll();
 
   // Dark Filter
-  darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
   darkFilter.anchor.setTo(0.5);
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 1;
   doneOnce = true;
 
   // Group for screen componenets
-  var obsScreen = this.game.add.group();
+  var obsScreen = game.add.group();
 
   // Picture of a sprinkler
-  this.obsSprink = obsScreen.create(this.game.world.centerX, -600 + yMod, 'obs_screen_sprink');
-  this.obsSprink.anchor.setTo(0.5);
-  this.obsSprink.scale.setTo(0.284, 0.28);
+  obsSprink = obsScreen.create(game.world.centerX, -600 + yMod, 'sprinkler');
+  obsSprink.anchor.setTo(0.5);
+  obsSprink.scale.setTo(16);
 
   // "Look out!" header
-  this.lookOutHeader = game.add.text(this.game.world.centerX, -260 + yMod, "LOOK OUT!", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-  this.lookOutHeader.anchor.setTo(0.5);
-  this.lookOutHeader.stroke = '#000000';
-  this.lookOutHeader.strokeThickness = 5;
-  obsScreen.add(this.lookOutHeader);
+  lookOutHeader = game.add.text(game.world.centerX, -260 + yMod, "LOOK OUT!", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  lookOutHeader.anchor.setTo(0.5);
+  lookOutHeader.stroke = '#000000';
+  lookOutHeader.strokeThickness = 5;
+  obsScreen.add(lookOutHeader);
 
   // Obstacle text
-  this.obsTextSprink = game.add.text(this.game.world.centerX, -110 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-  this.obsTextSprink.addColor('#3d87ff', 17);
-  this.obsTextSprink.addColor('white', 26);
-  this.obsTextSprink.anchor.setTo(0.5);
-  this.obsTextSprink.stroke = '#000000';
-  this.obsTextSprink.strokeThickness = 5;
-  obsScreen.add(this.obsTextSprink);
+  obsTextSprink = game.add.text(game.world.centerX, -110 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  obsTextSprink.addColor('#3d87ff', 17);
+  obsTextSprink.addColor('white', 26);
+  obsTextSprink.anchor.setTo(0.5);
+  obsTextSprink.stroke = '#000000';
+  obsTextSprink.strokeThickness = 5;
+  obsScreen.add(obsTextSprink);
 
   // Obstacle text bottom line
-  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, 62 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-  this.obsTextSprinkBLine.anchor.setTo(0.5);
-  this.obsTextSprinkBLine.stroke = '#000000';
-  this.obsTextSprinkBLine.strokeThickness = 5;
-  obsScreen.add(this.obsTextSprinkBLine);
+  obsTextSprinkBLine = game.add.text(game.world.centerX, 62 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  obsTextSprinkBLine.anchor.setTo(0.5);
+  obsTextSprinkBLine.stroke = '#000000';
+  obsTextSprinkBLine.strokeThickness = 5;
+  obsScreen.add(obsTextSprinkBLine);
 
   // Continue button
-  this.contButton = obsScreen.create(this.game.world.centerX, 207 + yMod, 'continueButton');
-  this.contButton.anchor.setTo(0.5);
-  this.contButton.scale.setTo(BUTTON_SCALE);
-  this.contButton.inputEnabled = true;
-  this.contButton.events.onInputDown.add(endObsScreen, this);
+  contButton = obsScreen.create(game.world.centerX, 207 + yMod, 'continueButton');
+  contButton.anchor.setTo(0.5);
+  contButton.scale.setTo(BUTTON_SCALE);
+  contButton.inputEnabled = true;
+  contButton.events.onInputDown.add(endObsScreen, this);
 
   //Has weird problems with the darkFilter. Fix if there's time. 
   // How To Play button
-  this.howToPlayButton = obsScreen.create(game.world.centerX, 315 + yMod, 'howToPlayButton');
-  this.howToPlayButton.anchor.setTo(0.5);
-  this.howToPlayButton.scale.setTo(BUTTON_SCALE);
-  this.howToPlayButton.inputEnabled = true;
-  this.howToPlayButton.events.onInputDown.add(function () {
+  howToPlayButton = obsScreen.create(game.world.centerX, 315 + yMod, 'howToPlayButton');
+  howToPlayButton.anchor.setTo(0.5);
+  howToPlayButton.scale.setTo(BUTTON_SCALE);
+  howToPlayButton.inputEnabled = true;
+  howToPlayButton.events.onInputDown.add(function () {
     if (!audioCreated) {
       createAudio();
       audioCreated = false;
     }
     SFX_regularButton.play();
   });
-  this.howToPlayButton.events.onInputDown.add(transitionToHelpScreen, this);
+  howToPlayButton.events.onInputDown.add(transitionToHelpScreen, this);
 
 
   // Screen BG
-  this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
-  this.obsBorder.anchor.setTo(0.5);
-  this.obsBorder.scale.setTo(2, 2.1);
-  obsScreen.add(this.obsBorder);
+  obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+  obsBorder.anchor.setTo(0.5);
+  obsBorder.scale.setTo(2, 2.1);
+  obsScreen.add(obsBorder);
 
   if (yMod === 0) {
     // Opening screen animation. Auto-plays when game starts
     obsScreen.forEach(function (element) {
-      var elementTween = this.game.add.tween(element);
+      var elementTween = game.add.tween(element);
       elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     });
@@ -186,7 +207,7 @@ function obsScreen1(sprite, event) {
 
   function transitionToHelpScreen() {
     obsScreen.destroy();
-    obsBorder = this.game.add.sprite(this.game.world.centerX, 700, 'borderWindow');
+    obsBorder = game.add.sprite(game.world.centerX, 700, 'borderWindow');
     obsBorder.anchor.setTo(0.5);
     obsBorder.scale.setTo(2, 2.1);
     game.add.tween(obsBorder.scale).to({ x: 2.4, y: 2.05 }, 500, Phaser.Easing.Cubic.Out, true).onComplete.add(function () {
@@ -214,11 +235,11 @@ function obsScreen1(sprite, event) {
       }
     });
 
-    darkFilterTween = this.game.add.tween(darkFilter);
+    darkFilterTween = game.add.tween(darkFilter);
     darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
     obsScreen.forEach(function (element) {
-      var elementTween = this.game.add.tween(element);
+      var elementTween = game.add.tween(element);
       elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
       elementTween.start();
       elementTween.onComplete.add(function () {
@@ -237,13 +258,13 @@ function obsScreen1(sprite, event) {
 function helpScreen(sprite, event) {
 
   // Dark Filter
-  this.helpDarkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-  this.helpDarkFilter.anchor.setTo(0.5);
-  this.helpDarkFilter.scale.setTo(4);
-  this.helpDarkFilter.alpha = 1;
+  helpDarkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  helpDarkFilter.anchor.setTo(0.5);
+  helpDarkFilter.scale.setTo(4);
+  helpDarkFilter.alpha = 1;
 
   // Tween Dark Filter in
-  helpDarkFilterTween = this.game.add.tween(this.helpDarkFilter);
+  helpDarkFilterTween = game.add.tween(helpDarkFilter);
   helpDarkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
 
   if (inputEnabled === true) {
@@ -252,7 +273,7 @@ function helpScreen(sprite, event) {
   }
 
   // Group for screen componenets
-  var helpScreen = this.game.add.group();
+  var helpScreen = game.add.group();
 
   var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 620 };
 
@@ -269,7 +290,7 @@ function helpScreen(sprite, event) {
 
     // Opening screen animation. Auto-plays when game starts
     helpScreen.forEach(function (element) {
-      var elementTween = this.game.add.tween(element);
+      var elementTween = game.add.tween(element);
       elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
       elementTween.start();
     });
@@ -279,141 +300,141 @@ function helpScreen(sprite, event) {
 
   function createHelp1() {
 
-    this.obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
-    this.obsBorder.anchor.setTo(0.5);
-    this.obsBorder.scale.setTo(2.4, 2.05);
-    helpScreen.add(this.obsBorder);
+    obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+    obsBorder.anchor.setTo(0.5);
+    obsBorder.scale.setTo(2.4, 2.05);
+    helpScreen.add(obsBorder);
 
     // "How To Play" header
-    this.htpHeader = game.add.text(this.game.world.centerX, -825 + yMod, "How To Play", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
-    this.htpHeader.anchor.setTo(0.5);
-    this.htpHeader.stroke = '#000000';
-    this.htpHeader.strokeThickness = 5;
-    helpScreen.add(this.htpHeader);
+    htpHeader = game.add.text(game.world.centerX, -825 + yMod, "How To Play", { font: 'bold 70pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+    htpHeader.anchor.setTo(0.5);
+    htpHeader.stroke = '#000000';
+    htpHeader.strokeThickness = 5;
+    helpScreen.add(htpHeader);
 
     // Pipe Selection img
-    this.helpPipeSelect = this.game.add.sprite(675, -640 + yMod, 'helpPipeSelect');
-    this.helpPipeSelect.anchor.setTo(0.5);
-    this.helpPipeSelect.scale.setTo(1);
-    this.helpPipeSelect.animations.add('play', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    this.helpPipeSelect.animations.play('play', 3, true);
-    helpScreen.add(this.helpPipeSelect);
+    helpPipeSelect = game.add.sprite(675, -640 + yMod, 'helpPipeSelect');
+    helpPipeSelect.anchor.setTo(0.5);
+    helpPipeSelect.scale.setTo(1);
+    helpPipeSelect.animations.add('play', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    helpPipeSelect.animations.play('play', 3, true);
+    helpScreen.add(helpPipeSelect);
 
     // Help Text 1
-    this.helpText1 = game.add.text(225, -640 + yMod, "Select a pipe. ⇨", textStyle);
-    this.helpText1.anchor.setTo(0.5);
-    this.helpText1.stroke = '#000000';
-    this.helpText1.strokeThickness = 5;
-    helpScreen.add(this.helpText1);
+    helpText1 = game.add.text(225, -640 + yMod, "Select a pipe. ⇨", textStyle);
+    helpText1.anchor.setTo(0.5);
+    helpText1.stroke = '#000000';
+    helpText1.strokeThickness = 5;
+    helpScreen.add(helpText1);
 
     // Pipe on grid img
-    this.helpPipesToGrid = helpScreen.create(35, -510 + yMod, 'helpPipesToGrid');
-    this.helpPipesToGrid.scale.setTo(1.5);
-    this.helpPipesToGrid.animations.add('play');
-    this.helpPipesToGrid.animations.play('play', 3, true);
-    helpScreen.add(this.helpPipesToGrid);
+    helpPipesToGrid = helpScreen.create(35, -510 + yMod, 'helpPipesToGrid');
+    helpPipesToGrid.scale.setTo(1.5);
+    helpPipesToGrid.animations.add('play');
+    helpPipesToGrid.animations.play('play', 3, true);
+    helpScreen.add(helpPipesToGrid);
 
     // Help Text 2
-    this.helpText2 = game.add.text(this.game.width - 50, -510 + yMod, "⇦ Place it anywhere on   the grid. Connect pipes from start to end...", textStyle);
-    this.helpText2.anchor.setTo(1, 0);
-    this.helpText2.stroke = '#000000';
-    this.helpText2.strokeThickness = 5;
-    this.helpText2.align = 'right';
-    helpScreen.add(this.helpText2);
+    helpText2 = game.add.text(game.width - 50, -510 + yMod, "⇦ Place it anywhere on   the grid. Connect pipes from start to end...", textStyle);
+    helpText2.anchor.setTo(1, 0);
+    helpText2.stroke = '#000000';
+    helpText2.strokeThickness = 5;
+    helpText2.align = 'right';
+    helpScreen.add(helpText2);
 
     // Health bar img
-    this.helpHealthBar = helpScreen.create(this.game.width - 70, -170 + yMod, 'helpHealthBar');
-    this.helpHealthBar.anchor.setTo(1, 0);
-    this.helpHealthBar.scale.setTo(1.7, 1.5);
-    this.helpHealthBar.animations.add('play');
-    this.helpHealthBar.animations.play('play', 3, true);
-    helpScreen.add(this.helpHealthBar);
+    helpHealthBar = helpScreen.create(game.width - 70, -170 + yMod, 'helpHealthBar');
+    helpHealthBar.anchor.setTo(1, 0);
+    helpHealthBar.scale.setTo(1.7, 1.5);
+    helpHealthBar.animations.add('play');
+    helpHealthBar.animations.play('play', 3, true);
+    helpScreen.add(helpHealthBar);
 
     // Help Text 3
-    this.helpText3 = game.add.text(50, -240 + yMod, "...before your reservoir runs dry. ⇨", textStyle);
-    this.helpText3.stroke = '#000000';
-    this.helpText3.strokeThickness = 5;
-    this.helpText3.align = 'left';
-    this.helpText3.wordWrapWidth = 600;
-    helpScreen.add(this.helpText3);
+    helpText3 = game.add.text(50, -240 + yMod, "...before your reservoir runs dry. ⇨", textStyle);
+    helpText3.stroke = '#000000';
+    helpText3.strokeThickness = 5;
+    helpText3.align = 'left';
+    helpText3.wordWrapWidth = 600;
+    helpScreen.add(helpText3);
 
     // Sprinkler img
-    this.helpObsticle = helpScreen.create(35, -20 + yMod, 'helpObsticle');
-    this.helpObsticle.scale.setTo(1.6);
-    this.helpObsticle.animations.add('play');
-    this.helpObsticle.animations.play('play', 3, true);
-    helpScreen.add(this.helpObsticle);
+    helpObsticle = helpScreen.create(35, -20 + yMod, 'helpObsticle');
+    helpObsticle.scale.setTo(1.6);
+    helpObsticle.animations.add('play');
+    helpObsticle.animations.play('play', 3, true);
+    helpScreen.add(helpObsticle);
 
     // Help Text 4
-    this.helpText4 = game.add.text(this.game.width - 50, -20 + yMod, "⇦ Avoid obsticles -- they'll sap your water!", textStyle);
-    this.helpText4.anchor.setTo(1, 0);
-    this.helpText4.stroke = '#000000';
-    this.helpText4.strokeThickness = 5;
-    this.helpText4.align = 'left';
-    helpScreen.add(this.helpText4);
+    helpText4 = game.add.text(game.width - 50, -20 + yMod, "⇦ Avoid obsticles -- they'll sap your water!", textStyle);
+    helpText4.anchor.setTo(1, 0);
+    helpText4.stroke = '#000000';
+    helpText4.strokeThickness = 5;
+    helpText4.align = 'left';
+    helpScreen.add(helpText4);
 
     // Back button
-    this.backButton = helpScreen.create(40, 255 + yMod, 'backButton');
-    this.backButton.scale.setTo(BUTTON_SCALE_SMALL);
-    this.backButton.inputEnabled = true;
+    backButton = helpScreen.create(40, 255 + yMod, 'backButton');
+    backButton.scale.setTo(BUTTON_SCALE_SMALL);
+    backButton.inputEnabled = true;
     if (obsScreenActive) {
-      this.backButton.events.onInputDown.add(function () {
+      backButton.events.onInputDown.add(function () {
         SFX_regularButton.play();
       });
     }
-    this.backButton.events.onInputDown.add(endHelpScreen, this);
-    helpScreen.add(this.backButton);
+    backButton.events.onInputDown.add(endHelpScreen, this);
+    helpScreen.add(backButton);
 
     // More button
-    this.moreButton = helpScreen.create(game.world.width - 40, 255 + yMod, 'moreButton');
-    this.moreButton.scale.setTo(BUTTON_SCALE_SMALL);
-    this.moreButton.anchor.setTo(1, 0);
-    this.moreButton.inputEnabled = true;
-    this.moreButton.events.onInputDown.add(function () {
+    moreButton = helpScreen.create(game.world.width - 40, 255 + yMod, 'moreButton');
+    moreButton.scale.setTo(BUTTON_SCALE_SMALL);
+    moreButton.anchor.setTo(1, 0);
+    moreButton.inputEnabled = true;
+    moreButton.events.onInputDown.add(function () {
       SFX_regularButton.play();
     });
-    this.moreButton.events.onInputDown.add(showHelp2, this);
-    helpScreen.add(this.moreButton);
+    moreButton.events.onInputDown.add(showHelp2, this);
+    helpScreen.add(moreButton);
   }
 
   function createHelp2() {
 
     // Pipe Swap img
-    this.helpPipeSwap = this.game.add.sprite(this.game.width - 70, 340, 'helpPipeSwap');
-    this.helpPipeSwap.anchor.setTo(1, 0);
-    this.helpPipeSwap.scale.setTo(1.5);
-    this.helpPipeSwap.animations.add('play');
-    this.helpPipeSwap.animations.play('play', 3, true);
-    helpScreen.add(this.helpPipeSwap);
+    helpPipeSwap = game.add.sprite(game.width - 70, 340, 'helpPipeSwap');
+    helpPipeSwap.anchor.setTo(1, 0);
+    helpPipeSwap.scale.setTo(1.5);
+    helpPipeSwap.animations.add('play');
+    helpPipeSwap.animations.play('play', 3, true);
+    helpScreen.add(helpPipeSwap);
 
     // Help Text 5
-    this.helpText5 = game.add.text(70, 370, "Swap a pipe on the field by clicking on it. ⇨", textStyle);
-    this.helpText5.stroke = '#000000';
-    this.helpText5.strokeThickness = 5;
-    this.helpText5.align = 'left';
-    this.helpText5.wordWrapWidth = 450;
-    helpScreen.add(this.helpText5);
+    helpText5 = game.add.text(70, 370, "Swap a pipe on the field by clicking on it. ⇨", textStyle);
+    helpText5.stroke = '#000000';
+    helpText5.strokeThickness = 5;
+    helpText5.align = 'left';
+    helpText5.wordWrapWidth = 450;
+    helpScreen.add(helpText5);
 
     // Temp img
-    this.helpTemp = helpScreen.create(game.world.centerX, 1145, 'helpTemp');
-    this.helpTemp.anchor.setTo(0.5);
-    this.helpTemp.scale.setTo(2);
-    helpScreen.add(this.helpTemp);
+    helpTemp = helpScreen.create(game.world.centerX, 1145, 'helpTemp');
+    helpTemp.anchor.setTo(0.5);
+    helpTemp.scale.setTo(2);
+    helpScreen.add(helpTemp);
 
     // Help Text 6
-    this.helpText6 = game.add.text(game.world.centerX, 950, "The temperature where you live influences how fast your water evaporates. BEWARE THE HEAT.               ⇩             ", textStyle);
-    this.helpText6.anchor.setTo(0.5);
-    this.helpText6.stroke = '#000000';
-    this.helpText6.strokeThickness = 5;
-    this.helpText6.wordWrapWidth = 850;
-    helpScreen.add(this.helpText6);
+    helpText6 = game.add.text(game.world.centerX, 950, "The temperature where you live influences how fast your water evaporates. BEWARE THE HEAT.               ⇩             ", textStyle);
+    helpText6.anchor.setTo(0.5);
+    helpText6.stroke = '#000000';
+    helpText6.strokeThickness = 5;
+    helpText6.wordWrapWidth = 850;
+    helpScreen.add(helpText6);
 
     // Back button
-    this.backButton = helpScreen.create(40, 255 + yMod, 'backButton');
-    this.backButton.scale.setTo(BUTTON_SCALE_SMALL);
-    this.backButton.inputEnabled = true;
-    this.backButton.events.onInputDown.add(showHelp1, this);
-    helpScreen.add(this.backButton);
+    backButton = helpScreen.create(40, 255 + yMod, 'backButton');
+    backButton.scale.setTo(BUTTON_SCALE_SMALL);
+    backButton.inputEnabled = true;
+    backButton.events.onInputDown.add(showHelp1, this);
+    helpScreen.add(backButton);
   }
 
   function showHelp1() {
@@ -454,7 +475,7 @@ function helpScreen(sprite, event) {
       helpScreen.destroy();
 
       // Screen BG
-      obsBorder = this.game.add.sprite(this.game.world.centerX, -300 + yMod, 'borderWindow');
+      obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
       obsBorder.anchor.setTo(0.5);
       obsBorder.scale.setTo(2.4, 2.05);
       game.add.tween(obsBorder.scale).to({ x: 2, y: 2.1 }, 500, Phaser.Easing.Cubic.Out, true).onComplete.add(function () {
@@ -479,7 +500,7 @@ function helpScreen(sprite, event) {
       })
 
       helpScreen.forEach(function (element) {
-        var elementTween = this.game.add.tween(element);
+        var elementTween = game.add.tween(element);
         elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
         elementTween.start();
         elementTween.onComplete.add(function () {
@@ -538,110 +559,106 @@ function randomTip(sprite, event) {
 
 // Displays win screen
 function winScreen() {
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
-
-  console.log(this);
   // Turns off input to everything but win screen
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
   inputEnabled = false;
   game.input.onDown.removeAll();
 
   // Dark Filter Fades In
-  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-  this.darkFilter.anchor.setTo(0.5);
-  this.darkFilter.scale.setTo(4);
-  this.darkFilter.alpha = 0;
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 0;
 
   // Group for screen components
-  var winScreen = this.game.add.group();
+  winScreenGroup = game.add.group();
 
   // Big win header
-  this.winHeader = game.add.text(this.game.world.centerX, 300, "VICTORY", {
+  winHeader = game.add.text(game.world.centerX, 300, "VICTORY", {
     font: 'bold 140pt Helvetica',
     fill: 'white',
     align: 'center',
     wordWrap: true,
     wordWrapWidth: 700
   });
-  this.winHeader.anchor.setTo(0.5);
-  this.winHeader.stroke = '#000000';
-  this.winHeader.strokeThickness = 10;
-  this.winHeader.alpha = 0;
+  winHeader.anchor.setTo(0.5);
+  winHeader.stroke = '#000000';
+  winHeader.strokeThickness = 10;
+  winHeader.alpha = 0;
 
   // Specifies text properties
   var textStyle = { font: 'bold 58pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
   // Water-saved text
-  this.waterSavedDisplay = game.add.text(game.world.centerX + 400, 450, "You saved: " + health + " litres!", textStyle);
-  this.waterSavedDisplay.anchor.setTo(0.5);
-  this.waterSavedDisplay.lineSpacing = -2;
-  this.waterSavedDisplay.addColor('#3d87ff', 11);
-  this.waterSavedDisplay.stroke = '#000000';
-  this.waterSavedDisplay.strokeThickness = 7;
-  winScreen.add(this.waterSavedDisplay);
+  waterSavedDisplay = game.add.text(game.world.centerX + 400, 450, "You saved: " + health + " litres!", textStyle);
+  waterSavedDisplay.anchor.setTo(0.5);
+  waterSavedDisplay.lineSpacing = -2;
+  waterSavedDisplay.addColor('#3d87ff', 11);
+  waterSavedDisplay.stroke = '#000000';
+  waterSavedDisplay.strokeThickness = 7;
+  winScreenGroup.add(waterSavedDisplay);
     
     // Water-Wasted text
-  this.waterWastedDisplay = game.add.text(game.world.centerX + 600, 575, "You wasted: " + (HP - health) + " litres", textStyle);
-  this.waterWastedDisplay.anchor.setTo(0.5);
-  this.waterWastedDisplay.lineSpacing = -2;
-  this.waterWastedDisplay.addColor('#3d87ff', 11);
-  this.waterWastedDisplay.stroke = '#000000';
-  this.waterWastedDisplay.strokeThickness = 7;
-  winScreen.add(this.waterWastedDisplay);
+  waterWastedDisplay = game.add.text(game.world.centerX + 600, 575, "You wasted: " + (HP - health) + " litres", textStyle);
+  waterWastedDisplay.anchor.setTo(0.5);
+  waterWastedDisplay.lineSpacing = -2;
+  waterWastedDisplay.addColor('#3d87ff', 11);
+  waterWastedDisplay.stroke = '#000000';
+  waterWastedDisplay.strokeThickness = 7;
+  winScreenGroup.add(waterWastedDisplay);
 
   // Score text
   if ((HP - health) < dailyAverage) {
-    this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+    scoreDisplay = game.add.text(game.world.centerX + 800, 850,
     "That's " + (100 - ((HP - health) * 100) / dailyAverage).toFixed(1) + "% less than the average person's daily water usage!", textStyle);
-    this.scoreDisplay.addColor('white', 12);
+    scoreDisplay.addColor('white', 12);
   } else if ((HP - health) > dailyAverage) {
-    this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+    scoreDisplay = game.add.text(game.world.centerX + 800, 850,
     "That's " + ((((HP - health) * 100) / dailyAverage) - 100).toFixed(1)+ "% more than the average person's daily water usage!", textStyle); 
       if ((HP - health) >= 2 * dailyAverage) {
-          this.scoreDisplay.addColor('white', 13);
+          scoreDisplay.addColor('white', 13);
       } else {
-          this.scoreDisplay.addColor('white', 12);
+          scoreDisplay.addColor('white', 12);
       }
   } else if ((HP - health) === dailyAverage) {
-      this.scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+      scoreDisplay = game.add.text(game.world.centerX + 800, 850,
     "That's the same as the average person's daily water usage!", textStyle);
   }
-  this.scoreDisplay.anchor.setTo(0.5);
-  this.scoreDisplay.lineSpacing = -2;
-  this.scoreDisplay.addColor('#3d87ff', 7);
-  this.scoreDisplay.stroke = '#000000';
-  this.scoreDisplay.strokeThickness = 7;
-  winScreen.add(this.scoreDisplay);
+  scoreDisplay.anchor.setTo(0.5);
+  scoreDisplay.lineSpacing = -2;
+  scoreDisplay.addColor('#3d87ff', 7);
+  scoreDisplay.stroke = '#000000';
+  scoreDisplay.strokeThickness = 7;
+  winScreenGroup.add(scoreDisplay);
 
   // Continue (to next level) button -- doesn't do anything yet
-  this.contButton = winScreen.create(this.game.world.centerX + 1000, 1150, 'continueButton');
-  this.contButton.anchor.setTo(0.5);
-  this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
+  contButton = winScreenGroup.create(game.world.centerX + 1000, 1150, 'continueButton');
+  contButton.anchor.setTo(0.5);
+  contButton.scale.setTo(BUTTON_SCALE_LARGE);
 
-  this.contButton.inputEnabled = true;
+  contButton.inputEnabled = true;
 
-  this.contButton.events.onInputDown.add(function () {
-    winScreen.destroy();
-    this.winHeader.destroy();
-    submitScreen();
-  });
-  // this.contButton.events.onInputDown.add(function () {
-  //   inputEnabled = true;
-  //   sprite.input.enabled = true;
-  //   game.input.onDown.add(delegate, this, 0);
-  //   winScreen.destroy();
-  // });
+  contButton.events.onInputUp.add(function () {
+    inputEnabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    if (currentLevelIndex === (levels.length - 1)) {
+      submitScreen();
+    } else {
+      nextLevel();
+      hpCounter.timer.resume();
+      hpBarCounter.timer.resume();
+    }
+    winHeader.destroy();
+    winScreenGroup.destroy(true);
+    darkFilter.destroy();
+  }, this);
 
   // Restart button (If we have multiple levels, maybe remove this?)
-  this.restartButton = winScreen.create(this.game.world.centerX + 1200, 1300, 'restart');
-  this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.restartButton.inputEnabled = true;
-  this.restartButton.events.onInputDown.add(function () {
+  restartButton = winScreenGroup.create(game.world.centerX + 1200, 1300, 'restart');
+  restartButton.anchor.setTo(0.5);
+  restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+  restartButton.inputEnabled = true;
+  restartButton.events.onInputDown.add(function () {
     clearPipes();
-    console.log(this);
     restartLightflash();
     SFX_victorySound.pause();
     SFX_reset.play();
@@ -654,31 +671,31 @@ function winScreen() {
     canPlace = true;
     hpCounter.timer.resume();
     hpBarCounter.timer.resume();
-    this.winHeader.destroy();
-    winScreen.destroy();
-    this.darkFilter.destroy();
+    winHeader.destroy();
+    winScreenGroup.destroy();
+    darkFilter.destroy();
   }, this);
 
   // White Filter
-  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-  this.whiteFilter.anchor.setTo(0.5);
-  this.whiteFilter.scale.setTo(4);
-  this.whiteFilter.alpha = 0;
+  whiteFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'whiteFilter');
+  whiteFilter.anchor.setTo(0.5);
+  whiteFilter.scale.setTo(4);
+  whiteFilter.alpha = 0;
 
   // Text and Button Tweens
-  darkFilterTween = this.game.add.tween(this.darkFilter);
+  darkFilterTween = game.add.tween(darkFilter);
   darkFilterTween.to({ alpha: 1 }, 1500, Phaser.Easing.Cubic.Out, true);
 
-  victoryTween = this.game.add.tween(this.winHeader);
+  victoryTween = game.add.tween(winHeader);
   victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 
-  var xMovement = 400;
-  winScreen.forEach(function (element) {
-    var elementTween = this.game.add.tween(element);
+  let xMovement = 400;
+  winScreenGroup.forEach(function (element) {
+    let elementTween = game.add.tween(element);
     elementTween.to({ x: element.position.x - xMovement }, 1000, Phaser.Easing.Cubic.Out, true);
     elementTween.start();
     xMovement += 200;
-  })
+  });
 }
 
 // Displays lose screen
@@ -688,62 +705,53 @@ function loseScreen() {
   game.input.onDown.removeAll();
 
   // Dark Filter
-  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-  this.darkFilter.anchor.setTo(0.5);
-  this.darkFilter.scale.setTo(4);
-  this.darkFilter.alpha = 1;
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
 
   // Group for screen components
-  var loseScreen = this.game.add.group();
+  loseScreen = game.add.group();
 
   // Big lose header
-  this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
+  loseHeader = game.add.text(game.world.centerX, 400, "DEFEAT", {
     font: 'bold 140pt Helvetica',
     fill: 'white',
     align: 'center',
     wordWrap: true,
     wordWrapWidth: 700
   });
-  this.loseHeader.anchor.setTo(0.5);
-  this.loseHeader.stroke = '#000000';
-  this.loseHeader.strokeThickness = 10;
-  this.loseHeader.alpha = 0;
+  loseHeader.anchor.setTo(0.5);
+  loseHeader.stroke = '#000000';
+  loseHeader.strokeThickness = 10;
+  loseHeader.alpha = 0;
 
   // Specifies text properties
   var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
 
   // Water-Saved text
-  this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
-  this.sadText.lineSpacing = -7;
-  this.sadText.anchor.setTo(0.5);
-  this.sadText.stroke = '#000000';
-  this.sadText.strokeThickness = 7;
-  loseScreen.add(this.sadText);
+  sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
+  sadText.lineSpacing = -7;
+  sadText.anchor.setTo(0.5);
+  sadText.stroke = '#000000';
+  sadText.strokeThickness = 7;
+  loseScreen.add(sadText);
 
   // Menu Button
-  this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
-  this.menuButton.anchor.setTo(0.5);
-  this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.menuButton.inputEnabled = true;
-  this.menuButton.events.onInputDown.add(function () {
+  menuButton = loseScreen.create(game.world.centerX, 1050, 'menuButton');
+  menuButton.anchor.setTo(0.5);
+  menuButton.scale.setTo(BUTTON_SCALE_LARGE);
+  menuButton.inputEnabled = true;
+  menuButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-  })
-  /*
-  this.contButton.inputEnabled = true;
-  this.contButton.events.onInputDown.add(function () {
-    input_Enabled = true;
-    sprite.input.enabled = tmenu
-    game.input.onDown.add(delegate, this, 0);
-    loseScreen.destroy();
   });
-  */
 
   // Restart button
-  this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
-  this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.restartButton.inputEnabled = true;
-  this.restartButton.events.onInputDown.add(function () {
+  restartButton = loseScreen.create(game.world.centerX, 1200, 'restart');
+  restartButton.anchor.setTo(0.5);
+  restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+  restartButton.inputEnabled = true;
+  restartButton.events.onInputDown.add(function () {
     clearPipes();
     restartLightflash();
     SFX_reset.play();
@@ -756,8 +764,8 @@ function loseScreen() {
     hpCounter.timer.resume();
     hpBarCounter.timer.resume();
 
-    this.whiteFilter.alpha = 1;
-    whiteFilterTween = this.game.add.tween(this.whiteFilter);
+    whiteFilter.alpha = 1;
+    whiteFilterTween = game.add.tween(whiteFilter);
     whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
     SFX_loseSound.stop();
@@ -769,15 +777,15 @@ function loseScreen() {
   });
 
   // White Filter
-  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-  this.whiteFilter.anchor.setTo(0.5);
-  this.whiteFilter.scale.setTo(4);
+  whiteFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'whiteFilter');
+  whiteFilter.anchor.setTo(0.5);
+  whiteFilter.scale.setTo(4);
 
   // Text and Filter Tweens
-  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween = game.add.tween(whiteFilter);
   whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
-  loseTween = this.game.add.tween(this.loseHeader);
+  loseTween = game.add.tween(loseHeader);
   loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 
@@ -785,21 +793,21 @@ function loseScreen() {
 function submitScreen() {
 
   var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
-  var submitGroup = this.game.add.group();
+  var submitGroup = game.add.group();
 
-  this.scoreDisplay = game.add.text(game.world.centerX, 550, "Your total score is: " + health + " litres!", textStyle);
-  this.scoreDisplay.anchor.setTo(0.5);
-  this.scoreDisplay.lineSpacing = -2;
-  this.scoreDisplay.addColor('#3d87ff', 20);
-  this.scoreDisplay.stroke = '#000000';
-  this.scoreDisplay.strokeThickness = 7;
-  submitGroup.add(this.scoreDisplay);
+  scoreDisplay = game.add.text(game.world.centerX, 550, "Your total score is: " + health + " litres!", textStyle);
+  scoreDisplay.anchor.setTo(0.5);
+  scoreDisplay.lineSpacing = -2;
+  scoreDisplay.addColor('#3d87ff', 20);
+  scoreDisplay.stroke = '#000000';
+  scoreDisplay.strokeThickness = 7;
+  submitGroup.add(scoreDisplay);
 
-  this.nameDisplay = game.add.text(game.world.centerX, 700, "Enter your name:", textStyle);
-  this.nameDisplay.anchor.setTo(0.5);
-  this.nameDisplay.lineSpacing = -2;
-  this.nameDisplay.strokeThickness = 7;
-  submitGroup.add(this.nameDisplay)
+  nameDisplay = game.add.text(game.world.centerX, 700, "Enter your name:", textStyle);
+  nameDisplay.anchor.setTo(0.5);
+  nameDisplay.lineSpacing = -2;
+  nameDisplay.strokeThickness = 7;
+  submitGroup.add(nameDisplay)
 
   var textBox = document.createElement("input");
   var textBoxHeight = game.scale.height / 2 + "px";
@@ -824,22 +832,22 @@ function submitScreen() {
 
 
   //Temporary submit button.
-  this.submitButton = submitGroup.create(this.game.world.centerX, this.game.world.centerY + 350, 'continueButton');
-  this.submitButton.anchor.setTo(0.5);
-  this.submitButton.scale.setTo(BUTTON_SCALE_LARGE);
+  submitButton = submitGroup.create(game.world.centerX, game.world.centerY + 350, 'continueButton');
+  submitButton.anchor.setTo(0.5);
+  submitButton.scale.setTo(BUTTON_SCALE_LARGE);
 
-  this.submitButton.inputEnabled = true;
+  submitButton.inputEnabled = true;
 
-  this.submitButton.events.onInputDown.add(function () {
+  submitButton.events.onInputDown.add(function () {
     var inputScore = health;
     var inputName = document.getElementById("textBox").value;
     if (inputName.trim().length < 1) {
-        this.emptyDisplay = game.add.text(game.world.centerX, 950, "Please enter a name", textStyle);
-        this.emptyDisplay.anchor.setTo(0.5);
-        this.emptyDisplay.addColor('red', 0);
-        this.emptyDisplay.lineSpacing = -2;
-        this.emptyDisplay.strokeThickness = 7;
-        submitGroup.add(this.emptyDisplay)
+        emptyDisplay = game.add.text(game.world.centerX, 950, "Please enter a name", textStyle);
+        emptyDisplay.anchor.setTo(0.5);
+        emptyDisplay.addColor('red', 0);
+        emptyDisplay.lineSpacing = -2;
+        emptyDisplay.strokeThickness = 7;
+        submitGroup.add(emptyDisplay)
     } else {
     console.log(inputScore);
     console.log(inputName);
@@ -862,29 +870,29 @@ function submitScreen() {
 function sentScreen() {
 
   var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
-  var sentGroup = this.game.add.group();
+  var sentGroup = game.add.group();
 
-  this.sentDisplay = game.add.text(game.world.centerX, 550, "Score sent!", textStyle);
-  this.sentDisplay.anchor.setTo(0.5);
-  this.sentDisplay.lineSpacing = -2;
+  sentDisplay = game.add.text(game.world.centerX, 550, "Score sent!", textStyle);
+  sentDisplay.anchor.setTo(0.5);
+  sentDisplay.lineSpacing = -2;
 
   //returns to main menu
-  this.menuButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY, 'menuButton');
-  this.menuButton.anchor.setTo(0.5);
-  this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.menuButton.inputEnabled = true;
+  menuButton = sentGroup.create(game.world.centerX, game.world.centerY, 'menuButton');
+  menuButton.anchor.setTo(0.5);
+  menuButton.scale.setTo(BUTTON_SCALE_LARGE);
+  menuButton.inputEnabled = true;
 
-  this.menuButton.events.onInputDown.add(function () {
+  menuButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
   });
 
   // goes to leaderboard
-  this.leadButton = sentGroup.create(this.game.world.centerX, this.game.world.centerY + 150, 'continueButton');
-  this.leadButton.anchor.setTo(0.5);
-  this.leadButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.leadButton.inputEnabled = true;
+  leadButton = sentGroup.create(game.world.centerX, game.world.centerY + 150, 'continueButton');
+  leadButton.anchor.setTo(0.5);
+  leadButton.scale.setTo(BUTTON_SCALE_LARGE);
+  leadButton.inputEnabled = true;
 
-  this.leadButton.events.onInputDown.add(function () {
+  leadButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue/leaderboard.html');
   });
 }
