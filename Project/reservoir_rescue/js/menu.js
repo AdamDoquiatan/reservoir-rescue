@@ -5,7 +5,6 @@ const BUTTON_SCALE_LARGE = 1.5;
 const BUTTON_SCALE_SMALL = 1.0;
 var yMod = 0;
 var obsScreenActive = true;
-var doneOnce = false;
 var audioCreated = false;
 
 let whiteFilter;
@@ -134,7 +133,6 @@ function obsScreen1(sprite, event) {
   darkFilter.anchor.setTo(0.5);
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 1;
-  doneOnce = true;
 
   // Group for screen componenets
   var obsScreen = game.add.group();
@@ -235,6 +233,394 @@ function obsScreen1(sprite, event) {
       if (musicEnabled == true) {
         SFX_gameMusic.play();
       }
+    });
+
+    darkFilterTween = game.add.tween(darkFilter);
+    darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
+      elementTween.start();
+      elementTween.onComplete.add(function () {
+        obsScreen.destroy();
+      });
+
+    });
+    inputEnabled = true;
+    yMod = 0;
+    game.input.onDown.add(delegate, this, 0);
+    game.time.events.add(DELAY, startCounter, this);
+    obsScreenActive = false;
+  }
+}
+
+function obsScreen2(sprite, event) {
+
+  // Prevents input to anything but obs screen
+  inputEnabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
+
+  // Group for screen componenets
+  var obsScreen = game.add.group();
+
+  // Picture of a sprinkler
+  this.obsSprink = this.game.add.sprite(this.game.world.centerX, -650 + yMod, 'sprinkler');
+  this.obsSprink.anchor.setTo(0.5);
+  this.obsSprink.scale.setTo(8);
+  this.obsSprink.animations.add('play');
+  this.obsSprink.animations.play('play', 3, true);
+  obsScreen.add(this.obsSprink);
+
+  // "Look out!" header
+  this.lookOutHeader = game.add.text(this.game.world.centerX, -450 + yMod, "LOOK OUT!", { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.lookOutHeader.anchor.setTo(0.5);
+  this.lookOutHeader.stroke = '#000000';
+  this.lookOutHeader.strokeThickness = 5;
+  obsScreen.add(this.lookOutHeader);
+
+  // Obstacle text
+  this.obsTextSprink = game.add.text(this.game.world.centerX, -300 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprink.addColor('#3d87ff', 17);
+  this.obsTextSprink.addColor('white', 26);
+  this.obsTextSprink.anchor.setTo(0.5);
+  this.obsTextSprink.stroke = '#000000';
+  this.obsTextSprink.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprink);
+
+  // Obstacle text bottom line
+  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -152 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprinkBLine.anchor.setTo(0.5);
+  this.obsTextSprinkBLine.stroke = '#000000';
+  this.obsTextSprinkBLine.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprinkBLine);
+
+  // Continue button
+  this.contButton = obsScreen.create(this.game.world.centerX, 57 + yMod, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(BUTTON_SCALE);
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(endObsScreen, this);
+
+  // Screen BG
+  obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+  obsBorder.anchor.setTo(0.5);
+  obsBorder.scale.setTo(2, 2.1);
+  obsScreen.add(obsBorder);
+
+  if (yMod === 0) {
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    });
+  }
+
+  // Exits screen. Plays when continue button is pressed
+  function endObsScreen(sprite, event) {
+
+    SFX_obsScreenSwooshOut.play();
+    SFX_obsScreenButton.play();
+    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
+        SFX_gameMusic.volume = 0.4;
+    });
+
+    darkFilterTween = game.add.tween(darkFilter);
+    darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
+      elementTween.start();
+      elementTween.onComplete.add(function () {
+        obsScreen.destroy();
+      });
+
+    });
+    inputEnabled = true;
+    yMod = 0;
+    game.input.onDown.add(delegate, this, 0);
+    game.time.events.add(DELAY, startCounter, this);
+    obsScreenActive = false;
+  }
+}
+
+function obsScreen3(sprite, event) {
+
+  // Prevents input to anything but obs screen
+  inputEnabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
+
+  // Group for screen componenets
+  var obsScreen = game.add.group();
+
+  // Picture of a sprinkler
+  this.obsSprink = this.game.add.sprite(this.game.world.centerX, -650 + yMod, 'sprinkler');
+  this.obsSprink.anchor.setTo(0.5);
+  this.obsSprink.scale.setTo(8);
+  this.obsSprink.animations.add('play');
+  this.obsSprink.animations.play('play', 3, true);
+  obsScreen.add(this.obsSprink);
+
+  // "Look out!" header
+  this.lookOutHeader = game.add.text(this.game.world.centerX, -450 + yMod, "LOOK OUT!", { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.lookOutHeader.anchor.setTo(0.5);
+  this.lookOutHeader.stroke = '#000000';
+  this.lookOutHeader.strokeThickness = 5;
+  obsScreen.add(this.lookOutHeader);
+
+  // Obstacle text
+  this.obsTextSprink = game.add.text(this.game.world.centerX, -300 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprink.addColor('#3d87ff', 17);
+  this.obsTextSprink.addColor('white', 26);
+  this.obsTextSprink.anchor.setTo(0.5);
+  this.obsTextSprink.stroke = '#000000';
+  this.obsTextSprink.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprink);
+
+  // Obstacle text bottom line
+  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -152 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprinkBLine.anchor.setTo(0.5);
+  this.obsTextSprinkBLine.stroke = '#000000';
+  this.obsTextSprinkBLine.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprinkBLine);
+
+  // Continue button
+  this.contButton = obsScreen.create(this.game.world.centerX, 57 + yMod, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(BUTTON_SCALE);
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(endObsScreen, this);
+
+  // Screen BG
+  obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+  obsBorder.anchor.setTo(0.5);
+  obsBorder.scale.setTo(2, 2.1);
+  obsScreen.add(obsBorder);
+
+  if (yMod === 0) {
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    });
+  }
+
+  // Exits screen. Plays when continue button is pressed
+  function endObsScreen(sprite, event) {
+
+    SFX_obsScreenSwooshOut.play();
+    SFX_obsScreenButton.play();
+    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
+        SFX_gameMusic.volume = 0.4;
+    });
+
+    darkFilterTween = game.add.tween(darkFilter);
+    darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
+      elementTween.start();
+      elementTween.onComplete.add(function () {
+        obsScreen.destroy();
+      });
+
+    });
+    inputEnabled = true;
+    yMod = 0;
+    game.input.onDown.add(delegate, this, 0);
+    game.time.events.add(DELAY, startCounter, this);
+    obsScreenActive = false;
+  }
+}
+
+function obsScreen4(sprite, event) {
+
+  // Prevents input to anything but obs screen
+  inputEnabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
+
+  // Group for screen componenets
+  var obsScreen = game.add.group();
+
+  // Picture of a sprinkler
+  this.obsSprink = this.game.add.sprite(this.game.world.centerX, -650 + yMod, 'sprinkler');
+  this.obsSprink.anchor.setTo(0.5);
+  this.obsSprink.scale.setTo(8);
+  this.obsSprink.animations.add('play');
+  this.obsSprink.animations.play('play', 3, true);
+  obsScreen.add(this.obsSprink);
+
+  // "Look out!" header
+  this.lookOutHeader = game.add.text(this.game.world.centerX, -450 + yMod, "LOOK OUT!", { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.lookOutHeader.anchor.setTo(0.5);
+  this.lookOutHeader.stroke = '#000000';
+  this.lookOutHeader.strokeThickness = 5;
+  obsScreen.add(this.lookOutHeader);
+
+  // Obstacle text
+  this.obsTextSprink = game.add.text(this.game.world.centerX, -300 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprink.addColor('#3d87ff', 17);
+  this.obsTextSprink.addColor('white', 26);
+  this.obsTextSprink.anchor.setTo(0.5);
+  this.obsTextSprink.stroke = '#000000';
+  this.obsTextSprink.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprink);
+
+  // Obstacle text bottom line
+  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -152 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprinkBLine.anchor.setTo(0.5);
+  this.obsTextSprinkBLine.stroke = '#000000';
+  this.obsTextSprinkBLine.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprinkBLine);
+
+  // Continue button
+  this.contButton = obsScreen.create(this.game.world.centerX, 57 + yMod, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(BUTTON_SCALE);
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(endObsScreen, this);
+
+  // Screen BG
+  obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+  obsBorder.anchor.setTo(0.5);
+  obsBorder.scale.setTo(2, 2.1);
+  obsScreen.add(obsBorder);
+
+  if (yMod === 0) {
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    });
+  }
+
+  // Exits screen. Plays when continue button is pressed
+  function endObsScreen(sprite, event) {
+
+    SFX_obsScreenSwooshOut.play();
+    SFX_obsScreenButton.play();
+    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
+        SFX_gameMusic.volume = 0.4;
+    });
+
+    darkFilterTween = game.add.tween(darkFilter);
+    darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
+
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y - 640 }, 700, Phaser.Easing.Back.In, true);
+      elementTween.start();
+      elementTween.onComplete.add(function () {
+        obsScreen.destroy();
+      });
+
+    });
+    inputEnabled = true;
+    yMod = 0;
+    game.input.onDown.add(delegate, this, 0);
+    game.time.events.add(DELAY, startCounter, this);
+    obsScreenActive = false;
+  }
+}
+
+function obsScreen5(sprite, event) {
+
+  // Prevents input to anything but obs screen
+  inputEnabled = false;
+  game.input.onDown.removeAll();
+
+  // Dark Filter
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
+
+  // Group for screen componenets
+  var obsScreen = game.add.group();
+
+  // Picture of a sprinkler
+  this.obsSprink = this.game.add.sprite(this.game.world.centerX, -650 + yMod, 'sprinkler');
+  this.obsSprink.anchor.setTo(0.5);
+  this.obsSprink.scale.setTo(8);
+  this.obsSprink.animations.add('play');
+  this.obsSprink.animations.play('play', 3, true);
+  obsScreen.add(this.obsSprink);
+
+  // "Look out!" header
+  this.lookOutHeader = game.add.text(this.game.world.centerX, -450 + yMod, "LOOK OUT!", { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.lookOutHeader.anchor.setTo(0.5);
+  this.lookOutHeader.stroke = '#000000';
+  this.lookOutHeader.strokeThickness = 5;
+  obsScreen.add(this.lookOutHeader);
+
+  // Obstacle text
+  this.obsTextSprink = game.add.text(this.game.world.centerX, -300 + yMod, "Sprinklers waste 16 litres of water per minute!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprink.addColor('#3d87ff', 17);
+  this.obsTextSprink.addColor('white', 26);
+  this.obsTextSprink.anchor.setTo(0.5);
+  this.obsTextSprink.stroke = '#000000';
+  this.obsTextSprink.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprink);
+
+  // Obstacle text bottom line
+  this.obsTextSprinkBLine = game.add.text(this.game.world.centerX, -152 + yMod, "Better keep our pipes clear!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
+  this.obsTextSprinkBLine.anchor.setTo(0.5);
+  this.obsTextSprinkBLine.stroke = '#000000';
+  this.obsTextSprinkBLine.strokeThickness = 5;
+  obsScreen.add(this.obsTextSprinkBLine);
+
+  // Continue button
+  this.contButton = obsScreen.create(this.game.world.centerX, 57 + yMod, 'continueButton');
+  this.contButton.anchor.setTo(0.5);
+  this.contButton.scale.setTo(BUTTON_SCALE);
+  this.contButton.inputEnabled = true;
+  this.contButton.events.onInputDown.add(endObsScreen, this);
+
+  // Screen BG
+  obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
+  obsBorder.anchor.setTo(0.5);
+  obsBorder.scale.setTo(2, 2.1);
+  obsScreen.add(obsBorder);
+
+  if (yMod === 0) {
+    // Opening screen animation. Auto-plays when game starts
+    obsScreen.forEach(function (element) {
+      var elementTween = game.add.tween(element);
+      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+      elementTween.start();
+    });
+  }
+
+  // Exits screen. Plays when continue button is pressed
+  function endObsScreen(sprite, event) {
+
+    SFX_obsScreenSwooshOut.play();
+    SFX_obsScreenButton.play();
+    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
+        SFX_gameMusic.volume = 0.4;
     });
 
     darkFilterTween = game.add.tween(darkFilter);
@@ -632,7 +1018,7 @@ function winScreen() {
   scoreDisplay.strokeThickness = 7;
   winScreenGroup.add(scoreDisplay);
 
-  // Continue (to next level) button -- doesn't do anything yet
+  // Continue (to next level) button
   contButton = winScreenGroup.create(game.world.centerX + 1000, 1150, 'continueButton');
   contButton.anchor.setTo(0.5);
   contButton.scale.setTo(BUTTON_SCALE_LARGE);
@@ -642,6 +1028,7 @@ function winScreen() {
   contButton.events.onInputUp.add(function () {
     inputEnabled = true;
     game.input.onDown.add(delegate, this, 0);
+    darkFilter.destroy();
     if (currentLevelIndex === (levels.length - 1)) {
       submitScreen();
     } else {
@@ -649,12 +1036,17 @@ function winScreen() {
       hpCounter.timer.resume();
       hpBarCounter.timer.resume();
     }
+    SFX_victorySound.pause();
+    restartLightflash();
+    SFX_reset.play();
+    SFX_gameMusic.resume();
+    SFX_gameMusic.volume = 0.4
+
     winHeader.destroy();
     winScreenGroup.destroy(true);
-    darkFilter.destroy();
   }, this);
 
-  // Restart button (If we have multiple levels, maybe remove this?)
+  // Restart button 
   restartButton = winScreenGroup.create(game.world.centerX + 1200, 1300, 'restart');
   restartButton.anchor.setTo(0.5);
   restartButton.scale.setTo(BUTTON_SCALE_LARGE);

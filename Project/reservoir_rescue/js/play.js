@@ -20,7 +20,7 @@ const FLOW_RATE = 40;
 const DELAY = 500;
 
 // For enabling/disabling testing features
-let testMode = true; 
+let testMode = true;
 
 /* Game Objects */
 
@@ -87,7 +87,7 @@ let doNotRandomize = false;
 let pipeSwappedBack = null;
 
 // Turn music on or off.
-var musicEnabled = true; 
+var musicEnabled = true;
 
 lose = false;
 let startPipe = null;
@@ -130,10 +130,10 @@ let playState = {
     this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
     this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
-    this.pauseButton.events.onInputDown.add(function (){
-      if (yMod  === 0) {
-      SFX_gameMusic.volume = 0.1;
-      SFX_pauseButton.play();
+    this.pauseButton.events.onInputDown.add(function () {
+      if (yMod === 0) {
+        SFX_gameMusic.volume = 0.1;
+        SFX_pauseButton.play();
       }
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
@@ -149,7 +149,7 @@ let playState = {
     this.helpButton.scale.setTo(3);
     this.helpButton.anchor.setTo(0, 0);
     this.helpButton.inputEnabled = inputEnabled;
-    this.helpButton.events.onInputDown.add(helpScreen, this);    
+    this.helpButton.events.onInputDown.add(helpScreen, this);
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
@@ -188,8 +188,8 @@ let playState = {
 
     if (testMode) {
       testText.text = '('
-      + parseInt(game.input.activePointer.x) + ','
-      + parseInt(game.input.activePointer.y) + ')';
+        + parseInt(game.input.activePointer.x) + ','
+        + parseInt(game.input.activePointer.y) + ')';
     }
 
     if (endFlow) {
@@ -209,10 +209,10 @@ function reloadPipe() {
   let newPipeIndex
   if (pipeSwappedBack != null) {
     for (let i = 0; i < pipeSelection.length; i++) {
-        if (pipeSwappedBack && pipeSwappedBack.selectImage === pipeSelection[i].selectImage) {
-          newPipeIndex = i;
-          pipeSwappedBack = null;
-        }
+      if (pipeSwappedBack && pipeSwappedBack.selectImage === pipeSelection[i].selectImage) {
+        newPipeIndex = i;
+        pipeSwappedBack = null;
+      }
     }
   } else {
     newPipeIndex = Math.floor(Math.random() * 6);
@@ -229,11 +229,11 @@ function reloadPipe() {
   oldPipe.destroy();
 
   menuPipeArray[currentSelection].animations.play('active', 15);
-    
+
   //Updates array.
   boxedPipes[currentSelection] = newPipeIndex;
   pipeIndex = newPipeIndex;
-  
+
   doNotRandomize = false;
 }
 
@@ -244,7 +244,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
       pipeIndex = index;
       currentSelection = currentIndex;
       canPlace = true;
-    
+
       SFX_selectPipe.play();
       selectionMenu.frame = currentSelection;
 
@@ -254,7 +254,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
       }
       pipe.animations.play('active', 15);
       pipe.active = true;
-    }    
+    }
   }
 }
 
@@ -296,10 +296,10 @@ function delegate(pointer) {
 
 // Starts water level hpCounter
 function startCounter() {
-  hpCounter = game.time.events.loop(hpRate, function() {
+  hpCounter = game.time.events.loop(hpRate, function () {
     healthText.text = --health;
   }, this);
-  hpBarCounter = game.time.events.loop(hpBarRate, function() {
+  hpBarCounter = game.time.events.loop(hpBarRate, function () {
     hpBar.frame += 1;
   }, this);
 }
@@ -322,8 +322,8 @@ function levelComplete() {
   SFX_gameMusic.pause();
   SFX_placePipe.stop();
   SFX_lastPipe.play();
-  SFX_lastPipe.onStop.addOnce(function (){
-  
+  SFX_lastPipe.onStop.addOnce(function () {
+
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
@@ -376,20 +376,20 @@ function initializeTilemap(mapName) {
     let obstacle;
     switch (o.key) {
       case 'sprinkler':
-        obstacle = new Obstacle(o.key, col, row, 20, [0,1,2,3,4,5,6,7], 5);
+        obstacle = new Obstacle(o.key, col, row, 20, [0, 1, 2, 3, 4, 5, 6, 7], 5);
         break;
       case 'washing_machine':
-        obstacle = new Obstacle(o.key, col, row, 30, 
-          [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36], 20);
+        obstacle = new Obstacle(o.key, col, row, 30,
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36], 20);
         break;
       case 'sink':
-        obstacle = new Obstacle(o.key, col, row, 40, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        obstacle = new Obstacle(o.key, col, row, 40, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], 5);
         break;
       case 'shower':
-        obstacle = new Obstacle(o.key, col, row, 50, [1,2,3,4,5,6,7], 10);
+        obstacle = new Obstacle(o.key, col, row, 50, [1, 2, 3, 4, 5, 6, 7], 10);
         break;
       case 'toilet':
-        obstacle = new Obstacle(o.key, col, row, 50, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 5);
+        obstacle = new Obstacle(o.key, col, row, 50, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], 5);
         break;
     }
     obstacle.sprite = o;
@@ -424,7 +424,7 @@ function initializeMenu() {
   for (let i = 0; i < menuPipeArray.length; i++) {
     menuPipeArray[i].events.onInputDown.add(selectPipe,
       this, 0, boxedPipes[i], i);
-  } 
+  }
 
   pipeIndex = boxedPipes[1];
   currentSelection = 1;
@@ -433,8 +433,8 @@ function initializeMenu() {
 }
 
 // Destroys the sprite
-function destroySprite (sprite) {
-    sprite.destroy();
+function destroySprite(sprite) {
+  sprite.destroy();
 }
 
 // Removes object from specifed array
@@ -449,7 +449,7 @@ function addPipeToMenu(pipe, index) {
   pipe.active = false;
   pipe.scale.setTo(SCALE);
   pipe.inputEnabled = true;
-  pipe.animations.add('active', [0,1,2,3,4,5,6], 20);
+  pipe.animations.add('active', [0, 1, 2, 3, 4, 5, 6], 20);
 
   menuPipeArray[index] = pipe;
 }
@@ -469,8 +469,8 @@ function releaseWater() {
 function nextLevel() {
   ++currentLevelIndex;
   clearGrid();
-  layer1.destroy(); 
-  initializeTilemap(levels[currentLevelIndex]);  
+  layer1.destroy();
+  initializeTilemap(levels[currentLevelIndex]);
   pipeIndex = boxedPipes[1];
   currentSelection = 1;
   menuPipeArray[1].animations.play('active');
@@ -478,6 +478,20 @@ function nextLevel() {
   canPlace = true;
   health = HP;
   setHealthBar(health);
+  switch (currentLevelIndex) {
+    case 1:
+      obsScreen2();
+      break;
+    case 2:
+      obsScreen3();
+      break;
+    case 3:
+      obsScreen4();
+      break;
+    case 4:
+      obsScreen5();
+      break;
+  }
 }
 
 // Clears grid of pipes and obstacles
