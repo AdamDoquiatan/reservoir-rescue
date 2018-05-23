@@ -7,6 +7,24 @@ var obsScreenActive = true;
 var doneOnce = false;
 var audioCreated = false;
 
+let whiteFilter;
+let whiteFilterTween;
+let darkFilter;
+let darkFilterTween;
+let victoryTween;
+let winScreenGroup;
+let winHeader;
+let loseScreenGroup;
+let pauseScreenGroup;
+let pauseHeader;
+let textStyle;
+let tipDisplay;
+let contButton;
+let restartButton;
+let menuButton;
+let scoreDisplay;
+let waterSavedDisplay;
+
 function pauseMenu(sprite, event) {
   hpCounter.timer.pause();
   hpBarCounter.timer.pause();
@@ -18,62 +36,62 @@ function pauseMenu(sprite, event) {
     game.input.onDown.removeAll();
 
     // Dark filter
-    var darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+    darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
     darkFilter.anchor.setTo(0.5);
     darkFilter.scale.setTo(4);
 
     // Group for screen componenets
-    var pauseScreen = this.game.add.group();
+    pauseScreenGroup = game.add.group();
 
     // Big pause header
-    this.pauseHeader = game.add.text(this.game.world.centerX, 200, "PAUSED", {
+    pauseHeader = game.add.text(game.world.centerX, 200, "PAUSED", {
       font: 'bold 100pt Helvetica',
       fill: 'white',
       align: 'center',
       wordWrap: true,
       wordWrapWidth: 700
     });
-    this.pauseHeader.anchor.setTo(0.5);
-    this.pauseHeader.stroke = '#000000';
-    this.pauseHeader.strokeThickness = 7;
-    pauseScreen.add(this.pauseHeader);
+    pauseHeader.anchor.setTo(0.5);
+    pauseHeader.stroke = '#000000';
+    pauseHeader.strokeThickness = 7;
+    pauseScreenGroup.add(pauseHeader);
 
     // Specifies text properties
-    var textStyle = { font: 'bold 40pt Helvetica', fontSize: 52, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+    textStyle = { font: 'bold 40pt Helvetica', fontSize: 52, fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
     // Tip text
-    this.tipDisplay = game.add.text(this.game.world.centerX, 650,
-      "WATER SAVING TIP:\n" + randomTip(this.tipDisplay, this), textStyle);
-    this.tipDisplay.anchor.setTo(0.5);
-    this.tipDisplay.lineSpacing = -2;
-    this.tipDisplay.addColor('#3d87ff', 0);
-    this.tipDisplay.addColor('white', 17);
-    this.tipDisplay.stroke = '#000000';
-    this.tipDisplay.strokeThickness = 7;
-    pauseScreen.add(this.tipDisplay);
+    tipDisplay = game.add.text(game.world.centerX, 650,
+      "WATER SAVING TIP:\n" + randomTip(tipDisplay, this), textStyle);
+    tipDisplay.anchor.setTo(0.5);
+    tipDisplay.lineSpacing = -2;
+    tipDisplay.addColor('#3d87ff', 0);
+    tipDisplay.addColor('white', 17);
+    tipDisplay.stroke = '#000000';
+    tipDisplay.strokeThickness = 7;
+    pauseScreenGroup.add(tipDisplay);
 
     // Continue button
-    this.contButton = pauseScreen.create(this.game.world.centerX, 1050, 'continueButton');
-    this.contButton.anchor.setTo(0.5);
-    this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.contButton.inputEnabled = true;
-    this.contButton.events.onInputDown.add(function () {
+    contButton = pauseScreenGroup.create(game.world.centerX, 1050, 'continueButton');
+    contButton.anchor.setTo(0.5);
+    contButton.scale.setTo(BUTTON_SCALE_LARGE);
+    contButton.inputEnabled = true;
+    contButton.events.onInputDown.add(function () {
       SFX_gameMusic.volume = 0.4;
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
       hpCounter.timer.resume();
       hpBarCounter.timer.resume();
-      pauseScreen.destroy();
+      pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
 
     // Restart button
-    this.restartButton = pauseScreen.create(this.game.world.centerX, 1200, 'restart');
-    this.restartButton.anchor.setTo(0.5);
-    this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.restartButton.inputEnabled = true;
-    this.restartButton.events.onInputDown.add(function () {
+    restartButton = pauseScreenGroup.create(game.world.centerX, 1200, 'restart');
+    restartButton.anchor.setTo(0.5);
+    restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+    restartButton.inputEnabled = true;
+    restartButton.events.onInputDown.add(function () {
       clearPipes();
       SFX_gameMusic.volume = 0.4;
       restartLightflash();
@@ -85,16 +103,16 @@ function pauseMenu(sprite, event) {
       health = HP;
       hpCounter.timer.resume();
       hpBarCounter.timer.resume();
-      pauseScreen.destroy();
+      pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
 
     // Menu button
-    this.menuButton = pauseScreen.create(this.game.world.centerX, 1350, 'menuButton');
-    this.menuButton.anchor.setTo(0.5);
-    this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
-    this.menuButton.inputEnabled = true;
-    this.menuButton.events.onInputDown.add(function () {
+    menuButton = pauseScreenGroup.create(game.world.centerX, 1350, 'menuButton');
+    menuButton.anchor.setTo(0.5);
+    menuButton.scale.setTo(BUTTON_SCALE_LARGE);
+    menuButton.inputEnabled = true;
+    menuButton.events.onInputDown.add(function () {
       window.location.replace('/reservoir-rescue/Project/reservoir_rescue')
     });
   }
@@ -108,17 +126,17 @@ function obsScreen1(sprite, event) {
   game.input.onDown.removeAll();
 
   // Dark Filter
-  darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
   darkFilter.anchor.setTo(0.5);
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 1;
   doneOnce = true;
 
   // Group for screen componenets
-  var obsScreen = this.game.add.group();
+  var obsScreen = game.add.group();
 
   // Picture of a sprinkler
-  this.obsSprink = obsScreen.create(this.game.world.centerX, -600 + yMod, 'obs_screen_sprink');
+  this.obsSprink = obsScreen.create(game.world.centerX, -600 + yMod, 'obs_screen_sprink');
   this.obsSprink.anchor.setTo(0.5);
   this.obsSprink.scale.setTo(0.284, 0.28);
 
@@ -537,88 +555,84 @@ function randomTip(sprite, event) {
 
 // Displays win screen
 function winScreen() {
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
-
-  console.log(this);
   // Turns off input to everything but win screen
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
   inputEnabled = false;
   game.input.onDown.removeAll();
 
   // Dark Filter Fades In
-  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-  this.darkFilter.anchor.setTo(0.5);
-  this.darkFilter.scale.setTo(4);
-  this.darkFilter.alpha = 0;
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 0;
 
   // Group for screen components
-  var winScreen = this.game.add.group();
+  winScreenGroup = game.add.group();
 
   // Big win header
-  this.winHeader = game.add.text(this.game.world.centerX, 400, "VICTORY", {
+  winHeader = game.add.text(game.world.centerX, 400, "VICTORY", {
     font: 'bold 140pt Helvetica',
     fill: 'white',
     align: 'center',
     wordWrap: true,
     wordWrapWidth: 700
   });
-  this.winHeader.anchor.setTo(0.5);
-  this.winHeader.stroke = '#000000';
-  this.winHeader.strokeThickness = 10;
-  this.winHeader.alpha = 0;
+  winHeader.anchor.setTo(0.5);
+  winHeader.stroke = '#000000';
+  winHeader.strokeThickness = 10;
+  winHeader.alpha = 0;
 
   // Specifies text properties
-  var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
+  textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
 
   // Water-saved text
-  this.waterSavedDisplay = game.add.text(game.world.centerX + 400, 550, "You saved: " + health + " litres!", textStyle);
-  this.waterSavedDisplay.anchor.setTo(0.5);
-  this.waterSavedDisplay.lineSpacing = -2;
-  this.waterSavedDisplay.addColor('#3d87ff', 11);
-  this.waterSavedDisplay.stroke = '#000000';
-  this.waterSavedDisplay.strokeThickness = 7;
-  winScreen.add(this.waterSavedDisplay);
+  waterSavedDisplay = game.add.text(game.world.centerX + 400, 550, "You saved: " + health + " litres!", textStyle);
+  waterSavedDisplay.anchor.setTo(0.5);
+  waterSavedDisplay.lineSpacing = -2;
+  waterSavedDisplay.addColor('#3d87ff', 11);
+  waterSavedDisplay.stroke = '#000000';
+  waterSavedDisplay.strokeThickness = 7;
+  winScreenGroup.add(waterSavedDisplay);
 
   // Score text
-  this.scoreDisplay = game.add.text(game.world.centerX + 600, 800,
+  scoreDisplay = game.add.text(game.world.centerX + 600, 800,
     "That's " + ((health / HP) * 100).toFixed(1) + "% of the average person's daily water usage!", textStyle);
-  this.scoreDisplay.anchor.setTo(0.5);
-  this.scoreDisplay.lineSpacing = -2;
-  this.scoreDisplay.addColor('#3d87ff', 7);
-  this.scoreDisplay.addColor('white', 12);
-  this.scoreDisplay.stroke = '#000000';
-  this.scoreDisplay.strokeThickness = 7;
-  winScreen.add(this.scoreDisplay);
+  scoreDisplay.anchor.setTo(0.5);
+  scoreDisplay.lineSpacing = -2;
+  scoreDisplay.addColor('#3d87ff', 7);
+  scoreDisplay.addColor('white', 12);
+  scoreDisplay.stroke = '#000000';
+  scoreDisplay.strokeThickness = 7;
+  winScreenGroup.add(scoreDisplay);
 
   // Continue (to next level) button -- doesn't do anything yet
-  this.contButton = winScreen.create(this.game.world.centerX + 800, 1050, 'continueButton');
-  this.contButton.anchor.setTo(0.5);
-  this.contButton.scale.setTo(BUTTON_SCALE_LARGE);
+  contButton = winScreenGroup.create(this.game.world.centerX + 800, 1050, 'continueButton');
+  contButton.anchor.setTo(0.5);
+  contButton.scale.setTo(BUTTON_SCALE_LARGE);
 
-  this.contButton.inputEnabled = true;
+  contButton.inputEnabled = true;
 
-  this.contButton.events.onInputDown.add(function () {
-    winScreen.destroy();
-    this.winHeader.destroy();
-    submitScreen();
-  });
-  // this.contButton.events.onInputDown.add(function () {
-  //   inputEnabled = true;
-  //   sprite.input.enabled = true;
-  //   game.input.onDown.add(delegate, this, 0);
-  //   winScreen.destroy();
-  // });
+  contButton.events.onInputUp.add(function () {
+    inputEnabled = true;
+    game.input.onDown.add(delegate, this, 0);
+    if (currentLevelIndex === (levels.length - 1)) {
+      submitScreen();
+    } else {
+      nextLevel();
+      hpCounter.timer.resume();
+      hpBarCounter.timer.resume();
+    }
+    winHeader.destroy();
+    winScreenGroup.destroy(true);
+    darkFilter.destroy();
+  }, this);
 
   // Restart button (If we have multiple levels, maybe remove this?)
-  this.restartButton = winScreen.create(this.game.world.centerX + 1000, 1200, 'restart');
-  this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.restartButton.inputEnabled = true;
-  this.restartButton.events.onInputDown.add(function () {
+  restartButton = winScreenGroup.create(this.game.world.centerX + 1000, 1200, 'restart');
+  restartButton.anchor.setTo(0.5);
+  restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+  restartButton.inputEnabled = true;
+  restartButton.events.onInputDown.add(function () {
     clearPipes();
-    console.log(this);
     restartLightflash();
     SFX_victorySound.pause();
     SFX_reset.play();
@@ -631,31 +645,31 @@ function winScreen() {
     canPlace = true;
     hpCounter.timer.resume();
     hpBarCounter.timer.resume();
-    this.winHeader.destroy();
-    winScreen.destroy();
-    this.darkFilter.destroy();
+    winHeader.destroy();
+    winScreenGroup.destroy();
+    darkFilter.destroy();
   }, this);
 
   // White Filter
-  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-  this.whiteFilter.anchor.setTo(0.5);
-  this.whiteFilter.scale.setTo(4);
-  this.whiteFilter.alpha = 0;
+  whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
+  whiteFilter.anchor.setTo(0.5);
+  whiteFilter.scale.setTo(4);
+  whiteFilter.alpha = 0;
 
   // Text and Button Tweens
-  darkFilterTween = this.game.add.tween(this.darkFilter);
+  darkFilterTween = game.add.tween(darkFilter);
   darkFilterTween.to({ alpha: 1 }, 1500, Phaser.Easing.Cubic.Out, true);
 
-  victoryTween = this.game.add.tween(this.winHeader);
+  victoryTween = game.add.tween(winHeader);
   victoryTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 
-  var xMovement = 400;
-  winScreen.forEach(function (element) {
-    var elementTween = this.game.add.tween(element);
+  let xMovement = 400;
+  winScreenGroup.forEach(function (element) {
+    let elementTween = this.game.add.tween(element);
     elementTween.to({ x: element.position.x - xMovement }, 1000, Phaser.Easing.Cubic.Out, true);
     elementTween.start();
     xMovement += 200;
-  })
+  });
 }
 
 // Displays lose screen
@@ -665,62 +679,53 @@ function loseScreen() {
   game.input.onDown.removeAll();
 
   // Dark Filter
-  this.darkFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'darkFilter');
-  this.darkFilter.anchor.setTo(0.5);
-  this.darkFilter.scale.setTo(4);
-  this.darkFilter.alpha = 1;
+  darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+  darkFilter.anchor.setTo(0.5);
+  darkFilter.scale.setTo(4);
+  darkFilter.alpha = 1;
 
   // Group for screen components
-  var loseScreen = this.game.add.group();
+  loseScreen = this.game.add.group();
 
   // Big lose header
-  this.loseHeader = game.add.text(this.game.world.centerX, 400, "DEFEAT", {
+  loseHeader = game.add.text(game.world.centerX, 400, "DEFEAT", {
     font: 'bold 140pt Helvetica',
     fill: 'white',
     align: 'center',
     wordWrap: true,
     wordWrapWidth: 700
   });
-  this.loseHeader.anchor.setTo(0.5);
-  this.loseHeader.stroke = '#000000';
-  this.loseHeader.strokeThickness = 10;
-  this.loseHeader.alpha = 0;
+  loseHeader.anchor.setTo(0.5);
+  loseHeader.stroke = '#000000';
+  loseHeader.strokeThickness = 10;
+  loseHeader.alpha = 0;
 
   // Specifies text properties
   var textStyle = { font: 'bold 70pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 550 };
 
   // Water-Saved text
-  this.sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
-  this.sadText.lineSpacing = -7;
-  this.sadText.anchor.setTo(0.5);
-  this.sadText.stroke = '#000000';
-  this.sadText.strokeThickness = 7;
-  loseScreen.add(this.sadText);
+  sadText = game.add.text(game.world.centerX, 730, "The water!! NOOOOOOOOO", textStyle);
+  sadText.lineSpacing = -7;
+  sadText.anchor.setTo(0.5);
+  sadText.stroke = '#000000';
+  sadText.strokeThickness = 7;
+  loseScreen.add(sadText);
 
   // Menu Button
-  this.menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
-  this.menuButton.anchor.setTo(0.5);
-  this.menuButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.menuButton.inputEnabled = true;
-  this.menuButton.events.onInputDown.add(function () {
+  menuButton = loseScreen.create(this.game.world.centerX, 1050, 'menuButton');
+  menuButton.anchor.setTo(0.5);
+  menuButton.scale.setTo(BUTTON_SCALE_LARGE);
+  menuButton.inputEnabled = true;
+  menuButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
-  })
-  /*
-  this.contButton.inputEnabled = true;
-  this.contButton.events.onInputDown.add(function () {
-    input_Enabled = true;
-    sprite.input.enabled = tmenu
-    game.input.onDown.add(delegate, this, 0);
-    loseScreen.destroy();
   });
-  */
 
   // Restart button
-  this.restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
-  this.restartButton.anchor.setTo(0.5);
-  this.restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-  this.restartButton.inputEnabled = true;
-  this.restartButton.events.onInputDown.add(function () {
+  restartButton = loseScreen.create(this.game.world.centerX, 1200, 'restart');
+  restartButton.anchor.setTo(0.5);
+  restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+  restartButton.inputEnabled = true;
+  restartButton.events.onInputDown.add(function () {
     clearPipes();
     restartLightflash();
     SFX_reset.play();
@@ -733,8 +738,8 @@ function loseScreen() {
     hpCounter.timer.resume();
     hpBarCounter.timer.resume();
 
-    this.whiteFilter.alpha = 1;
-    whiteFilterTween = this.game.add.tween(this.whiteFilter);
+    whiteFilter.alpha = 1;
+    whiteFilterTween = game.add.tween(whiteFilter);
     whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
     SFX_loseSound.stop();
@@ -746,15 +751,15 @@ function loseScreen() {
   });
 
   // White Filter
-  this.whiteFilter = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'whiteFilter');
-  this.whiteFilter.anchor.setTo(0.5);
-  this.whiteFilter.scale.setTo(4);
+  whiteFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'whiteFilter');
+  whiteFilter.anchor.setTo(0.5);
+  whiteFilter.scale.setTo(4);
 
   // Text and Filter Tweens
-  whiteFilterTween = this.game.add.tween(this.whiteFilter);
+  whiteFilterTween = game.add.tween(whiteFilter);
   whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
-  loseTween = this.game.add.tween(this.loseHeader);
+  loseTween = game.add.tween(loseHeader);
   loseTween.to({ alpha: 1 }, 1300, Phaser.Easing.Cubic.Out, true);
 }
 

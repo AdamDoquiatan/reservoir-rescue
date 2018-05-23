@@ -59,14 +59,11 @@ function placePipe() {
           if (startPipe.connections.includes(endTile.connection)) {
             canPlace = false;
             togglePipeInput(false);
-            onWin.dispatch();
+            levelComplete();
           } 
         }
       }
-
       setWarnings();
-      console.log(grid); 
-      console.log(startPipe);
     } 
   }
 }
@@ -100,7 +97,6 @@ function startWaterFlow(pipe) {
 
     let index;
     if (nextPipe !== null) {
-      console.log(getDirection(pipe, nextPipe));
       index = pipe.connections.indexOf(getDirection(pipe, nextPipe));
     } else {
       index = pipe.connections.indexOf(endTile.connection);
@@ -120,6 +116,8 @@ function startWaterFlow(pipe) {
     }, this);
   } else {
     SFX_endFlow.fadeOut(300);
+    console.log('startWaterFlow()');
+    endFlow = true;   
     SFX_splash.play();
     SFX_victorySound.play();
     SFX_victorySound.onStop.add(function () {
@@ -127,7 +125,6 @@ function startWaterFlow(pipe) {
       SFX_gameMusic.resume();
       game.add.tween(this.SFX_gameMusic).to({volume:-0.5}, 500).start();
     });
-    winScreen();
   }
 }
 
