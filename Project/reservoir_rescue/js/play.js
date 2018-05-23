@@ -465,6 +465,7 @@ function releaseWater() {
   onLose.dispatch();
 }
 
+
 // Switches to the next level
 function nextLevel() {
   ++currentLevelIndex;
@@ -485,3 +486,4 @@ function clearGrid() {
   clearPipes();
   clearObstacles();
 }
+
