@@ -312,9 +312,7 @@ function obsScreen2(sprite, event) {
 
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
-    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
-        SFX_gameMusic.volume = 0.4;
-    });
+    SFX_gameMusic.volume = 0.4;
 
     darkFilterTween = game.add.tween(darkFilter);
     darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
@@ -395,9 +393,7 @@ function obsScreen3(sprite, event) {
 
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
-    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
-        SFX_gameMusic.volume = 0.4;
-    });
+    SFX_gameMusic.volume = 0.4;
 
     darkFilterTween = game.add.tween(darkFilter);
     darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
@@ -476,9 +472,7 @@ function obsScreen4(sprite, event) {
 
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
-    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
-        SFX_gameMusic.volume = 0.4;
-    });
+    SFX_gameMusic.volume = 0.4;
 
     darkFilterTween = game.add.tween(darkFilter);
     darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
@@ -558,9 +552,7 @@ function obsScreen5(sprite, event) {
 
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
-    SFX_obsScreenSwooshOut.onStop.addOnce(function () {
-        SFX_gameMusic.volume = 0.4;
-    });
+    SFX_gameMusic.volume = 0.4;
 
     darkFilterTween = game.add.tween(darkFilter);
     darkFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
@@ -979,7 +971,7 @@ function winScreen() {
     restartLightflash();
     SFX_reset.play();
     SFX_gameMusic.resume();
-    SFX_gameMusic.volume = 0.4
+    SFX_gameMusic.volume = 0.1
 
     winHeader.destroy();
     winScreenGroup.destroy(true);

@@ -121,8 +121,8 @@ function startWaterFlow(pipe) {
     SFX_splash.play();
     SFX_victorySound.play();
     SFX_victorySound.onStop.add(function () {
-      SFX_gameMusic.volume = 0.01;
       SFX_gameMusic.resume();
+      SFX_gameMusic.volume = 0.01;
       game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
     });
   }
