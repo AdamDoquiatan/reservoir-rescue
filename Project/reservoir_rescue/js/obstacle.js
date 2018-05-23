@@ -29,3 +29,12 @@ function setWarnings() {
     }
   }
 }
+
+// Clears all obstacles from grid
+function clearObstacles() {
+  for (let o of obstacleArray) {
+    o.sprite.destroy();
+    grid[o.row][o.col] = null;
+    obstacleArray = [];
+  }
+}
