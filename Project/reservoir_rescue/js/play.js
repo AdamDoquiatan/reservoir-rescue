@@ -6,9 +6,9 @@ const SINK_GID = 31;
 const TOILET_GID = 32;
 const SHOWER_GID = 33;
 const WASHING_GID = 34;
-const HP_RATE = 125;
+const HP_RATE = 150;
 
-const HP_RATE_MIN = 50;
+const HP_RATE_MIN = 40;
 
 // The initial health
 const HP = 1000;
@@ -108,7 +108,7 @@ let playState = {
     initializeMenu();
 
     // HP bar
-    hpRate = HP_RATE - weather * 4;
+    hpRate = HP_RATE - weather * 5;
     if (hpRate < HP_RATE_MIN) {
       hpRate = hpRate;
     }
@@ -465,6 +465,7 @@ function releaseWater() {
   onLose.dispatch();
 }
 
+
 // Switches to the next level
 function nextLevel() {
   ++currentLevelIndex;
@@ -499,3 +500,4 @@ function clearGrid() {
   clearPipes();
   clearObstacles();
 }
+
