@@ -685,7 +685,7 @@ function helpScreen(sprite, event) {
     helpScreen.add(helpObsticle);
 
     // Help Text 4
-    helpText4 = game.add.text(game.width - 50, -20 + yMod, "⇦ Avoid obsticles -- they'll sap your water!", textStyle);
+    helpText4 = game.add.text(game.width - 50, -20 + yMod, "⇦ Avoid obstacles -- they'll sap your water!", textStyle);
     helpText4.anchor.setTo(1, 0);
     helpText4.stroke = '#000000';
     helpText4.strokeThickness = 5;
@@ -741,12 +741,20 @@ function helpScreen(sprite, event) {
     helpScreen.add(helpTemp);
 
     // Help Text 6
-    helpText6 = game.add.text(game.world.centerX, 950, "The temperature where you live influences how fast your water evaporates. BEWARE THE HEAT.               ⇩             ", textStyle);
+    helpText6 = game.add.text(game.world.centerX, 900, "The temperature where you live influences how fast obstacles drain your water. BEWARE THE HEAT!", textStyle);
     helpText6.anchor.setTo(0.5);
+    helpText6.fontSize = 50;
     helpText6.stroke = '#000000';
     helpText6.strokeThickness = 5;
     helpText6.wordWrapWidth = 850;
     helpScreen.add(helpText6);
+
+    // Help Text 7
+    helpText7 = game.add.text(game.world.centerX, 1040, "⇩", textStyle);
+    helpText7.anchor.setTo(0.5);
+    helpText7.stroke = '#000000';
+    helpText7.strokeThickness = 5;
+    helpScreen.add(helpText7);
 
     // Back button
     backButton = helpScreen.create(40, 255 + yMod, 'backButton');
@@ -915,8 +923,8 @@ function winScreen() {
   waterSavedDisplay.stroke = '#000000';
   waterSavedDisplay.strokeThickness = 7;
   winScreenGroup.add(waterSavedDisplay);
-    
-    // Water-Wasted text
+
+  // Water-Wasted text
   waterWastedDisplay = game.add.text(game.world.centerX + 600, 575, "You wasted: " + (HP - health) + " litres", textStyle);
   waterWastedDisplay.anchor.setTo(0.5);
   waterWastedDisplay.lineSpacing = -2;
@@ -928,19 +936,19 @@ function winScreen() {
   // Score text
   if ((HP - health) < dailyAverage) {
     scoreDisplay = game.add.text(game.world.centerX + 800, 850,
-    "That's " + (100 - ((HP - health) * 100) / dailyAverage).toFixed(1) + "% less than the average person's daily water usage!", textStyle);
+      "That's " + (100 - ((HP - health) * 100) / dailyAverage).toFixed(1) + "% less than the average person's daily water usage!", textStyle);
     scoreDisplay.addColor('white', 12);
   } else if ((HP - health) > dailyAverage) {
     scoreDisplay = game.add.text(game.world.centerX + 800, 850,
-    "That's " + ((((HP - health) * 100) / dailyAverage) - 100).toFixed(1)+ "% more than the average person's daily water usage!", textStyle); 
-      if ((HP - health) >= 2 * dailyAverage) {
-          scoreDisplay.addColor('white', 13);
-      } else {
-          scoreDisplay.addColor('white', 12);
-      }
+      "That's " + ((((HP - health) * 100) / dailyAverage) - 100).toFixed(1) + "% more than the average person's daily water usage!", textStyle);
+    if ((HP - health) >= 2 * dailyAverage) {
+      scoreDisplay.addColor('white', 13);
+    } else {
+      scoreDisplay.addColor('white', 12);
+    }
   } else if ((HP - health) === dailyAverage) {
-      scoreDisplay = game.add.text(game.world.centerX + 800, 850,
-    "That's the same as the average person's daily water usage!", textStyle);
+    scoreDisplay = game.add.text(game.world.centerX + 800, 850,
+      "That's the same as the average person's daily water usage!", textStyle);
   }
   scoreDisplay.anchor.setTo(0.5);
   scoreDisplay.lineSpacing = -2;
@@ -1117,18 +1125,18 @@ function loseScreen() {
 function submitScreen() {
   winScreenGroup.destroy();
   winHeader.destroy();
-    
+
   darkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
   darkFilter.anchor.setTo(0.5);
   darkFilter.scale.setTo(4);
   darkFilter.alpha = 0;
-    
+
   darkFilterTween = game.add.tween(darkFilter);
   darkFilterTween.to({ alpha: 1 }, 1500, Phaser.Easing.Cubic.Out, true);
-    
+
   totalScore += health;
   sessionStorage.setItem("totalScore", totalScore);
-    
+
   var textStyle = { font: 'bold 80pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
   var submitGroup = game.add.group();
 
@@ -1152,9 +1160,9 @@ function submitScreen() {
   submitButton.scale.setTo(BUTTON_SCALE_LARGE);
 
   submitButton.inputEnabled = true;
-    
+
   submitButton.events.onInputDown.add(function () {
-    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/submitScreen.html');    
+    window.location.replace('/reservoir-rescue/Project/reservoir_rescue/submitScreen.html');
   });
 
   //returns to main menu
