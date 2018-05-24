@@ -846,7 +846,7 @@ function helpScreen(sprite, event) {
 }
 
 function randomTip(sprite, event) {
-  var tip = Math.floor(Math.random() * 8);
+  var tip = Math.floor(Math.random() * 13);
 
   switch (tip) {
     case 0:
@@ -878,6 +878,16 @@ function randomTip(sprite, event) {
     case 7:
       return "Ah, the common sprinkler. Beneath its innocent promise of green lawns and summer fun " +
         "lies a dark truth: These things can toss out up to 16 liters/minute!";
+    case 8: 
+      return "Raccoon can run at speeds of up to 24km per hour. They often use this speed and dexterity to sneak into homes and turn off taps homeowners have left running.";
+    case 9:
+      return "Raccoons have 40 teeth, while people only have 32. What this means for your local water supply? You decide!"
+    case 10:
+      return "Raccoons don\u0027t make good pets. They'd rather be free in the wild, visiting public schools and teaching kids about the benefits of water conservation."
+    case 11:
+      return "It can take 4 litres of water to grow ONE almond. Keep that in mind next time you\u0027re trying to decide between almond milk and coconut milk."
+    case 12:
+      return "Support local businesses."
     default:
       return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. " +
         "The environment will thank you. The cows will thank you too!";
