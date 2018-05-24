@@ -42,19 +42,19 @@ const DELAY = 1000;
 /* Obstacle Config */
 
 // Litres per minute
-const SPRINKLER_DAMAGE = 17; 
+const SPRINKLER_DAMAGE = 10; 
 
 // Litres per minute
-const SINK_DAMAGE = 10;
+const SINK_DAMAGE = 5;
 
 // Litres per cycle
-const WASHING_DAMAGE = 60;
+const WASHING_DAMAGE = 40;
 
 // Litres per minute
-const SHOWER_DAMAGE = 22;
+const SHOWER_DAMAGE = 12;
 
 // Litres per flush
-const TOILET_DAMAGE = 12;
+const TOILET_DAMAGE = 7;
 
 /* Game Objects */
 
@@ -466,20 +466,20 @@ function initializeTilemap(mapName) {
     let obstacle;
     switch (o.key) {
       case 'sprinkler':
-        obstacle = new Obstacle(o.key, col, row, SPRINKLER_DAMAGE, [0,1,2,3,4,5,6,7], 4, 1000);
+        obstacle = new Obstacle(o.key, col, row, Math.round(SPRINKLER_DAMAGE + weather / 3), [0,1,2,3,4,5,6,7], 4, 1000);
         break;
       case 'washing_machine':
-        obstacle = new Obstacle(o.key, col, row, WASHING_DAMAGE, 
+        obstacle = new Obstacle(o.key, col, row, Math.round(WASHING_DAMAGE + weather), 
           [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36], 12.3, 3000);
         break;
       case 'sink':
-        obstacle = new Obstacle(o.key, col, row, SINK_DAMAGE, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 1000);
+        obstacle = new Obstacle(o.key, col, row, Math.round(SINK_DAMAGE + weather / 4), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 1000);
         break;
       case 'shower':
-        obstacle = new Obstacle(o.key, col, row, SHOWER_DAMAGE, [1,2,3,4,5,6,7], 15, 1000);
+        obstacle = new Obstacle(o.key, col, row, Math.round(SHOWER_DAMAGE + weather / 2), [1,2,3,4,5,6,7], 15, 1000);
         break;
       case 'toilet':
-        obstacle = new Obstacle(o.key, col, row, TOILET_DAMAGE, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 2000);
+        obstacle = new Obstacle(o.key, col, row, Math.round(TOILET_DAMAGE + weather / 4), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 2000);
         break;
     }
     obstacle.sprite = o;
