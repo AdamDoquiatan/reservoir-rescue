@@ -29,8 +29,7 @@ let obsTextSprink;
 let obsTextSprinkBLine;
 
 function pauseMenu(sprite, event) {
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
+  pauseTimers();
 
   if (inputEnabled === true) {
     // Turns off input to everything but pause screen
@@ -83,8 +82,7 @@ function pauseMenu(sprite, event) {
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -104,8 +102,7 @@ function pauseMenu(sprite, event) {
       game.input.onDown.add(delegate, this, 0);
       hpBar.frame = hpBar.animations.frameTotal;
       health = HP;
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -601,8 +598,7 @@ function helpScreen(sprite, event) {
     yMod = 1000;
     createHelp1();
   } else {
-    hpCounter.timer.pause();
-    hpBarCounter.timer.pause();
+    pauseTimers();
     game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
     createHelp1();
     SFX_obsScreenSwooshIn.play();
@@ -830,8 +826,7 @@ function helpScreen(sprite, event) {
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume()
+      resumeTimers();
       yMod = 0;
     }
   }
@@ -993,8 +988,7 @@ function winScreen() {
     hpBar.frame = hpBar.animations.frameTotal;
     health = HP;
     canPlace = true;
-    hpCounter.timer.resume();
-    hpBarCounter.timer.resume();
+    resumeTimers();
     winHeader.destroy();
     winScreenGroup.destroy();
     darkFilter.destroy();
@@ -1085,8 +1079,7 @@ function loseScreen() {
     health = HP;
     lose = false;
     canPlace = true;
-    hpCounter.timer.resume();
-    hpBarCounter.timer.resume();
+    resumeTimers();
 
     whiteFilter.alpha = 1;
     whiteFilterTween = game.add.tween(whiteFilter);
