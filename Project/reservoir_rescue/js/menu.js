@@ -250,7 +250,7 @@ function obsScreen1(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -329,7 +329,7 @@ function obsScreen2(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -410,7 +410,7 @@ function obsScreen3(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -489,7 +489,7 @@ function obsScreen4(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -569,7 +569,7 @@ function obsScreen5(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -964,8 +964,7 @@ function winScreen() {
       submitScreen();
     } else {
       nextLevel();
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
     }
     SFX_victorySound.pause();
     restartLightflash();
@@ -1116,11 +1115,12 @@ function loseScreen() {
 
 //Submit score screen
 function submitScreen() {
+  totalScore += health;
 
   var textStyle = { font: 'bold 60pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
   var submitGroup = game.add.group();
 
-  scoreDisplay = game.add.text(game.world.centerX, 550, "Your total score is: " + health + " litres!", textStyle);
+  scoreDisplay = game.add.text(game.world.centerX, 550, "Your total score is: " + totalScore + " litres!", textStyle);
   scoreDisplay.anchor.setTo(0.5);
   scoreDisplay.lineSpacing = -2;
   scoreDisplay.addColor('#3d87ff', 20);
@@ -1164,7 +1164,7 @@ function submitScreen() {
   submitButton.inputEnabled = true;
 
   submitButton.events.onInputDown.add(function () {
-    var inputScore = health;
+    var inputScore = totalScore;
     var inputName = document.getElementById("textBox").value;
     if (inputName.trim().length < 1) {
         emptyDisplay = game.add.text(game.world.centerX, 950, "Please enter a name", textStyle);
