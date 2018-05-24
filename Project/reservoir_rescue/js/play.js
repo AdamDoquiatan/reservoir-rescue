@@ -28,7 +28,7 @@ const HP_RATE_MIN = 40;
 const PENALTY = 30;
 
 // Rate at which water flows in frames per second
-const FLOW_RATE = 5;
+const FLOW_RATE = 3;
 
 // Rate at which water flows upon winning
 const WIN_FLOW_RATE = 30;
