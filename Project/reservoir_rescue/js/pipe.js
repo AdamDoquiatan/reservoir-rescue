@@ -38,6 +38,10 @@ function placePipe() {
       if (temp instanceof Pipe) {
         swapPipe(temp);
         resetConnections();
+      } else {
+        health -= PENALTY;
+        healthText.text = health;
+        setHealthBar(health);
       }
 
       let pipe = intializePipe(col, row);
