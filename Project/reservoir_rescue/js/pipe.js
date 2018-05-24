@@ -134,7 +134,7 @@ function startWaterFlow(pipe) {
       startWaterFlow(nextPipe);
     }, this);
   } else {
-    SFX_endFlow.fadeOut(300);
+    SFX_endFlow.stop();
     endFlow = true;   
     SFX_splash.play();
     SFX_victorySound.play();
