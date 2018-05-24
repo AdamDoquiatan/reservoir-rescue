@@ -1,36 +1,37 @@
+var disableWeatherAPI = true;
 var weather = 20;
-let weatherInitialized = false;
-let disableWeatherAPI = true;
+var weatherInitialized = false;
 
-// if (navigator.geolocation) {
-//   navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
-// } else {
-//   weather = 20;
-//   weatherInitialized = true;
-// };
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
+} else {
+  weather = 20;
+  weatherInitialized = true;
+};
 
-// // function to get lat/long and plot on a google map
-// function success(position) {
-//   var lat = position.coords.latitude;							// set latitude variable
-//   var lng	= position.coords.longitude;						// set longitude variable
+// function to get lat/long and plot on a google map
+function success(position) {
+  var lat = position.coords.latitude;							// set latitude variable
+  var lng	= position.coords.longitude;						// set longitude variable
 
-//   getWeather(lat,lng);											      // get weather for the lat/long
-// };
+  getWeather(lat,lng);											      // get weather for the lat/long
+};
 
-// var key = "d168d702f072e23805f64c65b6c88b9f";
+// Key code for the weather API
+var key = "d168d702f072e23805f64c65b6c88b9f";
 
-// function getWeather(lat,lng) {
-//   if(lat != '' && lng != '') {
-//     $.getJSON( "https://api.openweathermap.org/data/2.5/weather?id=524901&APPID="+key+"&lat="+lat+"&lon="+lng+"&units=metric", function(data) {	// add '&units=imperial' to get U.S. measurements
-//     console.log(data);
-//     weather = Math.round(data.main.temp);
-//     weatherInitialized = true;
-//     });
-//   } else {
-//     weather = 20;
-//     weatherInitialized = true;
-//   }
-// }
+function getWeather(lat,lng) {
+  if(lat != '' && lng != '') {
+    $.getJSON( "https://api.openweathermap.org/data/2.5/weather?id=524901&APPID="+key+"&lat="+lat+"&lon="+lng+"&units=metric", function(data) {	// add '&units=imperial' to get U.S. measurements
+    console.log(data);
+    weather = Math.round(data.main.temp);
+    weatherInitialized = true;
+    });
+  } else {
+    weather = 20;
+    weatherInitialized = true;
+  }
+}
 
 var loadState = {
   preload: function () {
@@ -101,12 +102,13 @@ var loadState = {
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
     this.load.image('helpTemp', 'assets/images/helpTemp.png');
+    this.load.image('hintBox', 'assets/images/hintBox.png');
     this.load.spritesheet('selection_menu', 'assets/images/selection_menu.png', 224, 64);
   
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);
     this.load.audio('lastPipe', ['assets/sounds/149966__nenadsimic__muffled-distant-explosion.mp3', 'assets/sounds/149966__nenadsimic__muffled-distant-explosion.ogg']);
-    // this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
+    this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
     this.load.audio('victorySound', ['assets/sounds/578783_Victory-Sound.mp3', 'assets/sounds/578783_Victory-Sound.ogg']);
     this.load.audio('obsScreenSwooshIn', ['assets/sounds/14609__man__swosh1.mp3', 'assets/sounds/14609__man__swosh1.ogg']);
     this.load.audio('obsScreenSwooshOut', ['assets/sounds/14609__man__swosh2.mp3', 'assets/sounds/14609__man__swosh2.ogg']);
@@ -118,7 +120,7 @@ var loadState = {
     this.load.audio('reset', ['assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.mp3', 'assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.ogg']);
     this.load.audio('swapPipe', ['assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.mp3', 'assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.ogg']);
     this.load.audio('regularButton', ['assets/sounds/254713__greekirish__projector-button-push_short.mp3', 'assets/sounds/254713__greekirish__projector-button-push_short.ogg']);
-    this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
+    //this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
     this.load.audio('splash', ['assets/sounds/splash.mp3', 'assets/sounds/splash.ogg']);
     this.load.audio('beep', ['assets/sounds/beep-29.mp3', 'assets/sounds/beep-29.ogg']);
     //this.load.audio('', ['assets/sounds/', 'assets/sounds/']);

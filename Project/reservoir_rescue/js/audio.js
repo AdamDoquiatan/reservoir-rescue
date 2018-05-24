@@ -13,8 +13,8 @@ function muteSounds() {
 function createAudio() {
     SFX_gameMusic = game.add.sound('gameMusic', 0.4, true);
     SFX_lastPipe = game.add.sound('lastPipe', 3);
-    SFX_endFlow = game.add.sound('endFlow', 0.1, true);
-    SFX_splash = game.add.sound('splash', 0.04);
+    SFX_endFlow = game.add.sound('endFlow', 1, true);
+    SFX_splash = game.add.sound('splash', 0.1);
     SFX_victorySound = game.add.sound('victorySound', 1.6);
     SFX_obsScreenSwooshIn = game.add.sound('obsScreenSwooshIn', 0.8);
     SFX_obsScreenSwooshOut = game.add.sound('obsScreenSwooshOut', 0.8);

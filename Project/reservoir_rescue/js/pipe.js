@@ -47,6 +47,11 @@ function placePipe() {
       let pipe = intializePipe(col, row);
       onPlacePipe.dispatch();
       SFX_placePipe.play();
+      if (firstPipePlaced == false) {
+        hintText.destroy();
+        hintBox.destroy();
+        firstPipePlaced = true;
+      }
 
       if (startPipe === null) {
         temp = grid[startTile.row][startTile.col];
@@ -134,7 +139,7 @@ function startWaterFlow(pipe) {
       startWaterFlow(nextPipe);
     }, this);
   } else {
-    SFX_endFlow.fadeOut(300);
+    SFX_endFlow.stop();
     endFlow = true;   
     SFX_splash.play();
     SFX_victorySound.play();

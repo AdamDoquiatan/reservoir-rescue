@@ -29,8 +29,7 @@ let obsTextSprink;
 let obsTextSprinkBLine;
 
 function pauseMenu(sprite, event) {
-  hpCounter.timer.pause();
-  hpBarCounter.timer.pause();
+  pauseTimers();
 
   if (inputEnabled === true) {
     // Turns off input to everything but pause screen
@@ -83,8 +82,7 @@ function pauseMenu(sprite, event) {
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -104,8 +102,7 @@ function pauseMenu(sprite, event) {
       game.input.onDown.add(delegate, this, 0);
       hpBar.frame = hpBar.animations.frameTotal;
       health = HP;
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -230,6 +227,7 @@ function obsScreen1(sprite, event) {
     SFX_obsScreenSwooshOut.play();
     SFX_obsScreenButton.play();
     SFX_obsScreenSwooshOut.onStop.addOnce(function () {
+      hintText();
       if (musicEnabled == true) {
         SFX_gameMusic.play();
       }
@@ -601,8 +599,7 @@ function helpScreen(sprite, event) {
     yMod = 1000;
     createHelp1();
   } else {
-    hpCounter.timer.pause();
-    hpBarCounter.timer.pause();
+    pauseTimers();
     game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
     createHelp1();
     SFX_obsScreenSwooshIn.play();
@@ -838,15 +835,14 @@ function helpScreen(sprite, event) {
       inputEnabled = true;
       sprite.input.enabled = true;
       game.input.onDown.add(delegate, this, 0);
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume()
+      resumeTimers();
       yMod = 0;
     }
   }
 }
 
 function randomTip(sprite, event) {
-  var tip = Math.floor(Math.random() * 13);
+  var tip = Math.floor(Math.random() * 12);
 
   switch (tip) {
     case 0:
@@ -886,8 +882,6 @@ function randomTip(sprite, event) {
       return "Raccoons don\u0027t make good pets. They'd rather be free in the wild, visiting public schools and teaching kids about the benefits of water conservation."
     case 11:
       return "It can take 4 litres of water to grow ONE almond. Keep that in mind next time you\u0027re trying to decide between almond milk and coconut milk."
-    case 12:
-      return "Support local businesses."
     default:
       return "It takes a whole lot of water to rear animals for meat, so maybe lay off the beef a little. " +
         "The environment will thank you. The cows will thank you too!";
@@ -1011,8 +1005,7 @@ function winScreen() {
     hpBar.frame = hpBar.animations.frameTotal;
     health = HP;
     canPlace = true;
-    hpCounter.timer.resume();
-    hpBarCounter.timer.resume();
+    resumeTimers();
     winHeader.destroy();
     winScreenGroup.destroy();
     darkFilter.destroy();
@@ -1103,8 +1096,7 @@ function loseScreen() {
     health = HP;
     lose = false;
     canPlace = true;
-    hpCounter.timer.resume();
-    hpBarCounter.timer.resume();
+    resumeTimers();
 
     whiteFilter.alpha = 1;
     whiteFilterTween = game.add.tween(whiteFilter);
@@ -1184,4 +1176,19 @@ function submitScreen() {
   menuButton.events.onInputDown.add(function () {
     window.location.replace('/reservoir-rescue/Project/reservoir_rescue');
   });
+}
+
+function hintText() {
+  hintText = game.add.text(game.world.centerX + 400, game.world.centerY - 360, "⇦ Start Here", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', });
+  hintText.anchor.setTo(1, 0);
+  hintText.stroke = '#000000';
+  hintText.strokeThickness = 5;
+  hintText.align = 'right';
+
+  hintBox = game.add.sprite(game.world.centerX, game.world.centerY - 320, "hintBox");
+  hintBox.scale.setTo(3);
+  hintBox.anchor.setTo(0.5);
+  hintBox.stroke = '#000000';
+  hintBox.strokeThickness = 5;
+  hintBox.align = 'right';
 }

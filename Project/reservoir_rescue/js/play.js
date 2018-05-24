@@ -116,6 +116,10 @@ let canPlace = false;
 // Tracks currently selected pipe
 let currentSelection;
 
+// Tracks if a pipe has ever been placed.
+var firstPipePlaced = false;
+
+
 // Used when swapping pipeSelection to prevent a randomized pipe
 let doNotRandomize = false;
 
@@ -371,7 +375,7 @@ function resumeTimers() {
 }
 
 // Syncs health bar with health variable
-function setHealthBar(health) {
+function setHealthBar() {
   let percentGone = (HP - health) / HP;
   let nextFrame = parseInt(hpBar.animations.frameTotal * percentGone);
   if (nextFrame >= 0 && nextFrame < hpBar.animations.frameTotal) {
@@ -575,7 +579,7 @@ function nextLevel() {
   currentSelection = 1;
   menuPipeArray[1].animations.play('active');
   selectionMenu.frame = 1;
-  setHealthBar(health);
+  setHealthBar();
   healthText = HP;
   countdownTimer.add(COUNTDOWN, releaseWater, this);
   countdownTimerText.text = Math.round(COUNTDOWN / 1000);
