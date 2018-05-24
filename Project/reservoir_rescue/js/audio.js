@@ -26,4 +26,5 @@ function createAudio() {
     SFX_reset = game.add.sound('reset', 1.3);
     SFX_swapPipe = game.add.sound('swapPipe', 0.8);
     SFX_regularButton = game.add.sound('regularButton', 0.5)
+    SFX_beep = game.add.sound('beep', 1.0);
 }

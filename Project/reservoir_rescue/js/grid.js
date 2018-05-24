@@ -132,3 +132,11 @@ function getDirection(source, target) {
     }
   }
 }
+
+function colToX(col) {
+  return col * GRID_SIZE + GRID_X;
+}
+
+function rowToY(row) {
+  return row * GRID_SIZE + GRID_Y;
+}

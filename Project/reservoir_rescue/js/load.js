@@ -2,35 +2,35 @@ var weather = 20;
 let weatherInitialized = false;
 let disableWeatherAPI = true;
 
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
-} else {
-  weather = 20;
-  weatherInitialized = true;
-};
+// if (navigator.geolocation) {
+//   navigator.geolocation.getCurrentPosition(success);			// if geolocation supported, call function
+// } else {
+//   weather = 20;
+//   weatherInitialized = true;
+// };
 
-// function to get lat/long and plot on a google map
-function success(position) {
-  var lat = position.coords.latitude;							// set latitude variable
-  var lng	= position.coords.longitude;						// set longitude variable
+// // function to get lat/long and plot on a google map
+// function success(position) {
+//   var lat = position.coords.latitude;							// set latitude variable
+//   var lng	= position.coords.longitude;						// set longitude variable
 
-  getWeather(lat,lng);											      // get weather for the lat/long
-};
+//   getWeather(lat,lng);											      // get weather for the lat/long
+// };
 
-var key = "d168d702f072e23805f64c65b6c88b9f";
+// var key = "d168d702f072e23805f64c65b6c88b9f";
 
-function getWeather(lat,lng) {
-  if(lat != '' && lng != '') {
-    $.getJSON( "https://api.openweathermap.org/data/2.5/weather?id=524901&APPID="+key+"&lat="+lat+"&lon="+lng+"&units=metric", function(data) {	// add '&units=imperial' to get U.S. measurements
-    console.log(data);
-    weather = Math.round(data.main.temp);
-    weatherInitialized = true;
-    });
-  } else {
-    weather = 20;
-    weatherInitialized = true;
-  }
-}
+// function getWeather(lat,lng) {
+//   if(lat != '' && lng != '') {
+//     $.getJSON( "https://api.openweathermap.org/data/2.5/weather?id=524901&APPID="+key+"&lat="+lat+"&lon="+lng+"&units=metric", function(data) {	// add '&units=imperial' to get U.S. measurements
+//     console.log(data);
+//     weather = Math.round(data.main.temp);
+//     weatherInitialized = true;
+//     });
+//   } else {
+//     weather = 20;
+//     weatherInitialized = true;
+//   }
+// }
 
 var loadState = {
   preload: function () {
@@ -40,6 +40,10 @@ var loadState = {
     game.load.image('boxSelector', 'assets/images/boxSelector.png');
     game.load.spritesheet('hp_bar', 'assets/images/hp_bar.png', 160, 32);
     game.load.spritesheet('warning', 'assets/images/warning.png', 32, 32);
+    game.load.spritesheet('connectu', 'assets/images/connectu.png', 32, 32);
+    game.load.spritesheet('connectr', 'assets/images/connectr.png', 32, 32);
+    game.load.spritesheet('connectd', 'assets/images/connectd.png', 32, 32);
+    game.load.spritesheet('connectl', 'assets/images/connectl.png', 32, 32);
 
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
@@ -116,6 +120,7 @@ var loadState = {
     this.load.audio('regularButton', ['assets/sounds/254713__greekirish__projector-button-push_short.mp3', 'assets/sounds/254713__greekirish__projector-button-push_short.ogg']);
     this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
     this.load.audio('splash', ['assets/sounds/splash.mp3', 'assets/sounds/splash.ogg']);
+    this.load.audio('beep', ['assets/sounds/beep-29.mp3', 'assets/sounds/beep-29.ogg']);
     //this.load.audio('', ['assets/sounds/', 'assets/sounds/']);
     
   },

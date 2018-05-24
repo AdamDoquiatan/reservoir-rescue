@@ -250,7 +250,7 @@ function obsScreen1(sprite, event) {
     inputEnabled = true;
     yMod = 0;
     game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startCounter, this);
+    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
   }
 }
@@ -644,8 +644,7 @@ function winScreen() {
       submitScreen();
     } else {
       nextLevel();
-      hpCounter.timer.resume();
-      hpBarCounter.timer.resume();
+      resumeTimers();
     }
     winHeader.destroy();
     winScreenGroup.destroy(true);
