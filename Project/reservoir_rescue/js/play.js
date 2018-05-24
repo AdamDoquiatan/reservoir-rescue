@@ -1,5 +1,5 @@
 // For enabling/disabling testing features
-let testMode = true; 
+let testMode = false; 
 
 // For enabling/disabling water drain
 let disableDrain = true;
@@ -14,6 +14,7 @@ const SHOWER_GID = 33;
 const WASHING_GID = 34;
 const HP_RATE = 150;
 const HP_RATE_MIN = 40;
+const PENALTY = 30;
 
 // The initial health
 const HP = 1000;
@@ -28,7 +29,7 @@ const WIN_FLOW_RATE = 30;
 const DELAY = 1000;
 
 // Countdown before water starts flowing
-const COUNTDOWN = 5000;
+const COUNTDOWN = 10000;
 
 /* Game Objects */
 
