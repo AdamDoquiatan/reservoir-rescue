@@ -1,5 +1,5 @@
 // For enabling/disabling testing features
-let testMode = false; 
+let testMode = true; 
 
 // For enabling/disabling water drain
 let disableDrain = true;
@@ -12,12 +12,20 @@ const SINK_GID = 31;
 const TOILET_GID = 32;
 const SHOWER_GID = 33;
 const WASHING_GID = 34;
-const HP_RATE = 150;
-const HP_RATE_MIN = 40;
-const PENALTY = 30;
+
+/* Gameplay Config */
 
 // The initial health
 const HP = 1000;
+
+// Rate at which water drains
+const HP_RATE = 150;
+
+// Minimum rate at which water drains
+const HP_RATE_MIN = 40;
+
+// Water drained for placing a new pipe
+const PENALTY = 30;
 
 // Rate at which water flows in frames per second
 const FLOW_RATE = 5;
@@ -25,11 +33,28 @@ const FLOW_RATE = 5;
 // Rate at which water flows upon winning
 const WIN_FLOW_RATE = 30;
 
-// Delay before water level starts decreasing
-const DELAY = 1000;
-
 // Countdown before water starts flowing
 const COUNTDOWN = 10000;
+
+// Delay before countdown starts
+const DELAY = 1000;
+
+/* Obstacle Config */
+
+// Litres per minute
+const SPRINKLER_DAMAGE = 17; 
+
+// Litres per minute
+const SINK_DAMAGE = 10;
+
+// Litres per cycle
+const WASHING_DAMAGE = 60;
+
+// Litres per minute
+const SHOWER_DAMAGE = 22;
+
+// Litres per flush
+const TOILET_DAMAGE = 12;
 
 /* Game Objects */
 
@@ -441,20 +466,20 @@ function initializeTilemap(mapName) {
     let obstacle;
     switch (o.key) {
       case 'sprinkler':
-        obstacle = new Obstacle(o.key, col, row, 17, [0,1,2,3,4,5,6,7], 4, 1000);
+        obstacle = new Obstacle(o.key, col, row, SPRINKLER_DAMAGE, [0,1,2,3,4,5,6,7], 4, 1000);
         break;
       case 'washing_machine':
-        obstacle = new Obstacle(o.key, col, row, 60, 
+        obstacle = new Obstacle(o.key, col, row, WASHING_DAMAGE, 
           [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36], 12.3, 3000);
         break;
       case 'sink':
-        obstacle = new Obstacle(o.key, col, row, 10, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 1000);
+        obstacle = new Obstacle(o.key, col, row, SINK_DAMAGE, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 1000);
         break;
       case 'shower':
-        obstacle = new Obstacle(o.key, col, row, 22, [1,2,3,4,5,6,7], 15, 1000);
+        obstacle = new Obstacle(o.key, col, row, SHOWER_DAMAGE, [1,2,3,4,5,6,7], 15, 1000);
         break;
       case 'toilet':
-        obstacle = new Obstacle(o.key, col, row, 12, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 2000);
+        obstacle = new Obstacle(o.key, col, row, TOILET_DAMAGE, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], 9, 2000);
         break;
     }
     obstacle.sprite = o;
