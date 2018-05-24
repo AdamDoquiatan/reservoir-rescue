@@ -12,8 +12,8 @@ const SINK_GID = 31;
 const TOILET_GID = 32;
 const SHOWER_GID = 33;
 const WASHING_GID = 34;
-const HP_RATE = 125;
-const HP_RATE_MIN = 50;
+const HP_RATE = 150;
+const HP_RATE_MIN = 40;
 
 // The initial health
 const HP = 1000;
@@ -97,7 +97,7 @@ let doNotRandomize = false;
 let pipeSwappedBack = null;
 
 // Turn music on or off.
-var musicEnabled = true; 
+var musicEnabled = true;
 
 lose = false;
 let startPipe = null;
@@ -108,6 +108,7 @@ let endFlow = false;
 let waterFlow = false;
 let waterFlowRate = FLOW_RATE;
 let totalScore = 0;
+let complete = false;
 
 /* Signals */
 
@@ -121,7 +122,7 @@ let playState = {
     initializeMenu();
 
     // HP bar
-    hpRate = HP_RATE - weather * 4;
+    hpRate = HP_RATE - weather * 5;
     if (hpRate < HP_RATE_MIN) {
       hpRate = HP_RATE_MIN;
     }
@@ -146,10 +147,10 @@ let playState = {
     this.pauseButton = game.add.sprite(160 * SCALE, 0, 'pause');
     this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
-    this.pauseButton.events.onInputDown.add(function (){
-      if (yMod  === 0) {
-      SFX_gameMusic.volume = 0.1;
-      SFX_pauseButton.play();
+    this.pauseButton.events.onInputDown.add(function () {
+      if (yMod === 0) {
+        SFX_gameMusic.volume = 0.1;
+        SFX_pauseButton.play();
       }
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
@@ -165,7 +166,7 @@ let playState = {
     this.helpButton.scale.setTo(3);
     this.helpButton.anchor.setTo(0, 0);
     this.helpButton.inputEnabled = inputEnabled;
-    this.helpButton.events.onInputDown.add(helpScreen, this);    
+    this.helpButton.events.onInputDown.add(helpScreen, this);
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
@@ -218,8 +219,8 @@ let playState = {
 
     if (testMode) {
       testText.text = '('
-      + parseInt(game.input.activePointer.x) + ','
-      + parseInt(game.input.activePointer.y) + ')';
+        + parseInt(game.input.activePointer.x) + ','
+        + parseInt(game.input.activePointer.y) + ')';
     }
 
     if (endFlow) {
@@ -245,10 +246,10 @@ function reloadPipe() {
   let newPipeIndex
   if (pipeSwappedBack != null) {
     for (let i = 0; i < pipeSelection.length; i++) {
-        if (pipeSwappedBack && pipeSwappedBack.selectImage === pipeSelection[i].selectImage) {
-          newPipeIndex = i;
-          pipeSwappedBack = null;
-        }
+      if (pipeSwappedBack && pipeSwappedBack.selectImage === pipeSelection[i].selectImage) {
+        newPipeIndex = i;
+        pipeSwappedBack = null;
+      }
     }
   } else {
     newPipeIndex = Math.floor(Math.random() * 6);
@@ -265,11 +266,11 @@ function reloadPipe() {
   oldPipe.destroy();
 
   menuPipeArray[currentSelection].animations.play('active', 15);
-    
+
   //Updates array.
   boxedPipes[currentSelection] = newPipeIndex;
   pipeIndex = newPipeIndex;
-  
+
   doNotRandomize = false;
 }
 
@@ -280,7 +281,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
       pipeIndex = index;
       currentSelection = currentIndex;
       canPlace = true;
-    
+
       SFX_selectPipe.play();
       selectionMenu.frame = currentSelection;
 
@@ -290,7 +291,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
       }
       pipe.animations.play('active', 15);
       pipe.active = true;
-    }    
+    }
   }
 }
 
@@ -354,6 +355,7 @@ function setHealthBar(health) {
 
 // Stops gameplay and begins water flow animation
 function levelComplete() {
+  complete = true;
   for (let o of obstacleArray) {
     o.stopSap();
   }
@@ -372,8 +374,8 @@ function levelComplete() {
   SFX_gameMusic.pause();
   SFX_placePipe.stop();
   SFX_lastPipe.play();
-  SFX_lastPipe.onStop.addOnce(function (){
-  
+  SFX_lastPipe.onStop.addOnce(function () {
+
     var drumrollPlaying = false;
     if (drumrollPlaying === false) {
       SFX_endFlow.play();
@@ -398,6 +400,9 @@ function levelComplete() {
 
 // Stops gameplay and displays lose screen
 function gameOver() {
+  for (let o of obstacleArray) {
+    o.stopSap();
+  }
   pauseTimers();
   hpBar.frame = hpBar.animations.frameTotal - 1;
   canPlace = false;
@@ -483,7 +488,7 @@ function initializeMenu() {
   for (let i = 0; i < menuPipeArray.length; i++) {
     menuPipeArray[i].events.onInputDown.add(selectPipe,
       this, 0, boxedPipes[i], i);
-  } 
+  }
 
   pipeIndex = boxedPipes[1];
   currentSelection = 1;
@@ -492,8 +497,8 @@ function initializeMenu() {
 }
 
 // Destroys the sprite
-function destroySprite (sprite) {
-    sprite.destroy();
+function destroySprite(sprite) {
+  sprite.destroy();
 }
 
 // Removes object from specifed array
@@ -508,7 +513,7 @@ function addPipeToMenu(pipe, index) {
   pipe.active = false;
   pipe.scale.setTo(SCALE);
   pipe.inputEnabled = true;
-  pipe.animations.add('active', [0,1,2,3,4,5,6], 20);
+  pipe.animations.add('active', [0, 1, 2, 3, 4, 5, 6], 20);
 
   menuPipeArray[index] = pipe;
 }
@@ -526,8 +531,11 @@ function releaseWater() {
   onLose.dispatch();
 }
 
+
 // Switches to the next level
 function nextLevel() {
+  countdownTimer.stop();
+
   // Update variables
   totalScore += health;
   health = HP;
@@ -542,13 +550,29 @@ function nextLevel() {
   menuPipeArray[1].animations.play('active');
   selectionMenu.frame = 1;
   setHealthBar(health);
+  healthText = HP;
+  countdownTimer.add(COUNTDOWN, releaseWater, this);
+  countdownTimerText.text = Math.round(COUNTDOWN / 1000);
+  complete = false;
 
   // Switch level
   ++currentLevelIndex;
   initializeTilemap(levels[currentLevelIndex]);  
-  
-  countdownTimer.add(COUNTDOWN, releaseWater, this);
-  countdownTimer.start();
+
+  switch (currentLevelIndex) {
+    case 1:
+      obsScreen2();
+      break;
+    case 2:
+      obsScreen3();
+      break;
+    case 3:
+      obsScreen4();
+      break;
+    case 4:
+      obsScreen5();
+      break;
+  }
 }
 
 // Clears grid of pipes and obstacles

@@ -99,7 +99,9 @@ function startWaterFlow(pipe) {
   waterFlow = true;
 
   if (pipe !== null) {
-    checkObstacles(pipe);
+    if (!complete) {
+      checkObstacles(pipe);
+    }  
     
     currentPipe = pipe;
     pipe.sprite.animations.play(animation, waterFlowRate);
@@ -133,9 +135,9 @@ function startWaterFlow(pipe) {
     SFX_splash.play();
     SFX_victorySound.play();
     SFX_victorySound.onStop.add(function () {
-      SFX_gameMusic.volume = 0.01;
       SFX_gameMusic.resume();
-      game.add.tween(this.SFX_gameMusic).to({volume:-0.5}, 500).start();
+      SFX_gameMusic.volume = 0.01;
+      game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
     });
   }
 }
