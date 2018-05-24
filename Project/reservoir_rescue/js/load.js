@@ -102,12 +102,13 @@ var loadState = {
     this.load.image('muteButton', 'assets/images/mute.png');
     this.load.image('temp', 'assets/images/temp.png');
     this.load.image('helpTemp', 'assets/images/helpTemp.png');
+    this.load.image('hintBox', 'assets/images/hintBox.png');
     this.load.spritesheet('selection_menu', 'assets/images/selection_menu.png', 224, 64);
   
     // Sounds
     this.load.audio('gameMusic', ['assets/sounds/Gameplay_Music.mp3', 'assets/sounds/Gameplay_Music.ogg']);
     this.load.audio('lastPipe', ['assets/sounds/149966__nenadsimic__muffled-distant-explosion.mp3', 'assets/sounds/149966__nenadsimic__muffled-distant-explosion.ogg']);
-    // this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
+    this.load.audio('endFlow', ['assets/sounds/191718__adriann__drumroll.mp3', 'assets/sounds/191718__adriann__drumroll.ogg']);
     this.load.audio('victorySound', ['assets/sounds/578783_Victory-Sound.mp3', 'assets/sounds/578783_Victory-Sound.ogg']);
     this.load.audio('obsScreenSwooshIn', ['assets/sounds/14609__man__swosh1.mp3', 'assets/sounds/14609__man__swosh1.ogg']);
     this.load.audio('obsScreenSwooshOut', ['assets/sounds/14609__man__swosh2.mp3', 'assets/sounds/14609__man__swosh2.ogg']);
@@ -119,7 +120,7 @@ var loadState = {
     this.load.audio('reset', ['assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.mp3', 'assets/sounds/85999__nextmaking__jump-from-the-sand-ground-2.ogg']);
     this.load.audio('swapPipe', ['assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.mp3', 'assets/sounds/216675__hitrison__stick-swoosh-whoosh_1.ogg']);
     this.load.audio('regularButton', ['assets/sounds/254713__greekirish__projector-button-push_short.mp3', 'assets/sounds/254713__greekirish__projector-button-push_short.ogg']);
-    this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
+    //this.load.audio('endFlow', ['assets/sounds/drumroll.mp3', 'assets/sounds/drumroll.ogg']);
     this.load.audio('splash', ['assets/sounds/splash.mp3', 'assets/sounds/splash.ogg']);
     this.load.audio('beep', ['assets/sounds/beep-29.mp3', 'assets/sounds/beep-29.ogg']);
     //this.load.audio('', ['assets/sounds/', 'assets/sounds/']);

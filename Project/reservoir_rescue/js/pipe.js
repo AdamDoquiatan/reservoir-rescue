@@ -47,6 +47,11 @@ function placePipe() {
       let pipe = intializePipe(col, row);
       onPlacePipe.dispatch();
       SFX_placePipe.play();
+      if (firstPipePlaced == false) {
+        hintText.destroy();
+        hintBox.destroy();
+        firstPipePlaced = true;
+      }
 
       if (startPipe === null) {
         temp = grid[startTile.row][startTile.col];

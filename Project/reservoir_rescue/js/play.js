@@ -116,6 +116,10 @@ let canPlace = false;
 // Tracks currently selected pipe
 let currentSelection;
 
+// Tracks if a pipe has ever been placed.
+var firstPipePlaced = false;
+
+
 // Used when swapping pipeSelection to prevent a randomized pipe
 let doNotRandomize = false;
 
