@@ -80,6 +80,13 @@ button {
     width: 150px;
 }
 
+#continue {
+    background-image: url("../assets/images/continueButton.png");
+}
+
+#main {
+    background-image: url("../assets/images/menu.png");
+}
 .on {
     transform: scale(1.1);
     filter: contrast(130%);
@@ -194,4 +201,40 @@ td {
 
 #content #disclaimer {
     font-size: 15px;
+}
+
+#text p {
+    font-size: 14pt;
+    font-weight: bold;
+    text-align: center;
+    color: #beebfc;
+    margin-top: 125px;
+}
+
+#score {
+    font-size: 25pt;
+    font-weight: bold;
+    color: #beebfc;
+    text-align: center;
+}
+
+#text input {
+    display: block;
+    border-radius: 15px;
+    padding: 15px;
+    margin: auto;
+    text-align: center;
+}
+
+#error p {
+    text-align: center;
+    color: red;
+}
+
+#sent p{
+    font-size: 30pt;
+    font-weight: bold;
+    text-align: center;
+    color: #beebfc;
+    margin-top: 125px;
 }

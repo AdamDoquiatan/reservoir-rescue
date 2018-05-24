@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Submit Screen</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8"/>
+
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+    </head>
+    <body>
+        <div id="text">
+            <p>Your total score is: <br> <span id="score"></span> <br> Please enter your name</p>
+            <input id="nameEntry" type="text" min ="1" max="20"> 
+        </div> 
+        <div id="sent"></div>
+        <div id="menu">
+            <button id="continue"></button>
+        </div>
+        <div id="error"></div>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>
+            var inputScore = sessionStorage.getItem("totalScore");
+            document.getElementById("score").innerHTML = inputScore + " Litres!"
+            
+            document.getElementById("continue").addEventListener("click", function(){
+                var playerName = document.getElementById("nameEntry").value;
+                
+                if (playerName.trim() === "" || playerName.length > 20) {
+                    document.getElementById("error").innerHTML = "<p>You must enter a name between 1 and 20 characters<p>";
+                } else {
+                    //Sends data to leaderboard
+                    $.ajax({
+                    type: "POST",
+                    url: "php/Leaderboard_input.php",
+                    data: "player_name=" + playerName + "&score=" + inputScore,
+                    success: function (response) {
+                        console.log("Sent new entry")
+                    }
+                    });
+                    
+                    //resets score
+                    sessionStorage.setItem("totalScore", 0);
+                    //switches screen
+                    document.getElementById("text").innerHTML ="";
+                    document.getElementById("error").innerHTML ="";
+                    document.getElementById("sent").innerHTML = "<p>Score sent!<p>";
+                    document.getElementById("menu").innerHTML = "<a href=\"leaderboard.html\"><button id=\"leaderboard\"></button></a>";
+                    document.getElementById("menu").innerHTML += "<a href=\"index.html\"><button id=\"main\"></button></a>";
+                }
+            });
+        </script>
+    </body>
+</html>
