@@ -80,9 +80,9 @@ function pauseObstacles() {
   for (let o of obstacleArray) {
     if (o.timer.running) {
       o.timer.pause();
+      o.sprite.animations.stop();
+      o.currentFrame = o.sprite.animations.frame;
     }
-    o.sprite.animations.stop();
-    o.currentFrame = o.sprite.animations.frame;
   }
 }
 
@@ -90,9 +90,9 @@ function resumeObstacles() {
   for (let o of obstacleArray) {
     if (o.timer.paused) {
       o.timer.resume();
-    }
-    o.sprite.animations.play('active', o.animationSpeed);
-    o.sprite.animations.currentAnim.setFrame(o.currentFrame, false);  
+      o.sprite.animations.play('active', o.animationSpeed);
+      o.sprite.animations.currentAnim.setFrame(o.currentFrame, false); 
+    } 
   }
 }
 

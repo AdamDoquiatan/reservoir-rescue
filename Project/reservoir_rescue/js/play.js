@@ -1,5 +1,5 @@
 // For enabling/disabling testing features
-let testMode = true; 
+let testMode = false; 
 
 // For enabling/disabling water drain
 let disableDrain = true;
@@ -34,13 +34,16 @@ const FLOW_RATE = 3;
 const WIN_FLOW_RATE = 30;
 
 // Countdown before water starts flowing
-const COUNTDOWN = 10000;
+const COUNTDOWN = 5;
 
 // Delay before countdown starts from obstacle screen
 const OBSTACLE_DELAY = 1000;
 
 // Delay before countdown starts from restart
-const RESTART_DELAY = 100;
+const RESTART_DELAY = 500;
+
+// Delay before countdown starts from pause menu  
+const PAUSE_DELAY = 500;
 
 /* Obstacle Config */
 
@@ -77,6 +80,7 @@ let boxSelector;
 let selectionMenu;
 let countdownTimer;
 let countdownTimerText;
+let countdownTimerEvent;
 let totalScoreText;
 
 /* Groups */
@@ -122,7 +126,6 @@ let currentSelection;
 // Tracks if a pipe has ever been placed.
 var firstPipePlaced = false;
 
-
 // Used when swapping pipeSelection to prevent a randomized pipe
 let doNotRandomize = false;
 
@@ -167,9 +170,13 @@ let playState = {
     onLose.add(gameOver, this);
 
     // Timers
-    countdownTimer = game.time.create(false);
-    countdownTimer.add(COUNTDOWN, releaseWater, this);
-    countdownTimerText = game.add.text(game.world.centerX, 80 * SCALE, '', { font: 'bold 70pt Helvetica', fill: 'red', align: 'center' });
+    countdownTimer = game.time.create();
+
+    countdownTimerEvent = countdownTimer.add(Phaser.Timer.SECOND * COUNTDOWN, releaseWater, this);
+
+    countdownTimerText = game.add.text(
+      game.world.centerX, 80 * SCALE, '',
+      { font: 'bold 70pt Helvetica', fill: 'red', align: 'center' });
     countdownTimerText.anchor.setTo(0.5);
     countdownTimerText.stroke = '#000000';
     countdownTimerText.strokeThickness = 7;
@@ -211,10 +218,10 @@ let playState = {
 
     // Text styles
     let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
-    let scoreTextStyle = { font: 'bold 45pt Helvetica', fill: '#f4b342' };
+    let scoreTextStyle = { font: 'bold 40pt Helvetica', fill: '#f4b342' };
 
     // Total score
-    totalScoreText = game.add.text(8 * SCALE, 9 * GRID_SIZE + (8 * SCALE), '', scoreTextStyle);
+    totalScoreText = game.add.text(8 * SCALE, 9 * GRID_SIZE + (10 * SCALE), '', scoreTextStyle);
     totalScoreText.stroke = '#444444';
     totalScoreText.strokeThickness = 7;
 
@@ -222,7 +229,7 @@ let playState = {
     testText = game.add.text(0, 0, '', { fontSize: '32px', fill: '#FFF' });    
 
     // Health text
-    healthText = game.add.text(121 * SCALE, 28, health, textStyle);
+    healthText = game.add.text(115 * SCALE, 28, health, textStyle);
     healthText.stroke = '#444444';
     healthText.strokeThickness = 7;
 
@@ -266,12 +273,20 @@ let playState = {
     this.helpButton.inputEnabled = inputEnabled;
 
     if (countdownTimer.running) {
-      countdownTimerText.text = Math.round((COUNTDOWN - countdownTimer.ms) / 1000);
-    }  
+      countdownTimerText.text = Math.round((countdownTimerEvent.delay - countdownTimer.ms) / 1000);
+    } else {
+      countdownTimerText.text = '';
+    }
 
-    totalScoreText.text = totalScore;
+    totalScoreText.text = 'Score: ' + totalScore;
   }
 };
+
+function formatTime(s) {
+  let minutes = '0' + Math.floor(s / 60);
+  let seconds = '0' + (s - minutes * 60);
+  return minutes.substr(-2) + ':' + seconds.substr(-2);
+}
 
 // Replaces pipe in current selection box with new random pipe
 function reloadPipe() {
@@ -314,7 +329,6 @@ function selectPipe(pipe, pointer, index, currentIndex) {
     if (!pipe.active) {
       pipeIndex = index;
       currentSelection = currentIndex;
-      canPlace = true;
 
       SFX_selectPipe.play();
       selectionMenu.frame = currentSelection;
@@ -344,7 +358,6 @@ function restartLightflash() {
 
 // Calls functions based on position of active pointer
 function delegate(pointer) {
-  console.log('delegate()');
   if (inputEnabled) {
     if (pointer.x >= GRID_X
       && pointer.x < GRID_X_BOUND
@@ -398,7 +411,7 @@ function syncHealthBar() {
 function levelComplete() {
   inputEnabled = false;
   complete = true;
-  stopObstacles();
+  pauseObstacles();
 
   let currentFrame;
   if (waterFlow) {
@@ -428,9 +441,6 @@ function levelComplete() {
       let startingPipe = grid[startTile.row][startTile.col];
       startWaterFlow(startingPipe);
     } else {
-      console.log(currentPipe);
-      console.log(currentFrame);
-      console.log(animation);
       currentPipe.sprite.animations.play(animation, waterFlowRate); 
       currentPipe.sprite.animations.currentAnim.setFrame(currentFrame, false);    
     }
@@ -541,7 +551,6 @@ function initializeMenu() {
   pipeIndex = boxedPipes[1];
   currentSelection = 1;
   menuPipeArray[1].animations.play('active');
-  canPlace = true;
 }
 
 // Destroys the sprite
@@ -567,8 +576,6 @@ function addPipeToMenu(pipe, index) {
 }
 
 function releaseWater() {
-  console.log(grid);
-
   resetCountdown();
   
   let start = grid[startTile.row][startTile.col];
@@ -626,7 +633,6 @@ function clearGrid() {
 
 function resetLevel(delay) {
   inputEnabled = true;
-  canPlace = true;
   lose = false;
   
   clearPipes();
@@ -639,8 +645,6 @@ function resetLevel(delay) {
 
   game.time.events.add(delay, startCountdown, this);
   game.input.onDown.add(delegate, this);
-
-  console.log(pipeArray);
 }
 
 function resetHealth() {
@@ -654,6 +658,11 @@ function setHealth(amount) {
 }
 
 function resetMenu() {
+  for (let m of menuPipeArray) {
+    m.animations.stop();
+    m.frame = 0;
+    m.active = false;
+  }
   pipeIndex = boxedPipes[1];
   currentSelection = 1;
   menuPipeArray[1].animations.play('active');
@@ -661,16 +670,18 @@ function resetMenu() {
 }
 
 function resetCountdown() {
-  countdownTimer.stop();
-  countdownTimerText.text = ''; 
-  countdownTimer.add(COUNTDOWN, releaseWater, this);
+  countdownTimer.stop(false);
+  countdownTimer = game.time.create();
+  countdownTimerEvent = countdownTimer.add(Phaser.Timer.SECOND * COUNTDOWN, releaseWater, this);
 }
 
 function startCountdown() {
+  canPlace = true;
   countdownTimer.start();
 }
 
 function pauseGame() {
+  countdownRunningMs = countdownTimer.ms;
   countdownTimer.pause();
 
   pauseObstacles();
@@ -685,11 +696,11 @@ function pauseGame() {
 
 function resumeGame() {
   countdownTimer.resume();
-  canPlace = true;
 
   resumeObstacles();  
   resumeCounters();
   togglePipeInput(true);
+  canPlace = true;
 
   if (currentPipe instanceof Pipe) {
     currentPipe.sprite.animations.play(animation, waterFlowRate);

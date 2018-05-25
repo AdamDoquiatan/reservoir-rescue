@@ -963,7 +963,7 @@ function winScreen() {
   contButton.anchor.setTo(0.5);
   contButton.scale.setTo(BUTTON_SCALE_LARGE);
 
-  contButton.inputEnabled = true;
+  contButton.alpha = 0;
 
   contButton.events.onInputUp.add(function () {
     inputEnabled = true;
@@ -981,7 +981,17 @@ function winScreen() {
 
     winHeader.destroy();
     winScreenGroup.destroy(true);
-  }, this);
+   }, this);
+
+  SFX_victorySound.play();
+  SFX_victorySound.onStop.add(function () {
+    SFX_gameMusic.resume();
+    SFX_gameMusic.volume = 0.01;
+    game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
+
+    contButton.alpha = 1;
+    contButton.inputEnabled = true;
+  });
 
   // Restart button 
   // restartButton = winScreenGroup.create(game.world.centerX + 1200, 1300, 'restart');
