@@ -88,22 +88,22 @@ function pauseMenu(sprite, event) {
     });
 
     // Restart button
-    restartButton = pauseScreenGroup.create(game.world.centerX, 1200, 'restart');
-    restartButton.anchor.setTo(0.5);
-    restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-    restartButton.inputEnabled = true;
-    restartButton.events.onInputDown.add(function () {
-      resetLevel(RESTART_DELAY);
-      restartLightflash();
+    // restartButton = pauseScreenGroup.create(game.world.centerX, 1200, 'restart');
+    // restartButton.anchor.setTo(0.5);
+    // restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+    // restartButton.inputEnabled = true;
+    // restartButton.events.onInputDown.add(function () {
+    //   resetLevel(RESTART_DELAY);
+    //   restartLightflash();
 
-      SFX_gameMusic.volume = 0.4;
-      SFX_reset.play();
+    //   SFX_gameMusic.volume = 0.4;
+    //   SFX_reset.play();
 
-      sprite.input.enabled = true;
+    //   sprite.input.enabled = true;
       
-      pauseScreenGroup.destroy();
-      darkFilter.destroy();
-    });
+    //   pauseScreenGroup.destroy();
+    //   darkFilter.destroy();
+    // });
 
     // Menu button
     menuButton = pauseScreenGroup.create(game.world.centerX, 1350, 'menuButton');
