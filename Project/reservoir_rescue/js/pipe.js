@@ -39,13 +39,10 @@ function placePipe() {
         swapPipe(temp);
         resetConnections();
       } else {
-        health -= PENALTY;
-        healthText.text = health;
-        setHealthBar(health);
+        setHealth(health - PENALTY);
       }
 
       let pipe = intializePipe(col, row);
-      onPlacePipe.dispatch();
       SFX_placePipe.play();
 
       if (startPipe === null) {
@@ -260,25 +257,32 @@ function checkObstacles(pipe) {
       o.connectedToPipe = true;
 
       // Draw connector sprite
-      let connector;
       switch (getDirection(pipe, o)) {
         case 1:
-          connector = obstacleGroup.create(pipe.col * GRID_SIZE + GRID_X, pipe.row * GRID_SIZE + GRID_Y - (GRID_SIZE / 2), 'connectu');
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X, 
+            pipe.row * GRID_SIZE + GRID_Y - (GRID_SIZE / 2), 'connectu');
           break;
         case 2:
-          connector = obstacleGroup.create(pipe.col * GRID_SIZE + GRID_X + (GRID_SIZE / 2), pipe.row * GRID_SIZE + GRID_Y, 'connectr');
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X + (GRID_SIZE / 2), 
+            pipe.row * GRID_SIZE + GRID_Y, 'connectr');
           break;
         case 3:
-          connector = obstacleGroup.create(pipe.col * GRID_SIZE + GRID_X, pipe.row * GRID_SIZE + GRID_Y + (GRID_SIZE / 2), 'connectd');
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X, 
+            pipe.row * GRID_SIZE + GRID_Y + (GRID_SIZE / 2), 'connectd');
           break;
         case 4:
-          connector = obstacleGroup.create(pipe.col * GRID_SIZE + GRID_X - (GRID_SIZE / 2), pipe.row * GRID_SIZE + GRID_Y, 'connectl');
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X - (GRID_SIZE / 2), 
+            pipe.row * GRID_SIZE + GRID_Y, 'connectl');
           break;
       }
-      connector.scale.setTo(4);
-      let i = 0;
+      o.connector.scale.setTo(4);
       pipe.sprite.bringToTop();
       o.sprite.bringToTop();
+
       if (!o.timer.running) {
         o.startSap();
       }

@@ -10,30 +10,38 @@ function Obstacle(image, col, row, damage, animationFrames, animationSpeed, time
   this.sprite = null;
   this.direction = null;
   this.timerDuration = timerDuration;
+  this.timer = game.time.create(),
+
   this.displayDamage = function () {
-    health -= this.damage;
-    healthText.text = health;
-    setHealthBar(health);
-    let textStyle = { font: 'bold 30pt Helvetica', fill: 'red', align: 'center', wordWrap: true, wordWrapWidth: 850 };
-    let damageText = game.add.text(colToX(this.col) + 8 * SCALE, rowToY(this.row), '-' + this.damage + 'L', textStyle);
+    setHealth(health - this.damage);
+
+    let textStyle = { 
+      font: 'bold 30pt Helvetica', 
+      fill: 'red', align: 'center', 
+      wordWrap: true, 
+      wordWrapWidth: 850 
+    };
+
+    let damageText = game.add.text(
+      colToX(this.col) + 8 * SCALE, 
+      rowToY(this.row), 
+      '-' + this.damage + 'L', 
+      textStyle);
     damageText.stroke = '#000000';
     damageText.strokeThickness = 7;
+
     let damageTween = game.add.tween(damageText);
     damageTween.to({ alpha: 0, y: this.sprite.y - 16 * SCALE }, 2000, Phaser.Easing.Cubic.Out, true);
+
     damageTween.onComplete.add(function () {
       damageText.destroy();
     }, this);
   };
-  this.timer = game.time.create();
+
   this.startSap = function () {
     this.timer.loop(timerDuration, this.displayDamage, this);
     this.timer.start();
-  }
-  this.stopSap = function () {
-    if (this.timer.running) {
-      this.timer.stop();
-    }
-  }
+  };
 }
 
 function setWarnings() {
@@ -66,4 +74,42 @@ function clearObstacles() {
     grid[o.row][o.col] = null;
     obstacleArray = [];
   }
+}
+
+function pauseObstacles() {
+  for (let o of obstacleArray) {
+    if (o.timer.running) {
+      o.timer.pause();
+    }
+    o.sprite.animations.stop();
+    o.currentFrame = o.sprite.animations.frame;
+  }
+}
+
+function resumeObstacles() {
+  for (let o of obstacleArray) {
+    if (o.timer.paused) {
+      o.timer.resume();
+    }
+    o.sprite.animations.play('active', o.animationSpeed);
+    o.sprite.animations.currentAnim.setFrame(o.currentFrame, false);  
+  }
+}
+
+function resetObstacles() {
+  for (let o of obstacleArray) {
+    o.sprite.animations.frame = 0;
+    if (o.connector) {
+      o.warning.destroy();
+      o.connector.destroy();
+      o.warning = null;
+      o.connector = null;
+    }
+  }
+  setWarnings();
+}
+
+function stopObstacles() {
+  pauseObstacles();
+  resetObstacles();
 }

@@ -1,4 +1,3 @@
-
 const dailyAverage = 440;
 const BUTTON_SCALE = 1.2;
 const BUTTON_SCALE_LARGE = 1.5;
@@ -29,7 +28,7 @@ let obsTextSprink;
 let obsTextSprinkBLine;
 
 function pauseMenu(sprite, event) {
-  pauseTimers();
+  pauseGame();
 
   if (inputEnabled === true) {
     // Turns off input to everything but pause screen
@@ -81,8 +80,9 @@ function pauseMenu(sprite, event) {
       SFX_gameMusic.volume = 0.4;
       inputEnabled = true;
       sprite.input.enabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      resumeTimers();
+      
+      resumeGame();
+
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -93,16 +93,14 @@ function pauseMenu(sprite, event) {
     restartButton.scale.setTo(BUTTON_SCALE_LARGE);
     restartButton.inputEnabled = true;
     restartButton.events.onInputDown.add(function () {
-      clearPipes();
-      SFX_gameMusic.volume = 0.4;
+      resetLevel(RESTART_DELAY);
       restartLightflash();
+
+      SFX_gameMusic.volume = 0.4;
       SFX_reset.play();
-      inputEnabled = true;
+
       sprite.input.enabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      hpBar.frame = hpBar.animations.frameTotal;
-      health = HP;
-      resumeTimers();
+      
       pauseScreenGroup.destroy();
       darkFilter.destroy();
     });
@@ -119,7 +117,6 @@ function pauseMenu(sprite, event) {
 }
 
 function obsScreen1(sprite, event) {
-
 
   // Prevents input to anything but obs screen
   inputEnabled = false;
@@ -246,9 +243,9 @@ function obsScreen1(sprite, event) {
     });
     inputEnabled = true;
     yMod = 0;
-    game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
+
+    resetLevel(OBSTACLE_DELAY);
   }
 }
 
@@ -325,9 +322,9 @@ function obsScreen2(sprite, event) {
     });
     inputEnabled = true;
     yMod = 0;
-    game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
+
+    resetLevel(OBSTACLE_DELAY);
   }
 }
 
@@ -402,13 +399,12 @@ function obsScreen3(sprite, event) {
       elementTween.onComplete.add(function () {
         obsScreen.destroy();
       });
-
     });
     inputEnabled = true;
     yMod = 0;
-    game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
+
+    resetLevel(OBSTACLE_DELAY);
   }
 }
 
@@ -485,9 +481,9 @@ function obsScreen4(sprite, event) {
     });
     inputEnabled = true;
     yMod = 0;
-    game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
+
+    resetLevel(OBSTACLE_DELAY);
   }
 }
 
@@ -565,13 +561,14 @@ function obsScreen5(sprite, event) {
     });
     inputEnabled = true;
     yMod = 0;
-    game.input.onDown.add(delegate, this, 0);
-    game.time.events.add(DELAY, startTimers, this);
     obsScreenActive = false;
+
+    resetLevel(OBSTACLE_DELAY);
   }
 }
 
 function helpScreen(sprite, event) {
+  pauseGame();
 
   // Dark Filter
   helpDarkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
@@ -598,7 +595,7 @@ function helpScreen(sprite, event) {
     yMod = 1000;
     createHelp1();
   } else {
-    pauseTimers();
+    pauseCounters();
     game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
     createHelp1();
     SFX_obsScreenSwooshIn.play();
@@ -785,6 +782,7 @@ function helpScreen(sprite, event) {
 
   // Exits screen. Plays when back button is pressed
   function endHelpScreen(sprite, event) {
+    resumeGame();
 
     if (obsScreenActive) {
       helpScreen.destroy();
@@ -825,8 +823,7 @@ function helpScreen(sprite, event) {
       });
       inputEnabled = true;
       sprite.input.enabled = true;
-      game.input.onDown.add(delegate, this, 0);
-      resumeTimers();
+      resumeCounters();
       yMod = 0;
     }
   }
@@ -953,13 +950,11 @@ function winScreen() {
 
   contButton.events.onInputUp.add(function () {
     inputEnabled = true;
-    game.input.onDown.add(delegate, this, 0);
     darkFilter.destroy();
     if (currentLevelIndex === (levels.length - 1)) {
       submitScreen();
     } else {
       nextLevel();
-      resumeTimers();
     }
     SFX_victorySound.pause();
     restartLightflash();
@@ -972,27 +967,27 @@ function winScreen() {
   }, this);
 
   // Restart button 
-  restartButton = winScreenGroup.create(game.world.centerX + 1200, 1300, 'restart');
-  restartButton.anchor.setTo(0.5);
-  restartButton.scale.setTo(BUTTON_SCALE_LARGE);
-  restartButton.inputEnabled = true;
-  restartButton.events.onInputDown.add(function () {
-    clearPipes();
-    restartLightflash();
-    SFX_victorySound.pause();
-    SFX_reset.play();
-    SFX_gameMusic.volume = 0.4;
-    SFX_gameMusic.resume();
-    inputEnabled = true;
-    game.input.onDown.add(delegate, this, 0);
-    hpBar.frame = hpBar.animations.frameTotal;
-    health = HP;
-    canPlace = true;
-    resumeTimers();
-    winHeader.destroy();
-    winScreenGroup.destroy();
-    darkFilter.destroy();
-  }, this);
+  // restartButton = winScreenGroup.create(game.world.centerX + 1200, 1300, 'restart');
+  // restartButton.anchor.setTo(0.5);
+  // restartButton.scale.setTo(BUTTON_SCALE_LARGE);
+  // restartButton.inputEnabled = true;
+  // restartButton.events.onInputDown.add(function () {
+  //   clearPipes();
+  //   restartLightflash();
+  //   SFX_victorySound.pause();
+  //   SFX_reset.play();
+  //   SFX_gameMusic.volume = 0.4;
+  //   SFX_gameMusic.resume();
+  //   inputEnabled = true;
+  //   game.input.onDown.add(delegate, this, 0);
+  //   hpBar.frame = hpBar.animations.frameTotal;
+  //   health = HP;
+  //   canPlace = true;
+  //   resumeCounters();
+  //   winHeader.destroy();
+  //   winScreenGroup.destroy();
+  //   darkFilter.destroy();
+  // }, this);
 
   // White Filter
   whiteFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'whiteFilter');
@@ -1029,7 +1024,7 @@ function loseScreen() {
   darkFilter.alpha = 1;
 
   // Group for screen components
-  loseScreen = game.add.group();
+  loseScreenGroup = game.add.group();
 
   // Big lose header
   loseHeader = game.add.text(game.world.centerX, 400, "DEFEAT", {
@@ -1053,10 +1048,10 @@ function loseScreen() {
   sadText.anchor.setTo(0.5);
   sadText.stroke = '#000000';
   sadText.strokeThickness = 7;
-  loseScreen.add(sadText);
+  loseScreenGroup.add(sadText);
 
   // Menu Button
-  menuButton = loseScreen.create(game.world.centerX, 1050, 'menuButton');
+  menuButton = loseScreenGroup.create(game.world.centerX, 1050, 'menuButton');
   menuButton.anchor.setTo(0.5);
   menuButton.scale.setTo(BUTTON_SCALE_LARGE);
   menuButton.inputEnabled = true;
@@ -1065,32 +1060,26 @@ function loseScreen() {
   });
 
   // Restart button
-  restartButton = loseScreen.create(game.world.centerX, 1200, 'restart');
+  restartButton = loseScreenGroup.create(game.world.centerX, 1200, 'restart');
   restartButton.anchor.setTo(0.5);
   restartButton.scale.setTo(BUTTON_SCALE_LARGE);
   restartButton.inputEnabled = true;
   restartButton.events.onInputDown.add(function () {
-    clearPipes();
     restartLightflash();
-    SFX_reset.play();
-    inputEnabled = true;
-    game.input.onDown.add(delegate, this, 0);
-    hpBar.frame = hpBar.animations.frameTotal;
-    health = HP;
-    lose = false;
-    canPlace = true;
-    resumeTimers();
 
+    SFX_reset.play();
+    SFX_loseSound.stop();
+    SFX_gameMusic.resume();
+    
     whiteFilter.alpha = 1;
     whiteFilterTween = game.add.tween(whiteFilter);
     whiteFilterTween.to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.Out, true);
 
-    SFX_loseSound.stop();
-    SFX_gameMusic.resume();
-
     loseHeader.destroy();
-    loseScreen.destroy();
+    loseScreenGroup.destroy();
     darkFilter.destroy();
+
+    resetLevel(RESTART_DELAY);
   });
 
   // White Filter
