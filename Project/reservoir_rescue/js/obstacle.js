@@ -88,7 +88,7 @@ function pauseObstacles() {
 
 function resumeObstacles() {
   for (let o of obstacleArray) {
-    if (o.timer.paused) {
+    if (o.timer.paused && o.connec) {
       o.timer.resume();
       o.sprite.animations.play('active', o.animationSpeed);
       o.sprite.animations.currentAnim.setFrame(o.currentFrame, false); 

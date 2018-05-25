@@ -30,7 +30,7 @@ let obsTextSprinkBLine;
 function pauseMenu(sprite, event) {
   pauseGame();
 
-  if (inputEnabled === true) {
+  if (inputEnabled && buttonsEnabled) {
     // Turns off input to everything but pause screen
     inputEnabled = false;
     sprite.input.enabled = false;
@@ -72,7 +72,7 @@ function pauseMenu(sprite, event) {
     pauseScreenGroup.add(tipDisplay);
 
     // Continue button
-    contButton = pauseScreenGroup.create(game.world.centerX, 1050, 'continueButton');
+    contButton = pauseScreenGroup.create(game.world.centerX, 1190, 'continueButton');
     contButton.anchor.setTo(0.5);
     contButton.scale.setTo(BUTTON_SCALE_LARGE);
     contButton.inputEnabled = true;
@@ -183,7 +183,6 @@ function obsScreen1(sprite, event) {
   });
   this.howToPlayButton.events.onInputDown.add(transitionToHelpScreen, this);
 
-
   // Screen BG
   obsBorder = game.add.sprite(game.world.centerX, -300 + yMod, 'borderWindow');
   obsBorder.anchor.setTo(0.5);
@@ -200,6 +199,7 @@ function obsScreen1(sprite, event) {
   }
 
   function transitionToHelpScreen() {
+    inputEnabled = true;
     obsScreen.destroy();
     obsBorder = game.add.sprite(game.world.centerX, 700, 'borderWindow');
     obsBorder.anchor.setTo(0.5);
@@ -280,6 +280,11 @@ function obsScreen2(sprite, event) {
   this.lookOutHeader.strokeThickness = 5;
   obsScreen.add(this.lookOutHeader);
 
+  // Raccoon
+  this.raccoon = game.add.sprite(game.world.centerX + 300, 1150, 'raccoon');
+  this.raccoon.anchor.setTo(0.5);
+  obsScreen.add(this.raccoon); 
+
   // Obstacle text
   this.obsTextSprink = game.add.text(this.game.world.centerX, 800 + yMod, "Leaving the washroom sink running consumes 5 litres of water per minute! Don’t do it!!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 650 });
   this.obsTextSprink.addColor('#3d87ff', 42);
@@ -358,6 +363,11 @@ function obsScreen3(sprite, event) {
   this.lookOutHeader.stroke = '#000000';
   this.lookOutHeader.strokeThickness = 5;
   obsScreen.add(this.lookOutHeader);
+
+  // Raccoon
+  this.raccoon = game.add.sprite(game.world.centerX + 300, 1150, 'raccoon');
+  this.raccoon.anchor.setTo(0.5);
+  obsScreen.add(this.raccoon); 
 
   // Obstacle text
   this.obsTextSprink = game.add.text(this.game.world.centerX, 800 + yMod, "Toilets use up 12 litres of water per flush. That can add up to 21,900 litres per year!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 650 });
@@ -439,6 +449,11 @@ function obsScreen4(sprite, event) {
   this.lookOutHeader.strokeThickness = 5;
   obsScreen.add(this.lookOutHeader);
 
+  // Raccoon
+  this.raccoon = game.add.sprite(game.world.centerX + 300, 1150, 'raccoon');
+  this.raccoon.anchor.setTo(0.5);
+  obsScreen.add(this.raccoon); 
+
   // Obstacle text
   this.obsTextSprink = game.add.text(this.game.world.centerX, 850 + yMod, "Washing machines can squander 60 – 150 litres of water each load! How clean do you need to your clothes to be?! Just turn your socks inside out!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 700 });
   this.obsTextSprink.addColor('#3d87ff', 29);
@@ -518,6 +533,11 @@ function obsScreen5(sprite, event) {
   this.lookOutHeader.strokeThickness = 5;
   obsScreen.add(this.lookOutHeader);
 
+  // Raccoon
+  this.raccoon = game.add.sprite(game.world.centerX + 300, 1150, 'raccoon');
+  this.raccoon.anchor.setTo(0.5);
+  obsScreen.add(this.raccoon); 
+
   // Obstacle text
   this.obsTextSprink = game.add.text(this.game.world.centerX, 900 + yMod, "Showers annihilate up to 15 litres of water per minute. They destroy our water supply and make orphans cry. You must stop thier campaign of terror before it’s too late!", { font: 'bold 42pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 750 });
   this.obsTextSprink.addColor('#3d87ff', 24);
@@ -571,45 +591,48 @@ function obsScreen5(sprite, event) {
 function helpScreen(sprite, event) {
   pauseGame();
 
-  // Dark Filter
-  helpDarkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
-  helpDarkFilter.anchor.setTo(0.5);
-  helpDarkFilter.scale.setTo(4);
-  helpDarkFilter.alpha = 1;
+  if (inputEnabled) {
+    // Dark Filter
+    helpDarkFilter = game.add.sprite(game.world.centerX, game.world.centerY, 'darkFilter');
+    helpDarkFilter.anchor.setTo(0.5);
+    helpDarkFilter.scale.setTo(4);
+    helpDarkFilter.alpha = 1;
 
-  // Tween Dark Filter in
-  helpDarkFilterTween = game.add.tween(helpDarkFilter);
-  helpDarkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
+    // Tween Dark Filter in
+    helpDarkFilterTween = game.add.tween(helpDarkFilter);
+    helpDarkFilterTween.to({ alpha: 1 }, 500, Phaser.Easing.Cubic.Out, true);
 
-  if (inputEnabled === true) {
-    inputEnabled = false;
-    game.input.onDown.removeAll();
+    if (inputEnabled === true) {
+      inputEnabled = false;
+      game.input.onDown.removeAll();
+    }
+
+    // Group for screen componenets
+    var helpScreen = game.add.group();
+
+    var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 620 };
+
+    if (obsScreenActive) {
+      // Screen Border
+      yMod = 1000;
+      createHelp1();
+    } else {
+      pauseCounters();
+      game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
+      createHelp1();
+      SFX_obsScreenSwooshIn.play();
+
+      // Opening screen animation. Auto-plays when game starts
+      helpScreen.forEach(function (element) {
+        var elementTween = game.add.tween(element);
+        elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
+        elementTween.start();
+      });
+
+      yMod = 1000;
+    }
   }
-
-  // Group for screen componenets
-  var helpScreen = game.add.group();
-
-  var textStyle = { font: 'bold 40pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 620 };
-
-  if (obsScreenActive) {
-    // Screen Border
-    yMod = 1000;
-    createHelp1();
-  } else {
-    pauseCounters();
-    game.add.tween(SFX_gameMusic).to({ volume: 0.1 }, 500, Phaser.Easing.Cubic.Out, true).start();
-    createHelp1();
-    SFX_obsScreenSwooshIn.play();
-
-    // Opening screen animation. Auto-plays when game starts
-    helpScreen.forEach(function (element) {
-      var elementTween = game.add.tween(element);
-      elementTween.to({ y: element.position.y + 1000 }, 1000, Phaser.Easing.Elastic.Out, true);
-      elementTween.start();
-    });
-
-    yMod = 1000;
-  }
+  
 
   function createHelp1() {
 

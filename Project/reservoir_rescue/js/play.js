@@ -37,7 +37,7 @@ const WIN_FLOW_RATE = 30;
 const COUNTDOWN = 5;
 
 // Delay before countdown starts from obstacle screen
-const OBSTACLE_DELAY = 1000;
+const OBSTACLE_DELAY = 1200;
 
 // Delay before countdown starts from restart
 const RESTART_DELAY = 500;
@@ -82,6 +82,7 @@ let countdownTimer;
 let countdownTimerText;
 let countdownTimerEvent;
 let totalScoreText;
+let buttonsEnabled = false;
 
 /* Groups */
 
@@ -186,9 +187,11 @@ let playState = {
     this.pauseButton.scale.setTo(SCALE);
     this.pauseButton.inputEnabled = inputEnabled;
     this.pauseButton.events.onInputDown.add(function () {
-      if (yMod === 0) {
-        SFX_gameMusic.volume = 0.1;
-        SFX_pauseButton.play();
+      if (buttonsEnabled) {
+        if (yMod === 0) {
+          SFX_gameMusic.volume = 0.1;
+          SFX_pauseButton.play();
+        }
       }
     }, this);
     this.pauseButton.events.onInputDown.add(pauseMenu, this);
@@ -204,7 +207,11 @@ let playState = {
     this.helpButton.scale.setTo(3);
     this.helpButton.anchor.setTo(0, 0);
     this.helpButton.inputEnabled = inputEnabled;
-    this.helpButton.events.onInputDown.add(helpScreen, this);
+    this.helpButton.events.onInputDown.add(function() {
+      if (buttonsEnabled) {
+        helpScreen();
+      }
+    }, this);
 
     // Water Counter
     this.waterCounter = game.add.sprite(64 * SCALE, 0, 'water_counter');
@@ -218,7 +225,7 @@ let playState = {
 
     // Text styles
     let textStyle = { font: 'bold 45pt Helvetica', fill: 'white', align: 'center', wordWrap: true, wordWrapWidth: 850 };
-    let scoreTextStyle = { font: 'bold 40pt Helvetica', fill: '#f4b342' };
+    let scoreTextStyle = { font: 'bold 40pt Helvetica', fill: 'white' };
 
     // Total score
     totalScoreText = game.add.text(8 * SCALE, 9 * GRID_SIZE + (10 * SCALE), '', scoreTextStyle);
@@ -594,14 +601,10 @@ function nextLevel() {
 
   // Update variables
   totalScore += health;
-  health = HP;
-  canPlace = true;
-  initializePipes();
 
   // Prepare for next level
   clearGrid();
   layer1.destroy(); 
-  resetHealth();
   
   complete = false;
 
@@ -633,6 +636,7 @@ function clearGrid() {
 
 function resetLevel(delay) {
   inputEnabled = true;
+  buttonsEnabled = false;
   lose = false;
   
   clearPipes();
@@ -678,6 +682,7 @@ function resetCountdown() {
 function startCountdown() {
   canPlace = true;
   countdownTimer.start();
+  buttonsEnabled = true;
 }
 
 function pauseGame() {
