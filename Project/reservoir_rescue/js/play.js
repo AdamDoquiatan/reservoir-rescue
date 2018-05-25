@@ -34,7 +34,7 @@ const FLOW_RATE = 3;
 const WIN_FLOW_RATE = 30;
 
 // Countdown before water starts flowing
-const COUNTDOWN = 3000;
+const COUNTDOWN = 10000;
 
 // Delay before countdown starts from obstacle screen
 const OBSTACLE_DELAY = 1000;
@@ -320,6 +320,7 @@ function selectPipe(pipe, pointer, index, currentIndex) {
       selectionMenu.frame = currentSelection;
 
       for (let m of menuPipeArray) {
+        m.animations.stop();
         m.frame = 0;
         m.active = false;
       }
