@@ -1,79 +1,93 @@
-const PIPE_VERTICAL = 'pipev';
-const PIPE_HORIZONTAL = 'pipeh';
-const PIPE_UP_RIGHT = 'pipe1';
-const PIPE_DOWN_RIGHT = 'pipe2';
-const PIPE_LEFT_DOWN = 'pipe3';
-const PIPE_UP_LEFT = 'pipe4';
-
-function Pipe(image, connections, col, row) {
+function Pipe(image, selectImage, connections, col, row) {
     this.image = image;
     this.col = col;
     this.row = row;
     this.connectedToStart = false;
     this.connections = connections;
     this.sprite = null;
-    this.direction = null;
+    this.waterFlow = false;
+    this.selectImage = selectImage;
 }
 
 // Selection of pipes to choose from
 pipeSelection = [
-  new Pipe(PIPE_VERTICAL, [Directions.UP, Directions.DOWN]),
-  new Pipe(PIPE_HORIZONTAL, [Directions.LEFT, Directions.RIGHT]),
-  new Pipe(PIPE_UP_RIGHT, [Directions.UP, Directions.RIGHT]),
-  new Pipe(PIPE_DOWN_RIGHT, [Directions.DOWN, Directions.RIGHT]),
-  new Pipe(PIPE_LEFT_DOWN, [Directions.LEFT, Directions.DOWN]),
-  new Pipe(PIPE_UP_LEFT, [Directions.UP, Directions.LEFT])
+  new Pipe('pipev', 'pipevselect', [Directions.UP, Directions.DOWN]),
+  new Pipe('pipeh', 'pipehselect', [Directions.LEFT, Directions.RIGHT]),
+  new Pipe('pipe1', 'pipe1select', [Directions.UP, Directions.RIGHT]),
+  new Pipe('pipe2', 'pipe2select', [Directions.DOWN, Directions.RIGHT]),
+  new Pipe('pipe3', 'pipe3select', [Directions.LEFT, Directions.DOWN]),
+  new Pipe('pipe4', 'pipe4select', [Directions.UP, Directions.LEFT])
 ];
+
+// Previous pipe checked in pipe connection algorithm
+let previousPipe = null;
+
+let endPipe = null;
+let currentPipe = null;
+let animation = 'forward';
 
 // Places pipe on grid
 function placePipe() {
-  let col = calculateCol();
-  let row = calculateRow();
+  if (canPlace) {
+    let col = calculateCol(); 
+    let row = calculateRow();
 
-  if (canPlaceAt(col, row)) {
-    let temp = grid[row][col];
+    if (canPlaceAt(col, row)) {
+      let temp = grid[row][col];
 
-    if (temp instanceof Pipe) {
-      swapPipe(temp);
-    }
+      if (temp instanceof Pipe) {
+        swapPipe(temp);
+        resetConnections();
+      } else {
+        setHealth(health - PENALTY);
+      }
 
-    let pipe = intializePipe(col, row);
-    SFX_placePipe.play();
+      let pipe = intializePipe(col, row);
+      SFX_placePipe.play();
+      if (firstPipePlaced == false) {
+        hintText.destroy();
+        hintBox.destroy();
+        firstPipePlaced = true;
+      }
 
-    if (startPipe === null) {
-      let startObject = grid[startTile.row][startTile.col];
-      if (startObject instanceof Pipe) {
-        if (startObject.connections.includes(startTile.direction)) {
-          setStartPipe(startObject);
+      if (startPipe === null) {
+        temp = grid[startTile.row][startTile.col];
+        if (temp instanceof Pipe 
+          && checkCollision(temp, startTile) 
+          && temp.connections.includes(startTile.connection)) {
+          startPipe = temp;
+          startPipe.connectedToStart = true;
+        } 
+      }
+
+      if (startPipe !== null) {
+        previousPipe = startPipe;
+        startPipe = connect(getNextPipe(startPipe, 'connectedToStart'));
+      }
+
+      if (startPipe !== null) {
+        if (checkCollision(startPipe, endTile)) {
+          if (startPipe.connections.includes(endTile.connection)) {
+            canPlace = false;
+            endPipe = startPipe;
+            togglePipeInput(false);
+            levelComplete();
+          } 
         }
       }
-    }
-
-    if (startPipe !== null) {
-      checkConnections(startPipe);
-    }
-
-    setWarnings();
-    console.log(grid); 
-    console.log(startPipe);
+      setWarnings();
+    } 
   }
 }
 
 // Connects or disconnects pipe from other pipes
-function checkConnections(pipe) {
-  if (pipe !== null) {
-    if (pipe.connectedToStart) {
-      let adjacentPipes = getAdjacentObjects(pipe, Pipe);
-      for (let p of adjacentPipes) {
-        if (p.connectedToStart) {
-          continue;
-        }
-        if (canConnect(pipe, p)) {
-          setStartPipe(p);
-          checkConnections(p);
-        }
-      }
-    }
+function connect(pipe) {
+  if (pipe === null) {
+    return previousPipe;
+  } else {
+    pipe.connectedToStart = true;
+    previousPipe = pipe;
+    return connect(getNextPipe(pipe, 'connectedToStart'));
   }
 }
 
@@ -87,51 +101,51 @@ function resetConnections() {
 }
 
 // Plays water flow animation
-function startWaterFlow(pipe, previousDirection) {
+function startWaterFlow(pipe) {
+  waterFlow = true;
+
   if (pipe !== null) {
-    let adjacentObstacles = getAdjacentObjects(pipe, Obstacle); 
-    for (let o of adjacentObstacles) {
-      if (!o.connectedToPipe && o.warning) {
-        health -= o.damage;
-        healthText.text = health;
-        o.warning.animations.play('flash');
-        setHealthBar(health);
-        o.connectedToPipe = true;
-      }
-    }
-  }
-
-  let index = pipe.connections.indexOf(previousDirection);
-  let animation = (index === 0) ? 'forward' : 'backward';
-
-  let adjacentPipes = getAdjacentObjects(pipe, Pipe);
+    if (!complete) {
+      checkObstacles(pipe);
+    }  
     
-  pipe.sprite.animations.play(animation);
-  pipe.sprite.animations.getAnimation(animation).onComplete.add(function() {
-    if (checkCollision(pipe, endTile)) {
-      SFX_endFlow.fadeOut(300);
-      SFX_victorySound.play();
-      SFX_victorySound.onStop.add(function () {
-        SFX_gameMusic.volume = 0.1;
-        SFX_gameMusic.resume();
-      });
-      winScreen();
-      return;
-    }
-    if (health <= 0) {
-      SFX_endFlow.fadeOut(200);
-      onLose.dispatch();
-      return;
-    }
-    for (let p of adjacentPipes) {
-      if (p.direction === previousDirection) {
-        continue;
+    currentPipe = pipe;
+    pipe.sprite.animations.play(animation, waterFlowRate);
+    pipe.waterFlow = true;
+    pipe.sprite.inputEnabled = false;
+    pipe.sprite.animations.getAnimation(animation).onComplete.add(function() {
+      let nextPipe = getNextPipe(pipe, 'waterFlow');
+  
+      let index;
+      if (nextPipe !== null) {
+        index = nextPipe.connections.indexOf(invertDirection(getDirection(pipe, nextPipe)));
+      } else if (pipe === endPipe) {
+        index = pipe.connections.indexOf(endTile.connection);
+      } else {
+        onLose.dispatch();
+        return;
       }
-      if (p.connectedToStart && canConnect(pipe, p, p.direction)) {
-        startWaterFlow(p, invertDirection(p.direction));
+
+      animation = (index === 0) ? 'forward' : 'backward'; 
+
+      if (health <= 0) {
+        SFX_endFlow.fadeOut(200);
+        onLose.dispatch();
+        return;
       }
-    }
-  }, this);
+      startWaterFlow(nextPipe);
+    }, this);
+  } else {
+    SFX_endFlow.stop();
+    endFlow = true;   
+    SFX_splash.play();
+    SFX_victorySound.play();
+    SFX_victorySound.onStop.add(function () {
+      SFX_gameMusic.resume();
+      SFX_gameMusic.volume = 0.01;
+      game.add.tween(this.SFX_gameMusic).to({volume:0.1}, 500).start();
+    });
+  }
 }
 
 /* Helper Functions */
@@ -140,7 +154,7 @@ function startWaterFlow(pipe, previousDirection) {
 function canPlaceAt(col, row) {
   return canPlace && (grid[row][col] === null
     || grid[row][col] === undefined
-    || grid[row][col] instanceof Pipe);
+    || (grid[row][col] instanceof Pipe && !grid[row][col].waterFlow));
 }
 
 // Converts active pointer x coordinate to grid column
@@ -157,7 +171,8 @@ function calculateRow() {
 
 // Adds sprite and animations to pipe object and places it on grid
 function intializePipe(col, row) {
-  let pipe = new Pipe(pipeSelection[pipeIndex].image, 
+  let pipe = new Pipe(pipeSelection[pipeIndex].image,
+    pipeSelection[pipeIndex].selectImage, 
     pipeSelection[pipeIndex].connections, col, row);
     
   pipeSwap = true;
@@ -187,20 +202,6 @@ function swapPipe(pipe) {
   pipeSwappedBack.connectedToStart = false;
 }
 
-// Sets the starting pipe to search for other pipes
-function setStartPipe(pipe) {
-  if (pipe !== null) {
-    startPipe = pipe;
-    pipe.connectedToStart = true;
-
-    if (checkCollision(startPipe, endTile)) {
-      if (startPipe.connections.includes(endTile.direction)) {
-        onWin.dispatch();
-      } 
-    }
-  }
-}
-
 // Returns inverse of specified direction
 function invertDirection(direction) {
   switch (direction) {
@@ -217,8 +218,16 @@ function invertDirection(direction) {
 
 // Returns true a pipe can be connected to an adjacent pipe
 function canConnect(pipe, adjacentPipe) {
-  return pipe.connections.includes(adjacentPipe.direction)
-    && adjacentPipe.connections.includes(invertDirection(adjacentPipe.direction));
+  let adjacentPipeDirection = getDirection(pipe, adjacentPipe);
+  return pipe.connections.includes(adjacentPipeDirection)
+    && adjacentPipe.connections.includes(invertDirection(adjacentPipeDirection)); 
+}
+
+// Toggles 
+function togglePipeInput(enabled) {
+  for (let p of pipeArray) {
+    p.sprite.input.enabled = enabled;
+  }
 }
 
 // Clears all pipes from grid
@@ -228,4 +237,70 @@ function clearPipes() {
     grid[p.row][p.col] = null;
     pipeArray = [];
   }
+}
+
+// Returns the next pipe in the sequence of connected pipes
+function getNextPipe(pipe, property) {
+  let adjacentPipes = getAdjacentObjects(pipe, Pipe);
+  for (p of adjacentPipes) {
+    if (p[property]) {
+      continue;
+    }
+    if (canConnect(pipe, p)) {
+      return p;
+    }
+  }
+  return null;
+}
+
+function checkObstacles(pipe) {
+  let adjacentObstacles = getAdjacentObjects(pipe, Obstacle); 
+  for (let o of adjacentObstacles) {
+    if (!o.connectedToPipe && o.warning) {
+      o.sprite.animations.play('active');
+      o.warning.destroy();
+      o.connectedToPipe = true;
+
+      // Draw connector sprite
+      switch (getDirection(pipe, o)) {
+        case 1:
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X, 
+            pipe.row * GRID_SIZE + GRID_Y - (GRID_SIZE / 2), 'connectu');
+          break;
+        case 2:
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X + (GRID_SIZE / 2), 
+            pipe.row * GRID_SIZE + GRID_Y, 'connectr');
+          break;
+        case 3:
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X, 
+            pipe.row * GRID_SIZE + GRID_Y + (GRID_SIZE / 2), 'connectd');
+          break;
+        case 4:
+          o.connector = obstacleGroup.create(
+            pipe.col * GRID_SIZE + GRID_X - (GRID_SIZE / 2), 
+            pipe.row * GRID_SIZE + GRID_Y, 'connectl');
+          break;
+      }
+      o.connector.scale.setTo(4);
+      pipe.sprite.bringToTop();
+      o.sprite.bringToTop();
+
+      if (!o.timer.running) {
+        o.startSap();
+      }
+    }
+  }
+}
+
+function initializePipes() {
+  startPipe = null;
+  endPipe = null;
+  currentPipe = null;
+  animation = 'forward'; 
+  resetConnections();
+  waterFlow = false;
+  waterFlowRate = FLOW_RATE;
 }

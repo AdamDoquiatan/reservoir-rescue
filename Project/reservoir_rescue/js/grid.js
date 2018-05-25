@@ -25,13 +25,13 @@ for (let i = 0; i < TILES_Y; i++) {
 }
 
 let startTile = {
-  direction: Directions.UP,
+  connection: Directions.UP,
   col: 3,
   row: 0
 };
 
 let endTile = {
-  direction: Directions.DOWN,
+  connection: Directions.DOWN,
   col: 3,
   row: 5
 };
@@ -64,30 +64,18 @@ function getAdjacentObjects(object, type) {
 
   temp = checkUp(object);
   if (temp !== null && temp instanceof type) {
-    if (object instanceof Pipe) {
-      temp.direction = Directions.UP;
-    }
     objects.push(temp);
   }
   temp = checkRight(object);
   if (temp !== null && temp instanceof type) {
-    if (object instanceof Pipe) {
-      temp.direction = Directions.RIGHT;
-    }
     objects.push(temp);
   }
   temp = checkDown(object);
   if (temp !== null && temp instanceof type) {
-    if (object instanceof Pipe) {
-      temp.direction = Directions.DOWN;
-    }
     objects.push(temp);
   }
   temp = checkLeft(object);
   if (temp !== null && temp instanceof type) {
-    if (object instanceof Pipe) {
-      temp.direction = Directions.LEFT;
-    }
     objects.push(temp);
   }
 
@@ -124,4 +112,31 @@ function checkLeft(object) {
     return grid[object.row][object.col - 1];
   }
   return null;
+}
+
+// Gets direction from source object to target object
+function getDirection(source, target) {
+  if (source && target !== null) {
+    if (source.col === target.col) {
+      if (source.row > target.row) {
+        return Directions.UP;
+      } else if (source.row < target.row) {
+        return Directions.DOWN;
+      }
+    } else if (source.row === target.row) {
+      if (source.col < target.col) {
+        return Directions.RIGHT;
+      } else if (source.col > target.col) {
+        return Directions.LEFT;
+      }
+    }
+  }
+}
+
+function colToX(col) {
+  return col * GRID_SIZE + GRID_X;
+}
+
+function rowToY(row) {
+  return row * GRID_SIZE + GRID_Y;
 }
