@@ -1,7 +1,11 @@
 var bootState = {
   create: function () {
     // Scales game window
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    if (window.matchMedia("(min-width: 700px)").matches) {
+      game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    } else {
+      game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+    }
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
     game.stage.smoothed = false;
