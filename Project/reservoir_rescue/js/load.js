@@ -45,6 +45,7 @@ var loadState = {
     game.load.spritesheet('connectr', 'assets/images/connectr.png', 32, 32);
     game.load.spritesheet('connectd', 'assets/images/connectd.png', 32, 32);
     game.load.spritesheet('connectl', 'assets/images/connectl.png', 32, 32);
+    game.load.image('raccoon', 'assets/images/raccoon.png');
 
     // Tilemaps
     game.load.image('tileset', 'assets/maps/tileset.png');
